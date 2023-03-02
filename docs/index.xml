@@ -2,16 +2,16 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>arduin.io</title>
-    <link>https://rdnfn.github.io/website/</link>
+    <link>https://arduin.io/</link>
     <description>Recent content on arduin.io</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://rdnfn.github.io/website/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language><atom:link href="https://arduin.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>PaperMod and Hugo tweaks</title>
-      <link>https://rdnfn.github.io/website/papermod-tweaks/</link>
+      <link>https://arduin.io/papermod-tweaks/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://rdnfn.github.io/website/papermod-tweaks/</guid>
+      <guid>https://arduin.io/papermod-tweaks/</guid>
       <description>On this short page I describe some of the tweaks I used to set up this Hugo PaperMod site. This page also serves as a reminder to myself about what I did.
 FAQ How can I easily change the size of images?
 You need to allow unsafe rendering in the markdown renderer. As I am the only person adding and adapting content on this page this seemed to me to be a sensible thing to do.</description>
@@ -19,10 +19,10 @@ You need to allow unsafe rendering in the markdown renderer. As I am the only pe
     
     <item>
       <title>Research</title>
-      <link>https://rdnfn.github.io/website/research/</link>
+      <link>https://arduin.io/research/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://rdnfn.github.io/website/research/</guid>
+      <guid>https://arduin.io/research/</guid>
       <description>My current research focuses on how machine learning (ML) methods that generalise to solve problems at scale. In research settings, ML methods are often custom-tuned for particular problem instances without a clear path to scale. My work focuses on methods that generalise across problem instances and thus enable scale. In particular, I am currently looking at how meta reinforcement learning can help create adaptable building controllers that generalise across buildings to achieve new level of scale.</description>
     </item>
     
