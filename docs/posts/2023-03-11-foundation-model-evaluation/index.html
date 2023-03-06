@@ -1,0 +1,2714 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>How to evaluate a language model | arduin.io</title>
+<meta name="keywords" content="">
+<meta name="description" content="Draft version (v0.1): this post is currently a public draft. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
+Disclaimer: I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).
+Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation.">
+<meta name="author" content="Arduin Findeis">
+<link rel="canonical" href="https://arduin.io/posts/2023-03-11-foundation-model-evaluation/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.a751b05478ee89604003e5acef7bfa6c78f3d499cc3d50a3b2b49aa9e2ba9c3e.css" integrity="sha256-p1GwVHjuiWBAA&#43;Ws73v6bHjz1JnMPVCjsrSaqeK6nD4=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js" integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG&#43;9vmJ0cTS&#43;ovo0FeA="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://arduin.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://arduin.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://arduin.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://arduin.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:title" content="How to evaluate a language model" />
+<meta property="og:description" content="Draft version (v0.1): this post is currently a public draft. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
+Disclaimer: I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).
+Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://arduin.io/posts/2023-03-11-foundation-model-evaluation/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-03-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-03-06T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="How to evaluate a language model"/>
+<meta name="twitter:description" content="Draft version (v0.1): this post is currently a public draft. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
+Disclaimer: I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).
+Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://arduin.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "How to evaluate a language model",
+      "item": "https://arduin.io/posts/2023-03-11-foundation-model-evaluation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to evaluate a language model",
+  "name": "How to evaluate a language model",
+  "description": "Draft version (v0.1): this post is currently a public draft. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.\nDisclaimer: I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).\nIntroduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation.",
+  "keywords": [
+    
+  ],
+  "articleBody": " Draft version (v0.1): this post is currently a public draft. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.\nDisclaimer: I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).\nIntroduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation. This diversity of tasks means that no single metric can capture overall language model performance. Even for individual tasks, it can be difficult to come up with well-setup benchmarks to measure performance. Some benchmarks have been shown to allow models to achieve top performance without truly mastering the underlying tasks (Citation: Niven \u0026 Kao, 2019 Niven, T. \u0026 Kao, H. (2019). Probing Neural Network Comprehension of Natural Language Arguments. Association for Computational Linguistics. https://doi.org/10.18653/v1/P19-1459 ; Citation: Zellers, Holtzman et al., 2019 Zellers, R., Holtzman, A., Bisk, Y., Farhadi, A. \u0026 Choi, Y. (2019). HellaSwag: Can a Machine Really Finish Your Sentence?. https://doi.org/10.48550/arXiv.1905.07830 ). Unintended statistical biases in the training data can allow superficial learning using (basically) just word counts – without solving the intended (more complex) linguistic task. Yet, as LMs become ever more capable and see real-world deployment, reliable and interpretable evaluation methods only become more important.\nIn this post, I investigate how language models (LMs) are currently being evaluated and attempt to provide an overview of popular natural language processing (NLP) benchmarks publicly available for this purpose. In particular, I focus on scalable evaluation methods that do not require direct human feedback. I use the evaluation methodology of InstructGPT (Citation: Ouyang, Wu et al., 2022 Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F., Miller, L., Simens, M., Askell, A., Welinder, P., Christiano, P., Leike, J. \u0026 Lowe, R. (2022). Training language models to follow instructions with human feedback. Retrieved from http://arxiv.org/abs/2203.02155 ) (closely related to OpenAI’s ChatGPT models) as an illustrative example of methods currently used. The aim behind InstructGPT (and related large language models) is to provide a multi-purpose model that can be used for a diverse set of downstream tasks. This diversity is also reflected in the kind of benchmarks these models are tested on.\nFor this post, I split these benchmarks into two categories: task-specific and alignment benchmarks. Task-specific benchmarks attempt to evaluate the models ability to perform specific tasks, such as translation or discrete reasoning. Each benchmark typically covers one such task. Alignment benchmarks on the other hand cover additional text charateristics we would like our LM output to have, such as not being racist or being unbiased. These additional characteristics can be more difficult to rigorously define and test for. Nevertheless, these characteristics are very important for deploying LMs safely.\nTask-specific benchmarks Below is a list of some of the task-specific benchmarks used for InstructGPT.\nSQuAD\n(Citation: Rajpurkar, Jia et al., 2018 Rajpurkar, P., Jia, R. \u0026 Liang, P. (2018). Know What You Don’t Know: Unanswerable Questions for SQuAD. https://doi.org/10.48550/arXiv.1806.03822 ) The Stanford Question Answering Dataset (SQuAD) v2.0 consists of a large corpus of small text excerpts from Wikipedia articles (100,000+). Each text has corresponding questions and anwers created by crowdworkers. The original SQuAD v1.0 (Citation: Rajpurkar, Zhang et al., 2016 Rajpurkar, P., Zhang, J., Lopyrev, K. \u0026 Liang, P. (2016). SQuAD: 100,000+ Questions for Machine Comprehension of Text. https://doi.org/10.48550/arXiv.1606.05250 ) was improved in v2.0 to include unanswerable questions. See example questions from both papers below. Answerable questions (v1.0). Figure from Citation: Rajpurkar, Zhang et al. (2016 Rajpurkar, P., Zhang, J., Lopyrev, K. \u0026 Liang, P. (2016). SQuAD: 100,000+ Questions for Machine Comprehension of Text. https://doi.org/10.48550/arXiv.1606.05250 ). Unanswerable questions (v2.0). Figure from Citation: Rajpurkar, Jia et al. (2018 Rajpurkar, P., Jia, R. \u0026 Liang, P. (2018). Know What You Don’t Know: Unanswerable Questions for SQuAD. https://doi.org/10.48550/arXiv.1806.03822 ). DROP\n(Citation: Dua, Wang et al., 2019 Dua, D., Wang, Y., Dasigi, P., Stanovsky, G., Singh, S. \u0026 Gardner, M. (2019). DROP: A Reading Comprehension Benchmark Requiring Discrete Reasoning Over Paragraphs. https://doi.org/10.48550/arXiv.1903.00161 ) The DROP dataset aims to assess models’ ability in discrete reasoning over text in a paragraph (DROP). The dataset consists of 96,000 questions. Given a passage of text, the model is given a question that requires reasoning using discrete operations such as addition, counting, or sorting. See example questions below. Top four reasoning operation example. Figure from Citation: Dua, Wang et al. (2019 Dua, D., Wang, Y., Dasigi, P., Stanovsky, G., Singh, S. \u0026 Gardner, M. (2019). DROP: A Reading Comprehension Benchmark Requiring Discrete Reasoning Over Paragraphs. https://doi.org/10.48550/arXiv.1903.00161 ).\nHellaSwag\n(Citation: Zellers, Holtzman et al., 2019 Zellers, R., Holtzman, A., Bisk, Y., Farhadi, A. \u0026 Choi, Y. (2019). HellaSwag: Can a Machine Really Finish Your Sentence?. https://doi.org/10.48550/arXiv.1905.07830 ) The HellaSwag dataset consists of 70,000 questions attempting to evaluate the commonsense natural language inference ability of a model. Given a text fragment referred to as context, the model is asked to select the most plausible of multiple possible endings. HellaSwag is an extension of the SWAG data set by Citation: Zellers, Bisk et al. (2018 Zellers, R., Bisk, Y., Schwartz, R. \u0026 Choi, Y. (2018). SWAG: A Large-Scale Adversarial Dataset for Grounded Commonsense Inference. https://doi.org/10.48550/arXiv.1808.05326 ). In addition to the text data from video captioning used in SWAG, HellaSwag adds text data from WikiHow. Both datasets use adverserial filtering to address the issue of annotation artifacts, where human labellers leave unintended biases in wrong labels. During the data generation a generator and a discriminator model are jointly used to filter out endings that are too easy to distinguish. With this iterative process, this data set provides a template how to come up with more challenging data sets for ever more capable language models. Example question answered by a BERT model, once correct (blue) and once incorrect (red). The bold text indicates the correct answer. Figure from Citation: Zellers, Holtzman et al. (2019 Zellers, R., Holtzman, A., Bisk, Y., Farhadi, A. \u0026 Choi, Y. (2019). HellaSwag: Can a Machine Really Finish Your Sentence?. https://doi.org/10.48550/arXiv.1905.07830 ).\nWMT 2015 French to English translation\n(Citation: Bojar, Chatterjee et al., 2015 Bojar, O., Chatterjee, R., Federmann, C., Haddow, B., Huck, M., Hokamp, C., Koehn, P., Logacheva, V., Monz, C., Negri, M., Post, M., Scarton, C., Specia, L. \u0026 Turchi, M. (2015). Findings of the 2015 Workshop on Statistical Machine Translation. Proceedings of the Tenth Workshop on Statistical Machine Translation. 1–46. Retrieved from https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation ) A dataset challenges a model to translate from french text to english text. In the original workshop, models were evaluated using human annotators that make a pairwise comparison of the translation of the same text by different systems. For purpose of evaluating InstructGPT instead of the human evaluation the automatic translation quality score BLEU (Citation: Papineni, Roukos et al., 2002 Papineni, K., Roukos, S., Ward, T. \u0026 Zhu, W. (2002). BLEU: a method for automatic evaluation of machine translation. ) was used. Screenshot of human evaluation interface with example translation task from Russian to English. Figure from Citation: Bojar, Chatterjee et al. (2015 Bojar, O., Chatterjee, R., Federmann, C., Haddow, B., Huck, M., Hokamp, C., Koehn, P., Logacheva, V., Monz, C., Negri, M., Post, M., Scarton, C., Specia, L. \u0026 Turchi, M. (2015). Findings of the 2015 Workshop on Statistical Machine Translation. Proceedings of the Tenth Workshop on Statistical Machine Translation. 1–46. Retrieved from https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation ).\nAlignment benchmarks In addition to solving a primary task like creating good autocomplete suggestions, we likely also want to make sure that the generated text is not racist or insulting. A number of dedicated benchmarks were created to adress these secondary human alignment considerations.\nRealToxicityPrompts\n(Citation: Gehman, Gururangan et al., 2020 Gehman, S., Gururangan, S., Sap, M., Choi, Y. \u0026 Smith, N. (2020). RealToxicityPrompts: Evaluating Neural Toxic Degeneration in Language Models. https://doi.org/10.48550/arXiv.2009.11462 ) RealToxicityPrompts consists of 100,000 partial sentences that, when comleted by an LM, may result in racist, sexist or otherwise toxic language. The prompts are given to the LM in a conditional language generation (or auto complete) task. The Perspective API is used to evaluate the toxicity. The use of this external API as a black-box evaluation method means that the results may not be reproducible - as the API’s output may change or be discontinued. More generally, as the authors point out, current methods are unable to adapt an LM to never say toxic things. This limitations presents serious challenges for the safe deployment of LM-based applications. Prompts from the RealToxicityPrompts data set. Figure from Citation: Gehman, Gururangan et al. (2020 Gehman, S., Gururangan, S., Sap, M., Choi, Y. \u0026 Smith, N. (2020). RealToxicityPrompts: Evaluating Neural Toxic Degeneration in Language Models. https://doi.org/10.48550/arXiv.2009.11462 ).\nWinogender\n(Citation: Rudinger, Naradowsky et al., 2018 Rudinger, R., Naradowsky, J., Leonard, B. \u0026 Van Durme, B. (2018). Gender Bias in Coreference Resolution. https://doi.org/10.48550/arXiv.1804.09301 ) The Winogender data set aims to detect gender bias in language models. The data set consists of a number of similar sentences that reference occupations and their gender. For the evaluation of InstructGPT (as far as I understand it), pairs of the sentences that only vary in gender were considered. Then the relative probability of produce one of the sentences was computed, to see for example if the model thought paramedics are more likely to be male.\nWinogender example. Figure from Citation: Rudinger, Naradowsky et al. (2018 Rudinger, R., Naradowsky, J., Leonard, B. \u0026 Van Durme, B. (2018). Gender Bias in Coreference Resolution. https://doi.org/10.48550/arXiv.1804.09301 ).\nCrowS-Pairs\n(Citation: Nangia, Vania et al., 2020 Nangia, N., Vania, C., Bhalerao, R. \u0026 Bowman, S. (2020). CrowS-Pairs: A Challenge Dataset for Measuring Social Biases in Masked Language Models. https://doi.org/10.48550/arXiv.2010.00133 ) The CrowS-Pairs dataset consists of 1508 pairs of sentences, each with one more stereotyping than the other. The pairs cover various bias including race, religion and age. In the context of InstructGPT, the dataset is used similarly to Winogender: the probability of computing the more stereotyping sentence is computed. CrowS-Pairs. Figure from Citation: Nangia, Vania et al. (2020 Nangia, N., Vania, C., Bhalerao, R. \u0026 Bowman, S. (2020). CrowS-Pairs: A Challenge Dataset for Measuring Social Biases in Masked Language Models. https://doi.org/10.48550/arXiv.2010.00133 ).\nTruthfulQA\n(Citation: Lin, Hilton et al., 2022 Lin, S., Hilton, J. \u0026 Evans, O. (2022). TruthfulQA: Measuring How Models Mimic Human Falsehoods. https://doi.org/10.48550/arXiv.2109.07958 ) The TruthfulQA benchmark consists of 817 questions, each crafted such that some humans might answer them incorrectly due to misconceptions. The authors used both human and automated evaluation to assess the truthfullness of model answers. They demonstrated that a finetuned GPT-3 model was 90-96% accurate in detecting truthfulness of answers by other models. TruthfulQA examples. Figure from Citation: Lin, Hilton et al. (2022 Lin, S., Hilton, J. \u0026 Evans, O. (2022). TruthfulQA: Measuring How Models Mimic Human Falsehoods. https://doi.org/10.48550/arXiv.2109.07958 ).\nIn addition to the benchmarks described above, InstructGPT was also evaluated on the following benchmarks: SST (Citation: Socher, Perelygin et al., 2013 Socher, R., Perelygin, A., Wu, J., Chuang, J., Manning, C., Ng, A. \u0026 Potts, C. (2013). Recursive deep models for semantic compositionality over a sentiment treebank. ), RTE and WSC parts of SuperGLUE (Citation: Wang, Pruksachatkun et al., 2019 Wang, A., Pruksachatkun, Y., Nangia, N., Singh, A., Michael, J., Hill, F., Levy, O. \u0026 Bowman, S. (2019). SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems. Curran Associates, Inc.. Retrieved from https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html ), CNN/Daily Mail Summarization (Citation: Nallapati, Zhou et al., 2016 Nallapati, R., Zhou, B., santos, C., Gulcehre, C. \u0026 Xiang, B. (2016). Abstractive Text Summarization Using Sequence-to-Sequence RNNs and Beyond. https://doi.org/10.48550/arXiv.1602.06023 ), and Reddit TLDR Summarization (Citation: Völske, Potthast et al., 2017 Völske, M., Potthast, M., Syed, S. \u0026 Stein, B. (2017). Tl; dr: Mining reddit to learn automatic summarization. ). These were out-of-scope for this version of the post but may be added at a later date.\nInstructGPT automatic evaluation results Whilst the ChatGPT results on these benchmarks are unkown, we can look at the results of InstructGPT to get glimpse of the likely capabilities of ChatGPT. The figure below is taken from the InstructGPT paper (Citation: Ouyang, Wu et al., 2022 Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F., Miller, L., Simens, M., Askell, A., Welinder, P., Christiano, P., Leike, J. \u0026 Lowe, R. (2022). Training language models to follow instructions with human feedback. Retrieved from http://arxiv.org/abs/2203.02155 ).\nResults of InstructGPT on public NLP benchmarks. Figure from Citation: Ouyang, Wu et al. (2022 Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F., Miller, L., Simens, M., Askell, A., Welinder, P., Christiano, P., Leike, J. \u0026 Lowe, R. (2022). Training language models to follow instructions with human feedback. Retrieved from http://arxiv.org/abs/2203.02155 ).\nConclusion In this post, I gave an overview of some of the NLP benchmarks used for evaluating modern language models (LMs), such as InstructGPT. Despite best efforts and in many ways impressive performance, the output of current state-of-the-art LMs often fails to satisfy many desirable characterics, such as truthfulness. Reliably quantifying these issues presents on important step towards building better LMs and developing downstream applications. Adaptive benchmarks, such as HellaSwag with adverserial filtering (Citation: Zellers, Holtzman et al., 2019 Zellers, R., Holtzman, A., Bisk, Y., Farhadi, A. \u0026 Choi, Y. (2019). HellaSwag: Can a Machine Really Finish Your Sentence?. https://doi.org/10.48550/arXiv.1905.07830 ), present a promising direction to creating benchmarks that co-evolve as models grow more and more powerful.\nAcknowledgements I would like to thank Simon Mathis for pointing me to the excellent paper by Citation: Niven \u0026 Kao (2019 Niven, T. \u0026 Kao, H. (2019). Probing Neural Network Comprehension of Natural Language Arguments. Association for Computational Linguistics. https://doi.org/10.18653/v1/P19-1459 ).\nReferences Bojar, O., Chatterjee, R., Federmann, C., Haddow, B., Huck, M., Hokamp, C., Koehn, P., Logacheva, V., Monz, C., Negri, M., Post, M., Scarton, C., Specia, L. \u0026 Turchi, M. (2015). Findings of the 2015 Workshop on Statistical Machine Translation. Proceedings of the Tenth Workshop on Statistical Machine Translation. 1–46. Retrieved from https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation Dua, D., Wang, Y., Dasigi, P., Stanovsky, G., Singh, S. \u0026 Gardner, M. (2019). DROP: A Reading Comprehension Benchmark Requiring Discrete Reasoning Over Paragraphs. https://doi.org/10.48550/arXiv.1903.00161 Gehman, S., Gururangan, S., Sap, M., Choi, Y. \u0026 Smith, N. (2020). RealToxicityPrompts: Evaluating Neural Toxic Degeneration in Language Models. https://doi.org/10.48550/arXiv.2009.11462 Lin, S., Hilton, J. \u0026 Evans, O. (2022). TruthfulQA: Measuring How Models Mimic Human Falsehoods. https://doi.org/10.48550/arXiv.2109.07958 Nallapati, R., Zhou, B., santos, C., Gulcehre, C. \u0026 Xiang, B. (2016). Abstractive Text Summarization Using Sequence-to-Sequence RNNs and Beyond. https://doi.org/10.48550/arXiv.1602.06023 Nangia, N., Vania, C., Bhalerao, R. \u0026 Bowman, S. (2020). CrowS-Pairs: A Challenge Dataset for Measuring Social Biases in Masked Language Models. https://doi.org/10.48550/arXiv.2010.00133 Niven, T. \u0026 Kao, H. (2019). Probing Neural Network Comprehension of Natural Language Arguments. Association for Computational Linguistics. https://doi.org/10.18653/v1/P19-1459 Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F., Miller, L., Simens, M., Askell, A., Welinder, P., Christiano, P., Leike, J. \u0026 Lowe, R. (2022). Training language models to follow instructions with human feedback. Retrieved from http://arxiv.org/abs/2203.02155 Papineni, K., Roukos, S., Ward, T. \u0026 Zhu, W. (2002). BLEU: a method for automatic evaluation of machine translation. Rajpurkar, P., Zhang, J., Lopyrev, K. \u0026 Liang, P. (2016). SQuAD: 100,000+ Questions for Machine Comprehension of Text. https://doi.org/10.48550/arXiv.1606.05250 Rajpurkar, P., Jia, R. \u0026 Liang, P. (2018). Know What You Don’t Know: Unanswerable Questions for SQuAD. https://doi.org/10.48550/arXiv.1806.03822 Rudinger, R., Naradowsky, J., Leonard, B. \u0026 Van Durme, B. (2018). Gender Bias in Coreference Resolution. https://doi.org/10.48550/arXiv.1804.09301 Socher, R., Perelygin, A., Wu, J., Chuang, J., Manning, C., Ng, A. \u0026 Potts, C. (2013). Recursive deep models for semantic compositionality over a sentiment treebank. Völske, M., Potthast, M., Syed, S. \u0026 Stein, B. (2017). Tl; dr: Mining reddit to learn automatic summarization. Wang, A., Pruksachatkun, Y., Nangia, N., Singh, A., Michael, J., Hill, F., Levy, O. \u0026 Bowman, S. (2019). SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems. Curran Associates, Inc.. Retrieved from https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html Zellers, R., Bisk, Y., Schwartz, R. \u0026 Choi, Y. (2018). SWAG: A Large-Scale Adversarial Dataset for Grounded Commonsense Inference. https://doi.org/10.48550/arXiv.1808.05326 Zellers, R., Holtzman, A., Bisk, Y., Farhadi, A. \u0026 Choi, Y. (2019). HellaSwag: Can a Machine Really Finish Your Sentence?. https://doi.org/10.48550/arXiv.1905.07830 ",
+  "wordCount" : "2625",
+  "inLanguage": "en",
+  "datePublished": "2023-03-06T00:00:00Z",
+  "dateModified": "2023-03-06T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Arduin Findeis"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://arduin.io/posts/2023-03-11-foundation-model-evaluation/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "arduin.io",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://arduin.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://arduin.io/" accesskey="h" title="arduin.io (Alt + H)">arduin.io</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://arduin.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/research" title="Research">
+                    <span>Research</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/rdnfn" title="GitHub">
+                    <span>GitHub</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <link rel="stylesheet" type="text/css" href="/hugo-cite.css" />
+    <h1 class="post-title">
+      How to evaluate a language model
+    </h1>
+    <div class="post-meta"><span title='2023-03-06 00:00:00 +0000 UTC'>March 6, 2023</span>&nbsp;·&nbsp;13 min&nbsp;·&nbsp;Arduin Findeis
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#introduction" aria-label="Introduction">Introduction</a><ul>
+                        
+                <li>
+                    <a href="#task-specific-benchmarks" aria-label="Task-specific benchmarks">Task-specific benchmarks</a></li>
+                <li>
+                    <a href="#alignment-benchmarks" aria-label="Alignment benchmarks">Alignment benchmarks</a></li>
+                <li>
+                    <a href="#instructgpt-automatic-evaluation-results" aria-label="InstructGPT automatic evaluation results">InstructGPT automatic evaluation results</a></li></ul>
+                </li>
+                <li>
+                    <a href="#conclusion" aria-label="Conclusion">Conclusion</a></li>
+                <li>
+                    <a href="#acknowledgements" aria-label="Acknowledgements">Acknowledgements</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p><strong>Draft version (v0.1):</strong> this post is currently a <em>public draft</em>. Improvement suggestions are welcome and can be sent to <code>contact (at) arduin.io</code>.</p>
+</blockquote>
+<blockquote>
+<p><em><strong>Disclaimer:</strong> I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).</em></p>
+</blockquote>
+<h2 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h2>
+<p><em>Language models</em> (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation. This diversity of tasks means that no single metric can capture overall language model performance. Even for individual tasks, it can be difficult to come up with well-setup benchmarks to measure performance. Some benchmarks have been shown to allow models to achieve top performance <em>without</em> truly mastering the underlying tasks 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#niven2019probingneuralnetwork"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Timothy"><span itemprop="familyName">Niven</span></span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Hung-Yu"><span itemprop="familyName">Kao</span></span>,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Niven</span>,&#32;
+    <meta itemprop="givenName" content="Timothy" />
+    T.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kao</span>,&#32;
+    <meta itemprop="givenName" content="Hung-Yu" />
+    H.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>Probing Neural Network Comprehension of Natural Language Arguments</i></span>.
+  <meta itemprop="contentLocation"
+        content="Florence, Italy">&#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Association for Computational Linguistics</span></span>.
+  <a href="https://doi.org/10.18653/v1/P19-1459"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.18653/v1/P19-1459</a></span>
+
+</span></span>;&#32;<span class="hugo-cite-group"><a href="#zellers2019hellaswagcanmachine"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rowan"><span itemprop="familyName">Zellers</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ari"><span itemprop="familyName">Holtzman</span></span>
+                et al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zellers</span>,&#32;
+    <meta itemprop="givenName" content="Rowan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Holtzman</span>,&#32;
+    <meta itemprop="givenName" content="Ari" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bisk</span>,&#32;
+    <meta itemprop="givenName" content="Yonatan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Farhadi</span>,&#32;
+    <meta itemprop="givenName" content="Ali" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">HellaSwag: Can a Machine Really Finish Your Sentence?</span>.
+  <a href="https://doi.org/10.48550/arXiv.1905.07830"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1905.07830</a></span>
+
+
+
+
+</span></span>)</span>. Unintended statistical biases in the training data can allow superficial learning using (basically) just word counts &ndash; without solving the intended (more complex) linguistic task. Yet, as LMs become ever more capable and see real-world deployment, reliable and interpretable evaluation methods only become more important.</p>
+<p>In this post, I investigate how <em>language models</em> (LMs) are currently being evaluated and attempt to provide an overview of popular <em>natural language processing</em> (NLP) benchmarks publicly available for this purpose. In particular, I focus on scalable evaluation methods that <em>do not</em> require direct human feedback. I use the evaluation methodology of <em>InstructGPT</em> 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#ouyang2022traininglanguagemodels"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Long"><span itemprop="familyName">Ouyang</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jeff"><span itemprop="familyName">Wu</span></span>
+                et al.,&#32;<span itemprop="datePublished">2022</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ouyang</span>,&#32;
+    <meta itemprop="givenName" content="Long" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Jeff" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jiang</span>,&#32;
+    <meta itemprop="givenName" content="Xu" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Almeida</span>,&#32;
+    <meta itemprop="givenName" content="Diogo" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wainwright</span>,&#32;
+    <meta itemprop="givenName" content="Carroll L." />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mishkin</span>,&#32;
+    <meta itemprop="givenName" content="Pamela" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Chong" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Agarwal</span>,&#32;
+    <meta itemprop="givenName" content="Sandhini" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Slama</span>,&#32;
+    <meta itemprop="givenName" content="Katarina" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ray</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Schulman</span>,&#32;
+    <meta itemprop="givenName" content="John" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hilton</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kelton</span>,&#32;
+    <meta itemprop="givenName" content="Fraser" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Miller</span>,&#32;
+    <meta itemprop="givenName" content="Luke" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Simens</span>,&#32;
+    <meta itemprop="givenName" content="Maddie" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Askell</span>,&#32;
+    <meta itemprop="givenName" content="Amanda" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Welinder</span>,&#32;
+    <meta itemprop="givenName" content="Peter" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Christiano</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Leike</span>,&#32;
+    <meta itemprop="givenName" content="Jan" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lowe</span>,&#32;
+    <meta itemprop="givenName" content="Ryan" />
+    R.</span>
+  &#32;
+    (<span itemprop="datePublished">2022</span>).
+  &#32;<span itemprop="name">Training language models to follow instructions with human feedback</span>.&#32;Retrieved from&#32;
+  <a href="http://arxiv.org/abs/2203.02155"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">http://arxiv.org/abs/2203.02155</a></span>
+
+
+
+
+</span></span>)</span> (closely related to OpenAI&rsquo;s <a href="https://openai.com/blog/chatgpt"><em>ChatGPT</em></a> models) as an illustrative example of methods currently used. The aim behind InstructGPT (and related large language models) is to provide a multi-purpose model that can be used for a diverse set of downstream tasks. This diversity is also reflected in the kind of benchmarks these models are tested on.</p>
+<p>For this post, I split these benchmarks into two categories: <strong>task-specific</strong> and <strong>alignment</strong> benchmarks. Task-specific benchmarks attempt to evaluate the models ability to perform specific tasks, such as translation or discrete reasoning. Each benchmark typically covers one such task. Alignment benchmarks on the other hand cover additional text charateristics we would like our LM output to have, such as <em>not being racist</em> or <em>being unbiased</em>. These additional characteristics can be more difficult to rigorously define and test for. Nevertheless, these characteristics are very important for deploying LMs safely.</p>
+<h3 id="task-specific-benchmarks">Task-specific benchmarks<a hidden class="anchor" aria-hidden="true" href="#task-specific-benchmarks">#</a></h3>
+<p>Below is a list of some of the task-specific benchmarks used for InstructGPT.</p>
+<style>
+td {
+  vertical-align: top;
+}
+figure {
+    display: inline-block;
+}
+img {
+    box-shadow: 0 0px 14px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 6px !important;
+    padding: 8px;
+    background: white;
+}
+</style>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SQuAD</strong><br>
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#rajpurkar2018knowwhatyou"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Robin"><span itemprop="familyName">Jia</span></span>
+                et al.,&#32;<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jia</span>,&#32;
+    <meta itemprop="givenName" content="Robin" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Know What You Don&rsquo;t Know: Unanswerable Questions for SQuAD</span>.
+  <a href="https://doi.org/10.48550/arXiv.1806.03822"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1806.03822</a></span>
+
+
+
+
+</span></span>)</span></td>
+<td>The <em>Stanford Question Answering Dataset</em> (SQuAD) v2.0 consists of a large corpus of small text excerpts from Wikipedia articles (100,000+). Each text has corresponding questions and anwers created by crowdworkers. The original SQuAD v1.0 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#rajpurkar2016squad100000"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jian"><span itemprop="familyName">Zhang</span></span>
+                et al.,&#32;<span itemprop="datePublished">2016</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Jian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lopyrev</span>,&#32;
+    <meta itemprop="givenName" content="Konstantin" />
+    K.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2016</span>).
+  &#32;<span itemprop="name">SQuAD: 100,000+ Questions for Machine Comprehension of Text</span>.
+  <a href="https://doi.org/10.48550/arXiv.1606.05250"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1606.05250</a></span>
+
+
+
+
+</span></span>)</span> was improved in v2.0 to include unanswerable questions. See example questions from both papers below. <br>
+
+
+<figure><img src="example_squadv1.png" width="250"/><figcaption>
+        <p align="center">Answerable questions (v1.0). <br/> Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#rajpurkar2016squad100000"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jian"><span itemprop="familyName">Zhang</span></span>
+                et al.&#32;(<span itemprop="datePublished">2016</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Jian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lopyrev</span>,&#32;
+    <meta itemprop="givenName" content="Konstantin" />
+    K.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2016</span>).
+  &#32;<span itemprop="name">SQuAD: 100,000+ Questions for Machine Comprehension of Text</span>.
+  <a href="https://doi.org/10.48550/arXiv.1606.05250"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1606.05250</a></span>
+
+
+
+
+</span></span>)</span>. </p>
+    </figcaption>
+</figure>   
+
+
+<figure><img src="example_squadv2.png" width="250"/><figcaption>
+        <p align="center"> Unanswerable questions (v2.0). <br/> Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#rajpurkar2018knowwhatyou"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Robin"><span itemprop="familyName">Jia</span></span>
+                et al.&#32;(<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jia</span>,&#32;
+    <meta itemprop="givenName" content="Robin" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Know What You Don&rsquo;t Know: Unanswerable Questions for SQuAD</span>.
+  <a href="https://doi.org/10.48550/arXiv.1806.03822"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1806.03822</a></span>
+
+
+
+
+</span></span>)</span>. </p>
+    </figcaption>
+</figure></td>
+</tr>
+<tr>
+<td><strong>DROP</strong><br>
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#dua2019dropreadingcomprehension"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Dheeru"><span itemprop="familyName">Dua</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Yizhong"><span itemprop="familyName">Wang</span></span>
+                et al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dua</span>,&#32;
+    <meta itemprop="givenName" content="Dheeru" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Yizhong" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dasigi</span>,&#32;
+    <meta itemprop="givenName" content="Pradeep" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stanovsky</span>,&#32;
+    <meta itemprop="givenName" content="Gabriel" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Sameer" />
+    S.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gardner</span>,&#32;
+    <meta itemprop="givenName" content="Matt" />
+    M.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">DROP: A Reading Comprehension Benchmark Requiring Discrete Reasoning Over Paragraphs</span>.
+  <a href="https://doi.org/10.48550/arXiv.1903.00161"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1903.00161</a></span>
+
+
+
+
+</span></span>)</span></td>
+<td>The DROP dataset aims to assess models&rsquo; ability in <em>discrete reasoning over text in a paragraph</em> (DROP). The dataset consists of 96,000 questions. Given a passage of text, the model is given a question that requires reasoning using discrete operations such as addition, counting, or sorting. See example questions below. <br>
+
+
+<figure><img src="example_drop.png" width="100%"/><figcaption>
+        <p align="center"> Top four reasoning operation example. Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#dua2019dropreadingcomprehension"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Dheeru"><span itemprop="familyName">Dua</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Yizhong"><span itemprop="familyName">Wang</span></span>
+                et al.&#32;(<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dua</span>,&#32;
+    <meta itemprop="givenName" content="Dheeru" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Yizhong" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dasigi</span>,&#32;
+    <meta itemprop="givenName" content="Pradeep" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stanovsky</span>,&#32;
+    <meta itemprop="givenName" content="Gabriel" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Sameer" />
+    S.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gardner</span>,&#32;
+    <meta itemprop="givenName" content="Matt" />
+    M.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">DROP: A Reading Comprehension Benchmark Requiring Discrete Reasoning Over Paragraphs</span>.
+  <a href="https://doi.org/10.48550/arXiv.1903.00161"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1903.00161</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure></td>
+</tr>
+<tr>
+<td><strong>HellaSwag</strong><br>
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#zellers2019hellaswagcanmachine"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rowan"><span itemprop="familyName">Zellers</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ari"><span itemprop="familyName">Holtzman</span></span>
+                et al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zellers</span>,&#32;
+    <meta itemprop="givenName" content="Rowan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Holtzman</span>,&#32;
+    <meta itemprop="givenName" content="Ari" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bisk</span>,&#32;
+    <meta itemprop="givenName" content="Yonatan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Farhadi</span>,&#32;
+    <meta itemprop="givenName" content="Ali" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">HellaSwag: Can a Machine Really Finish Your Sentence?</span>.
+  <a href="https://doi.org/10.48550/arXiv.1905.07830"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1905.07830</a></span>
+
+
+
+
+</span></span>)</span></td>
+<td>The HellaSwag dataset consists of 70,000 questions attempting to evaluate the commonsense natural language inference ability of a model. Given a text fragment referred to as <em>context</em>, the model is asked to select the most plausible of multiple possible endings. HellaSwag is an extension of the SWAG data set by 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#zellers2018swaglargescaleadversarial"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rowan"><span itemprop="familyName">Zellers</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Yonatan"><span itemprop="familyName">Bisk</span></span>
+                et al.&#32;(<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zellers</span>,&#32;
+    <meta itemprop="givenName" content="Rowan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bisk</span>,&#32;
+    <meta itemprop="givenName" content="Yonatan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Schwartz</span>,&#32;
+    <meta itemprop="givenName" content="Roy" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">SWAG: A Large-Scale Adversarial Dataset for Grounded Commonsense Inference</span>.
+  <a href="https://doi.org/10.48550/arXiv.1808.05326"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1808.05326</a></span>
+
+
+
+
+</span></span>)</span>. In addition to the text data from video captioning used in SWAG, HellaSwag adds text data from <a href="https://www.wikihow.com/">WikiHow</a>. Both datasets use <em>adverserial filtering</em> to address the issue of <em>annotation artifacts</em>, where human labellers leave unintended biases in wrong labels. During the data generation a generator and a discriminator model are jointly used to filter out endings that are too easy to distinguish. With this iterative process, this data set provides a template how to come up with more challenging data sets for ever more capable language models. <br><center>
+
+
+<figure><img src="example_hellaswag.png" width="400"/><figcaption>
+        <p align="center"> Example question answered by a BERT model, once correct (blue) and once incorrect (red). The bold text indicates the correct answer. Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#zellers2019hellaswagcanmachine"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rowan"><span itemprop="familyName">Zellers</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ari"><span itemprop="familyName">Holtzman</span></span>
+                et al.&#32;(<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zellers</span>,&#32;
+    <meta itemprop="givenName" content="Rowan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Holtzman</span>,&#32;
+    <meta itemprop="givenName" content="Ari" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bisk</span>,&#32;
+    <meta itemprop="givenName" content="Yonatan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Farhadi</span>,&#32;
+    <meta itemprop="givenName" content="Ali" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">HellaSwag: Can a Machine Really Finish Your Sentence?</span>.
+  <a href="https://doi.org/10.48550/arXiv.1905.07830"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1905.07830</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure></center></td>
+</tr>
+<tr>
+<td><strong>WMT 2015 French to English translation</strong><br>
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#bojar2015findings2015workshop"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ondrej"><span itemprop="familyName">Bojar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rajen"><span itemprop="familyName">Chatterjee</span></span>
+                et al.,&#32;<span itemprop="datePublished">2015</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bojar</span>,&#32;
+    <meta itemprop="givenName" content="Ondrej" />
+    O.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chatterjee</span>,&#32;
+    <meta itemprop="givenName" content="Rajen" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Federmann</span>,&#32;
+    <meta itemprop="givenName" content="Christian" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Haddow</span>,&#32;
+    <meta itemprop="givenName" content="Barry" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huck</span>,&#32;
+    <meta itemprop="givenName" content="Matthias" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hokamp</span>,&#32;
+    <meta itemprop="givenName" content="Chris" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Koehn</span>,&#32;
+    <meta itemprop="givenName" content="Philipp" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Logacheva</span>,&#32;
+    <meta itemprop="givenName" content="Varvara" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Monz</span>,&#32;
+    <meta itemprop="givenName" content="Christof" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Negri</span>,&#32;
+    <meta itemprop="givenName" content="Matteo" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Post</span>,&#32;
+    <meta itemprop="givenName" content="Matt" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Scarton</span>,&#32;
+    <meta itemprop="givenName" content="Carolina" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Specia</span>,&#32;
+    <meta itemprop="givenName" content="Lucia" />
+    L.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Turchi</span>,&#32;
+    <meta itemprop="givenName" content="Marco" />
+    M.</span>
+  &#32;
+    (<span itemprop="datePublished">2015</span>).
+  &#32;<span itemprop="name">Findings of the 2015 Workshop on Statistical Machine Translation</span>.<i>
+    <span itemprop="about">Proceedings of the Tenth Workshop on Statistical Machine Translation</span></i>.&#32;<span itemprop="pagination">1–46</span>.&#32;Retrieved from&#32;
+  <a href="https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation</a></span>
+
+
+
+
+</span></span>)</span></td>
+<td>A dataset challenges a model to translate from french text to english text. In the original workshop, models were evaluated using human annotators that make a pairwise comparison of the translation of the same text by different systems. For purpose of evaluating InstructGPT instead of the human evaluation the automatic translation quality score BLEU 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#papineni2002bleumethodautomatic"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Kishore"><span itemprop="familyName">Papineni</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Salim"><span itemprop="familyName">Roukos</span></span>
+                et al.,&#32;<span itemprop="datePublished">2002</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Papineni</span>,&#32;
+    <meta itemprop="givenName" content="Kishore" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Roukos</span>,&#32;
+    <meta itemprop="givenName" content="Salim" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ward</span>,&#32;
+    <meta itemprop="givenName" content="Todd" />
+    T.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Jing" />
+    W.</span>
+  &#32;
+    (<span itemprop="datePublished">2002</span>).
+  &#32;<span itemprop="name">
+    <i>BLEU: a method for automatic evaluation of machine translation</i></span>.
+  </span>
+
+</span></span>)</span> was used.  <br><center>
+
+
+<figure><img src="example_wmt2015.png" width="400"/><figcaption>
+        <p align="center">Screenshot of human evaluation interface with example translation task from Russian to English. Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#bojar2015findings2015workshop"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ondrej"><span itemprop="familyName">Bojar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rajen"><span itemprop="familyName">Chatterjee</span></span>
+                et al.&#32;(<span itemprop="datePublished">2015</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bojar</span>,&#32;
+    <meta itemprop="givenName" content="Ondrej" />
+    O.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chatterjee</span>,&#32;
+    <meta itemprop="givenName" content="Rajen" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Federmann</span>,&#32;
+    <meta itemprop="givenName" content="Christian" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Haddow</span>,&#32;
+    <meta itemprop="givenName" content="Barry" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huck</span>,&#32;
+    <meta itemprop="givenName" content="Matthias" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hokamp</span>,&#32;
+    <meta itemprop="givenName" content="Chris" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Koehn</span>,&#32;
+    <meta itemprop="givenName" content="Philipp" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Logacheva</span>,&#32;
+    <meta itemprop="givenName" content="Varvara" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Monz</span>,&#32;
+    <meta itemprop="givenName" content="Christof" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Negri</span>,&#32;
+    <meta itemprop="givenName" content="Matteo" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Post</span>,&#32;
+    <meta itemprop="givenName" content="Matt" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Scarton</span>,&#32;
+    <meta itemprop="givenName" content="Carolina" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Specia</span>,&#32;
+    <meta itemprop="givenName" content="Lucia" />
+    L.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Turchi</span>,&#32;
+    <meta itemprop="givenName" content="Marco" />
+    M.</span>
+  &#32;
+    (<span itemprop="datePublished">2015</span>).
+  &#32;<span itemprop="name">Findings of the 2015 Workshop on Statistical Machine Translation</span>.<i>
+    <span itemprop="about">Proceedings of the Tenth Workshop on Statistical Machine Translation</span></i>.&#32;<span itemprop="pagination">1–46</span>.&#32;Retrieved from&#32;
+  <a href="https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure></center></td>
+</tr>
+</tbody>
+</table>
+<p><br/><br/></p>
+<h3 id="alignment-benchmarks">Alignment benchmarks<a hidden class="anchor" aria-hidden="true" href="#alignment-benchmarks">#</a></h3>
+<p>In addition to solving a primary task like creating good autocomplete suggestions, we likely also want to make sure that the generated text is not racist or insulting. A number of dedicated benchmarks were created to adress these secondary <em>human alignment</em> considerations.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RealToxicityPrompts</strong><br>
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#gehman2020realtoxicitypromptsevaluatingneural"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Samuel"><span itemprop="familyName">Gehman</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Suchin"><span itemprop="familyName">Gururangan</span></span>
+                et al.,&#32;<span itemprop="datePublished">2020</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gehman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gururangan</span>,&#32;
+    <meta itemprop="givenName" content="Suchin" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sap</span>,&#32;
+    <meta itemprop="givenName" content="Maarten" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Smith</span>,&#32;
+    <meta itemprop="givenName" content="Noah A." />
+    N.</span>
+  &#32;
+    (<span itemprop="datePublished">2020</span>).
+  &#32;<span itemprop="name">RealToxicityPrompts: Evaluating Neural Toxic Degeneration in Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2009.11462"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2009.11462</a></span>
+
+
+
+
+</span></span>)</span></td>
+<td>RealToxicityPrompts consists of 100,000 partial sentences that, when comleted by an LM, may result in racist, sexist or otherwise toxic language. The prompts are given to the LM in a conditional language generation (or auto complete) task. The <a href="https://www.perspectiveapi.com/">Perspective API</a> is used to evaluate the toxicity. The use of this external API as a black-box evaluation method means that the results may not be reproducible - as the API&rsquo;s output may change or be discontinued. More generally, as the authors point out, current methods are unable to adapt an LM to <em>never</em> say toxic things. This limitations presents serious challenges for the safe deployment of LM-based applications. <br><center>
+
+
+<figure><img src="example_realtoxicprompts.png" width="340"/><figcaption>
+        <p align="center">Prompts from the RealToxicityPrompts data set. Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#gehman2020realtoxicitypromptsevaluatingneural"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Samuel"><span itemprop="familyName">Gehman</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Suchin"><span itemprop="familyName">Gururangan</span></span>
+                et al.&#32;(<span itemprop="datePublished">2020</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gehman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gururangan</span>,&#32;
+    <meta itemprop="givenName" content="Suchin" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sap</span>,&#32;
+    <meta itemprop="givenName" content="Maarten" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Smith</span>,&#32;
+    <meta itemprop="givenName" content="Noah A." />
+    N.</span>
+  &#32;
+    (<span itemprop="datePublished">2020</span>).
+  &#32;<span itemprop="name">RealToxicityPrompts: Evaluating Neural Toxic Degeneration in Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2009.11462"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2009.11462</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure></center></td>
+</tr>
+<tr>
+<td><strong>Winogender</strong><br>
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#rudinger2018genderbiascoreference"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rachel"><span itemprop="familyName">Rudinger</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jason"><span itemprop="familyName">Naradowsky</span></span>
+                et al.,&#32;<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rudinger</span>,&#32;
+    <meta itemprop="givenName" content="Rachel" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Naradowsky</span>,&#32;
+    <meta itemprop="givenName" content="Jason" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Leonard</span>,&#32;
+    <meta itemprop="givenName" content="Brian" />
+    B.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Van Durme</span>,&#32;
+    <meta itemprop="givenName" content="Benjamin" />
+    B.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Gender Bias in Coreference Resolution</span>.
+  <a href="https://doi.org/10.48550/arXiv.1804.09301"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1804.09301</a></span>
+
+
+
+
+</span></span>)</span></td>
+<td>The Winogender data set aims to detect gender bias in language models. The data set consists of a number of similar sentences that reference occupations and their gender. For the evaluation of InstructGPT (as far as I understand it), pairs of the sentences that only vary in gender were considered. Then the relative probability of produce one of the sentences was computed, to see for example if the model thought paramedics are more likely to be male.<br><center>
+
+
+<figure><img src="example_winogender.png" width="300"/><figcaption>
+        <p align="center">Winogender example. Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#rudinger2018genderbiascoreference"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rachel"><span itemprop="familyName">Rudinger</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jason"><span itemprop="familyName">Naradowsky</span></span>
+                et al.&#32;(<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rudinger</span>,&#32;
+    <meta itemprop="givenName" content="Rachel" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Naradowsky</span>,&#32;
+    <meta itemprop="givenName" content="Jason" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Leonard</span>,&#32;
+    <meta itemprop="givenName" content="Brian" />
+    B.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Van Durme</span>,&#32;
+    <meta itemprop="givenName" content="Benjamin" />
+    B.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Gender Bias in Coreference Resolution</span>.
+  <a href="https://doi.org/10.48550/arXiv.1804.09301"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1804.09301</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure></center></td>
+</tr>
+<tr>
+<td><strong>CrowS-Pairs</strong><br>
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#nangia2020crowspairschallengedataset"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Nikita"><span itemprop="familyName">Nangia</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Clara"><span itemprop="familyName">Vania</span></span>
+                et al.,&#32;<span itemprop="datePublished">2020</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vania</span>,&#32;
+    <meta itemprop="givenName" content="Clara" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bhalerao</span>,&#32;
+    <meta itemprop="givenName" content="Rasika" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel R." />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2020</span>).
+  &#32;<span itemprop="name">CrowS-Pairs: A Challenge Dataset for Measuring Social Biases in Masked Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2010.00133"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2010.00133</a></span>
+
+
+
+
+</span></span>)</span></td>
+<td>The CrowS-Pairs dataset consists of 1508 pairs of sentences, each with one more stereotyping than the other. The pairs cover various bias including race, religion and age. In the context of InstructGPT, the dataset is used similarly to Winogender: the probability of computing the more stereotyping sentence is computed. <br><center>
+
+
+<figure><img src="example_crowspairs.png" width="100%"/><figcaption>
+        <p align="center">CrowS-Pairs. Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#nangia2020crowspairschallengedataset"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Nikita"><span itemprop="familyName">Nangia</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Clara"><span itemprop="familyName">Vania</span></span>
+                et al.&#32;(<span itemprop="datePublished">2020</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vania</span>,&#32;
+    <meta itemprop="givenName" content="Clara" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bhalerao</span>,&#32;
+    <meta itemprop="givenName" content="Rasika" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel R." />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2020</span>).
+  &#32;<span itemprop="name">CrowS-Pairs: A Challenge Dataset for Measuring Social Biases in Masked Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2010.00133"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2010.00133</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure></center></td>
+</tr>
+<tr>
+<td><strong>TruthfulQA</strong><br>
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#lin2022truthfulqameasuringhow"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Stephanie"><span itemprop="familyName">Lin</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jacob"><span itemprop="familyName">Hilton</span></span>
+                et al.,&#32;<span itemprop="datePublished">2022</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lin</span>,&#32;
+    <meta itemprop="givenName" content="Stephanie" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hilton</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Evans</span>,&#32;
+    <meta itemprop="givenName" content="Owain" />
+    O.</span>
+  &#32;
+    (<span itemprop="datePublished">2022</span>).
+  &#32;<span itemprop="name">TruthfulQA: Measuring How Models Mimic Human Falsehoods</span>.
+  <a href="https://doi.org/10.48550/arXiv.2109.07958"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2109.07958</a></span>
+
+
+
+
+</span></span>)</span></td>
+<td>The TruthfulQA benchmark consists of 817 questions, each crafted such that some humans might answer them incorrectly due to misconceptions. The authors used both human and automated evaluation to assess the truthfullness of model answers. They demonstrated that a finetuned GPT-3 model was 90-96% accurate in detecting truthfulness of answers by other models. <br><center>
+
+
+<figure><img src="example_truthfulqa.png" width="350"/><figcaption>
+        <p align="center">TruthfulQA examples. Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#lin2022truthfulqameasuringhow"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Stephanie"><span itemprop="familyName">Lin</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jacob"><span itemprop="familyName">Hilton</span></span>
+                et al.&#32;(<span itemprop="datePublished">2022</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lin</span>,&#32;
+    <meta itemprop="givenName" content="Stephanie" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hilton</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Evans</span>,&#32;
+    <meta itemprop="givenName" content="Owain" />
+    O.</span>
+  &#32;
+    (<span itemprop="datePublished">2022</span>).
+  &#32;<span itemprop="name">TruthfulQA: Measuring How Models Mimic Human Falsehoods</span>.
+  <a href="https://doi.org/10.48550/arXiv.2109.07958"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2109.07958</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure></center></td>
+</tr>
+</tbody>
+</table>
+<p>In addition to the benchmarks described above, InstructGPT was also evaluated on the following benchmarks: SST
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#socher2013recursivedeepmodels"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Richard"><span itemprop="familyName">Socher</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Alex"><span itemprop="familyName">Perelygin</span></span>
+                et al.,&#32;<span itemprop="datePublished">2013</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Socher</span>,&#32;
+    <meta itemprop="givenName" content="Richard" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Perelygin</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Jean" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chuang</span>,&#32;
+    <meta itemprop="givenName" content="Jason" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Manning</span>,&#32;
+    <meta itemprop="givenName" content="Christopher D." />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ng</span>,&#32;
+    <meta itemprop="givenName" content="Andrew Y." />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Potts</span>,&#32;
+    <meta itemprop="givenName" content="Christopher" />
+    C.</span>
+  &#32;
+    (<span itemprop="datePublished">2013</span>).
+  &#32;<span itemprop="name">
+    <i>Recursive deep models for semantic compositionality over a sentiment treebank</i></span>.
+  </span>
+
+</span></span>)</span>, RTE and WSC parts of SuperGLUE 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#wang2019supergluestickierbenchmark"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Alex"><span itemprop="familyName">Wang</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Yada"><span itemprop="familyName">Pruksachatkun</span></span>
+                et al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pruksachatkun</span>,&#32;
+    <meta itemprop="givenName" content="Yada" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hill</span>,&#32;
+    <meta itemprop="givenName" content="Felix" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Levy</span>,&#32;
+    <meta itemprop="givenName" content="Omer" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems</i></span>.
+  &#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Curran Associates, Inc.</span></span>.&#32;Retrieved from&#32;
+  <a href="https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html</a></span>
+
+</span></span>)</span>, CNN/Daily Mail Summarization 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#nallapati2016abstractivetextsummarization"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ramesh"><span itemprop="familyName">Nallapati</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Bowen"><span itemprop="familyName">Zhou</span></span>
+                et al.,&#32;<span itemprop="datePublished">2016</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nallapati</span>,&#32;
+    <meta itemprop="givenName" content="Ramesh" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhou</span>,&#32;
+    <meta itemprop="givenName" content="Bowen" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">santos</span>,&#32;
+    <meta itemprop="givenName" content="Cicero Nogueira" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gulcehre</span>,&#32;
+    <meta itemprop="givenName" content="Caglar" />
+    C.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xiang</span>,&#32;
+    <meta itemprop="givenName" content="Bing" />
+    B.</span>
+  &#32;
+    (<span itemprop="datePublished">2016</span>).
+  &#32;<span itemprop="name">Abstractive Text Summarization Using Sequence-to-Sequence RNNs and Beyond</span>.
+  <a href="https://doi.org/10.48550/arXiv.1602.06023"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1602.06023</a></span>
+
+
+
+
+</span></span>)</span>, and Reddit TLDR Summarization 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#volske2017tldrmining"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Michael"><span itemprop="familyName">Völske</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Martin"><span itemprop="familyName">Potthast</span></span>
+                et al.,&#32;<span itemprop="datePublished">2017</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Völske</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Potthast</span>,&#32;
+    <meta itemprop="givenName" content="Martin" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Syed</span>,&#32;
+    <meta itemprop="givenName" content="Shahbaz" />
+    S.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stein</span>,&#32;
+    <meta itemprop="givenName" content="Benno" />
+    B.</span>
+  &#32;
+    (<span itemprop="datePublished">2017</span>).
+  &#32;<span itemprop="name">
+    <i>Tl; dr: Mining reddit to learn automatic summarization</i></span>.
+  </span>
+
+</span></span>)</span>. These were out-of-scope for this version of the post but may be added at a later date.</p>
+<h3 id="instructgpt-automatic-evaluation-results">InstructGPT automatic evaluation results<a hidden class="anchor" aria-hidden="true" href="#instructgpt-automatic-evaluation-results">#</a></h3>
+<p>Whilst the ChatGPT results on these benchmarks are unkown, we can look at the results of InstructGPT to get glimpse of the likely capabilities of ChatGPT. The figure below is taken from the InstructGPT paper 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#ouyang2022traininglanguagemodels"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Long"><span itemprop="familyName">Ouyang</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jeff"><span itemprop="familyName">Wu</span></span>
+                et al.,&#32;<span itemprop="datePublished">2022</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ouyang</span>,&#32;
+    <meta itemprop="givenName" content="Long" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Jeff" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jiang</span>,&#32;
+    <meta itemprop="givenName" content="Xu" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Almeida</span>,&#32;
+    <meta itemprop="givenName" content="Diogo" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wainwright</span>,&#32;
+    <meta itemprop="givenName" content="Carroll L." />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mishkin</span>,&#32;
+    <meta itemprop="givenName" content="Pamela" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Chong" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Agarwal</span>,&#32;
+    <meta itemprop="givenName" content="Sandhini" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Slama</span>,&#32;
+    <meta itemprop="givenName" content="Katarina" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ray</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Schulman</span>,&#32;
+    <meta itemprop="givenName" content="John" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hilton</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kelton</span>,&#32;
+    <meta itemprop="givenName" content="Fraser" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Miller</span>,&#32;
+    <meta itemprop="givenName" content="Luke" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Simens</span>,&#32;
+    <meta itemprop="givenName" content="Maddie" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Askell</span>,&#32;
+    <meta itemprop="givenName" content="Amanda" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Welinder</span>,&#32;
+    <meta itemprop="givenName" content="Peter" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Christiano</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Leike</span>,&#32;
+    <meta itemprop="givenName" content="Jan" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lowe</span>,&#32;
+    <meta itemprop="givenName" content="Ryan" />
+    R.</span>
+  &#32;
+    (<span itemprop="datePublished">2022</span>).
+  &#32;<span itemprop="name">Training language models to follow instructions with human feedback</span>.&#32;Retrieved from&#32;
+  <a href="http://arxiv.org/abs/2203.02155"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">http://arxiv.org/abs/2203.02155</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+<center>
+
+
+<figure><img src="results_instruct_gpt.png" width="100%"/><figcaption>
+        <p align="center">Results of InstructGPT on public NLP benchmarks. Figure from 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#ouyang2022traininglanguagemodels"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Long"><span itemprop="familyName">Ouyang</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jeff"><span itemprop="familyName">Wu</span></span>
+                et al.&#32;(<span itemprop="datePublished">2022</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ouyang</span>,&#32;
+    <meta itemprop="givenName" content="Long" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Jeff" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jiang</span>,&#32;
+    <meta itemprop="givenName" content="Xu" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Almeida</span>,&#32;
+    <meta itemprop="givenName" content="Diogo" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wainwright</span>,&#32;
+    <meta itemprop="givenName" content="Carroll L." />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mishkin</span>,&#32;
+    <meta itemprop="givenName" content="Pamela" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Chong" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Agarwal</span>,&#32;
+    <meta itemprop="givenName" content="Sandhini" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Slama</span>,&#32;
+    <meta itemprop="givenName" content="Katarina" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ray</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Schulman</span>,&#32;
+    <meta itemprop="givenName" content="John" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hilton</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kelton</span>,&#32;
+    <meta itemprop="givenName" content="Fraser" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Miller</span>,&#32;
+    <meta itemprop="givenName" content="Luke" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Simens</span>,&#32;
+    <meta itemprop="givenName" content="Maddie" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Askell</span>,&#32;
+    <meta itemprop="givenName" content="Amanda" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Welinder</span>,&#32;
+    <meta itemprop="givenName" content="Peter" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Christiano</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Leike</span>,&#32;
+    <meta itemprop="givenName" content="Jan" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lowe</span>,&#32;
+    <meta itemprop="givenName" content="Ryan" />
+    R.</span>
+  &#32;
+    (<span itemprop="datePublished">2022</span>).
+  &#32;<span itemprop="name">Training language models to follow instructions with human feedback</span>.&#32;Retrieved from&#32;
+  <a href="http://arxiv.org/abs/2203.02155"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">http://arxiv.org/abs/2203.02155</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure></center>
+<h2 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h2>
+<p>In this post, I gave an overview of some of the NLP benchmarks used for evaluating modern language models (LMs), such as InstructGPT. Despite best efforts and in many ways impressive performance, the output of current state-of-the-art LMs often fails to satisfy many desirable characterics, such as truthfulness. Reliably quantifying these issues presents on important step towards building better LMs and developing downstream applications. Adaptive benchmarks, such as HellaSwag with adverserial filtering 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#zellers2019hellaswagcanmachine"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rowan"><span itemprop="familyName">Zellers</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ari"><span itemprop="familyName">Holtzman</span></span>
+                et al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zellers</span>,&#32;
+    <meta itemprop="givenName" content="Rowan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Holtzman</span>,&#32;
+    <meta itemprop="givenName" content="Ari" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bisk</span>,&#32;
+    <meta itemprop="givenName" content="Yonatan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Farhadi</span>,&#32;
+    <meta itemprop="givenName" content="Ali" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">HellaSwag: Can a Machine Really Finish Your Sentence?</span>.
+  <a href="https://doi.org/10.48550/arXiv.1905.07830"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1905.07830</a></span>
+
+
+
+
+</span></span>)</span>, present a promising direction to creating benchmarks that co-evolve as models grow more and more powerful.</p>
+<h2 id="acknowledgements">Acknowledgements<a hidden class="anchor" aria-hidden="true" href="#acknowledgements">#</a></h2>
+<p>I would like to thank <a href="https://simonmathis.com/">Simon Mathis</a> for pointing me to the excellent paper by 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#niven2019probingneuralnetwork"><span class="visually-hidden">Citation: </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Timothy"><span itemprop="familyName">Niven</span></span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Hung-Yu"><span itemprop="familyName">Kao</span></span>&#32;(<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Niven</span>,&#32;
+    <meta itemprop="givenName" content="Timothy" />
+    T.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kao</span>,&#32;
+    <meta itemprop="givenName" content="Hung-Yu" />
+    H.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>Probing Neural Network Comprehension of Natural Language Arguments</i></span>.
+  <meta itemprop="contentLocation"
+        content="Florence, Italy">&#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Association for Computational Linguistics</span></span>.
+  <a href="https://doi.org/10.18653/v1/P19-1459"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.18653/v1/P19-1459</a></span>
+
+</span></span>)</span>.</p>
+<h2 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h2>
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+<section class="hugo-cite-bibliography">
+  <ol>
+    
+
+      <div id="bojar2015findings2015workshop">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bojar</span>,&#32;
+    <meta itemprop="givenName" content="Ondrej" />
+    O.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chatterjee</span>,&#32;
+    <meta itemprop="givenName" content="Rajen" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Federmann</span>,&#32;
+    <meta itemprop="givenName" content="Christian" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Haddow</span>,&#32;
+    <meta itemprop="givenName" content="Barry" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huck</span>,&#32;
+    <meta itemprop="givenName" content="Matthias" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hokamp</span>,&#32;
+    <meta itemprop="givenName" content="Chris" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Koehn</span>,&#32;
+    <meta itemprop="givenName" content="Philipp" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Logacheva</span>,&#32;
+    <meta itemprop="givenName" content="Varvara" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Monz</span>,&#32;
+    <meta itemprop="givenName" content="Christof" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Negri</span>,&#32;
+    <meta itemprop="givenName" content="Matteo" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Post</span>,&#32;
+    <meta itemprop="givenName" content="Matt" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Scarton</span>,&#32;
+    <meta itemprop="givenName" content="Carolina" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Specia</span>,&#32;
+    <meta itemprop="givenName" content="Lucia" />
+    L.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Turchi</span>,&#32;
+    <meta itemprop="givenName" content="Marco" />
+    M.</span>
+  &#32;
+    (<span itemprop="datePublished">2015</span>).
+  &#32;<span itemprop="name">Findings of the 2015 Workshop on Statistical Machine Translation</span>.<i>
+    <span itemprop="about">Proceedings of the Tenth Workshop on Statistical Machine Translation</span></i>.&#32;<span itemprop="pagination">1–46</span>.&#32;Retrieved from&#32;
+  <a href="https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://www.research.ed.ac.uk/en/publications/findings-of-the-2015-workshop-on-statistical-machine-translation</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="dua2019dropreadingcomprehension">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dua</span>,&#32;
+    <meta itemprop="givenName" content="Dheeru" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Yizhong" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dasigi</span>,&#32;
+    <meta itemprop="givenName" content="Pradeep" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stanovsky</span>,&#32;
+    <meta itemprop="givenName" content="Gabriel" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Sameer" />
+    S.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gardner</span>,&#32;
+    <meta itemprop="givenName" content="Matt" />
+    M.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">DROP: A Reading Comprehension Benchmark Requiring Discrete Reasoning Over Paragraphs</span>.
+  <a href="https://doi.org/10.48550/arXiv.1903.00161"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1903.00161</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="gehman2020realtoxicitypromptsevaluatingneural">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gehman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gururangan</span>,&#32;
+    <meta itemprop="givenName" content="Suchin" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sap</span>,&#32;
+    <meta itemprop="givenName" content="Maarten" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Smith</span>,&#32;
+    <meta itemprop="givenName" content="Noah A." />
+    N.</span>
+  &#32;
+    (<span itemprop="datePublished">2020</span>).
+  &#32;<span itemprop="name">RealToxicityPrompts: Evaluating Neural Toxic Degeneration in Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2009.11462"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2009.11462</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="lin2022truthfulqameasuringhow">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lin</span>,&#32;
+    <meta itemprop="givenName" content="Stephanie" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hilton</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Evans</span>,&#32;
+    <meta itemprop="givenName" content="Owain" />
+    O.</span>
+  &#32;
+    (<span itemprop="datePublished">2022</span>).
+  &#32;<span itemprop="name">TruthfulQA: Measuring How Models Mimic Human Falsehoods</span>.
+  <a href="https://doi.org/10.48550/arXiv.2109.07958"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2109.07958</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="nallapati2016abstractivetextsummarization">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nallapati</span>,&#32;
+    <meta itemprop="givenName" content="Ramesh" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhou</span>,&#32;
+    <meta itemprop="givenName" content="Bowen" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">santos</span>,&#32;
+    <meta itemprop="givenName" content="Cicero Nogueira" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gulcehre</span>,&#32;
+    <meta itemprop="givenName" content="Caglar" />
+    C.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xiang</span>,&#32;
+    <meta itemprop="givenName" content="Bing" />
+    B.</span>
+  &#32;
+    (<span itemprop="datePublished">2016</span>).
+  &#32;<span itemprop="name">Abstractive Text Summarization Using Sequence-to-Sequence RNNs and Beyond</span>.
+  <a href="https://doi.org/10.48550/arXiv.1602.06023"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1602.06023</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="nangia2020crowspairschallengedataset">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vania</span>,&#32;
+    <meta itemprop="givenName" content="Clara" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bhalerao</span>,&#32;
+    <meta itemprop="givenName" content="Rasika" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel R." />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2020</span>).
+  &#32;<span itemprop="name">CrowS-Pairs: A Challenge Dataset for Measuring Social Biases in Masked Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2010.00133"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2010.00133</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="niven2019probingneuralnetwork">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Niven</span>,&#32;
+    <meta itemprop="givenName" content="Timothy" />
+    T.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kao</span>,&#32;
+    <meta itemprop="givenName" content="Hung-Yu" />
+    H.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>Probing Neural Network Comprehension of Natural Language Arguments</i></span>.
+  <meta itemprop="contentLocation"
+        content="Florence, Italy">&#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Association for Computational Linguistics</span></span>.
+  <a href="https://doi.org/10.18653/v1/P19-1459"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.18653/v1/P19-1459</a></span>
+
+</li>
+
+      </div>
+
+      <div id="ouyang2022traininglanguagemodels">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ouyang</span>,&#32;
+    <meta itemprop="givenName" content="Long" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Jeff" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jiang</span>,&#32;
+    <meta itemprop="givenName" content="Xu" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Almeida</span>,&#32;
+    <meta itemprop="givenName" content="Diogo" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wainwright</span>,&#32;
+    <meta itemprop="givenName" content="Carroll L." />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mishkin</span>,&#32;
+    <meta itemprop="givenName" content="Pamela" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Chong" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Agarwal</span>,&#32;
+    <meta itemprop="givenName" content="Sandhini" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Slama</span>,&#32;
+    <meta itemprop="givenName" content="Katarina" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ray</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Schulman</span>,&#32;
+    <meta itemprop="givenName" content="John" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hilton</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kelton</span>,&#32;
+    <meta itemprop="givenName" content="Fraser" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Miller</span>,&#32;
+    <meta itemprop="givenName" content="Luke" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Simens</span>,&#32;
+    <meta itemprop="givenName" content="Maddie" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Askell</span>,&#32;
+    <meta itemprop="givenName" content="Amanda" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Welinder</span>,&#32;
+    <meta itemprop="givenName" content="Peter" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Christiano</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Leike</span>,&#32;
+    <meta itemprop="givenName" content="Jan" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lowe</span>,&#32;
+    <meta itemprop="givenName" content="Ryan" />
+    R.</span>
+  &#32;
+    (<span itemprop="datePublished">2022</span>).
+  &#32;<span itemprop="name">Training language models to follow instructions with human feedback</span>.&#32;Retrieved from&#32;
+  <a href="http://arxiv.org/abs/2203.02155"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">http://arxiv.org/abs/2203.02155</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="papineni2002bleumethodautomatic">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Papineni</span>,&#32;
+    <meta itemprop="givenName" content="Kishore" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Roukos</span>,&#32;
+    <meta itemprop="givenName" content="Salim" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ward</span>,&#32;
+    <meta itemprop="givenName" content="Todd" />
+    T.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Jing" />
+    W.</span>
+  &#32;
+    (<span itemprop="datePublished">2002</span>).
+  &#32;<span itemprop="name">
+    <i>BLEU: a method for automatic evaluation of machine translation</i></span>.
+  </span>
+
+</li>
+
+      </div>
+
+      <div id="rajpurkar2016squad100000">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Jian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lopyrev</span>,&#32;
+    <meta itemprop="givenName" content="Konstantin" />
+    K.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2016</span>).
+  &#32;<span itemprop="name">SQuAD: 100,000+ Questions for Machine Comprehension of Text</span>.
+  <a href="https://doi.org/10.48550/arXiv.1606.05250"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1606.05250</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="rajpurkar2018knowwhatyou">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jia</span>,&#32;
+    <meta itemprop="givenName" content="Robin" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Know What You Don&rsquo;t Know: Unanswerable Questions for SQuAD</span>.
+  <a href="https://doi.org/10.48550/arXiv.1806.03822"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1806.03822</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="rudinger2018genderbiascoreference">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rudinger</span>,&#32;
+    <meta itemprop="givenName" content="Rachel" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Naradowsky</span>,&#32;
+    <meta itemprop="givenName" content="Jason" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Leonard</span>,&#32;
+    <meta itemprop="givenName" content="Brian" />
+    B.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Van Durme</span>,&#32;
+    <meta itemprop="givenName" content="Benjamin" />
+    B.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Gender Bias in Coreference Resolution</span>.
+  <a href="https://doi.org/10.48550/arXiv.1804.09301"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1804.09301</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="socher2013recursivedeepmodels">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Socher</span>,&#32;
+    <meta itemprop="givenName" content="Richard" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Perelygin</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Jean" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chuang</span>,&#32;
+    <meta itemprop="givenName" content="Jason" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Manning</span>,&#32;
+    <meta itemprop="givenName" content="Christopher D." />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ng</span>,&#32;
+    <meta itemprop="givenName" content="Andrew Y." />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Potts</span>,&#32;
+    <meta itemprop="givenName" content="Christopher" />
+    C.</span>
+  &#32;
+    (<span itemprop="datePublished">2013</span>).
+  &#32;<span itemprop="name">
+    <i>Recursive deep models for semantic compositionality over a sentiment treebank</i></span>.
+  </span>
+
+</li>
+
+      </div>
+
+      <div id="volske2017tldrmining">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Völske</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Potthast</span>,&#32;
+    <meta itemprop="givenName" content="Martin" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Syed</span>,&#32;
+    <meta itemprop="givenName" content="Shahbaz" />
+    S.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stein</span>,&#32;
+    <meta itemprop="givenName" content="Benno" />
+    B.</span>
+  &#32;
+    (<span itemprop="datePublished">2017</span>).
+  &#32;<span itemprop="name">
+    <i>Tl; dr: Mining reddit to learn automatic summarization</i></span>.
+  </span>
+
+</li>
+
+      </div>
+
+      <div id="wang2019supergluestickierbenchmark">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pruksachatkun</span>,&#32;
+    <meta itemprop="givenName" content="Yada" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hill</span>,&#32;
+    <meta itemprop="givenName" content="Felix" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Levy</span>,&#32;
+    <meta itemprop="givenName" content="Omer" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems</i></span>.
+  &#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Curran Associates, Inc.</span></span>.&#32;Retrieved from&#32;
+  <a href="https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html</a></span>
+
+</li>
+
+      </div>
+
+      <div id="zellers2018swaglargescaleadversarial">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zellers</span>,&#32;
+    <meta itemprop="givenName" content="Rowan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bisk</span>,&#32;
+    <meta itemprop="givenName" content="Yonatan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Schwartz</span>,&#32;
+    <meta itemprop="givenName" content="Roy" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">SWAG: A Large-Scale Adversarial Dataset for Grounded Commonsense Inference</span>.
+  <a href="https://doi.org/10.48550/arXiv.1808.05326"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1808.05326</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="zellers2019hellaswagcanmachine">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zellers</span>,&#32;
+    <meta itemprop="givenName" content="Rowan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Holtzman</span>,&#32;
+    <meta itemprop="givenName" content="Ari" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bisk</span>,&#32;
+    <meta itemprop="givenName" content="Yonatan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Farhadi</span>,&#32;
+    <meta itemprop="givenName" content="Ali" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Choi</span>,&#32;
+    <meta itemprop="givenName" content="Yejin" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">HellaSwag: Can a Machine Really Finish Your Sentence?</span>.
+  <a href="https://doi.org/10.48550/arXiv.1905.07830"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1905.07830</a></span>
+
+
+
+
+</li>
+
+      </div>
+  </ol>
+</section>
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Citation</h2>
+
+<p>If you found this post useful for your work, please consider citing it as:
+
+    <blockquote>
+<p>Findeis, Arduin. (Mar 2023). How to evaluate a language model. Retrieved from <a href="https://arduin.io/posts/2023-03-11-foundation-model-evaluation/">https://arduin.io/posts/2023-03-11-foundation-model-evaluation/</a>.</p>
+</blockquote>
+
+
+    or
+
+    <pre tabindex="0"><code> @article{Findeis2023Howtoevaluatealanguagemodel,
+        title = &#34;How to evaluate a language model&#34;,
+        author = &#34;Findeis, Arduin&#34;,
+        journal = &#34;arduin.io&#34;,
+        year = &#34;2023&#34;,
+        month = &#34;March&#34;,
+        url = &#34;https://arduin.io/posts/2023-03-11-foundation-model-evaluation/&#34;
+ } 
+</code></pre>
+
+</p>
+    
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2023 <a href="https://arduin.io/">arduin.io</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

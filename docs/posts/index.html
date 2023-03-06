@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto">
 
-<head>
-	<meta name="generator" content="Hugo 0.110.0"><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>arduin.io</title>
-
-<meta name="description" content="">
+<title>Blog | arduin.io</title>
+<meta name="keywords" content="">
+<meta name="description" content="Blog - arduin.io">
 <meta name="author" content="">
-<link rel="canonical" href="https://arduin.io/">
+<link rel="canonical" href="https://arduin.io/posts/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.a751b05478ee89604003e5acef7bfa6c78f3d499cc3d50a3b2b49aa9e2ba9c3e.css" integrity="sha256-p1GwVHjuiWBAA&#43;Ws73v6bHjz1JnMPVCjsrSaqeK6nD4=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://arduin.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
@@ -19,7 +18,7 @@
 <link rel="mask-icon" href="https://arduin.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://arduin.io/index.xml">
+<link rel="alternate" type="application/rss+xml" href="https://arduin.io/posts/index.xml">
 <noscript>
     <style>
         #theme-toggle,
@@ -56,25 +55,27 @@
         }
 
     </style>
-</noscript><meta property="og:title" content="arduin.io" />
+</noscript><meta property="og:title" content="Blog" />
 <meta property="og:description" content="" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://arduin.io/" />
+<meta property="og:url" content="https://arduin.io/posts/" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="arduin.io"/>
+<meta name="twitter:title" content="Blog"/>
 <meta name="twitter:description" content=""/>
+
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "arduin.io",
-  "url": "https://arduin.io/",
-  "description": "",
-  "thumbnailUrl": "https://arduin.io/favicon.ico",
-  "sameAs": [
-      "mailto:contact@arduin.io", "https://github.com/rdnfn", "https://scholar.google.co.uk/citations?user=BZgz8SgAAAAJ\u0026hl=en\u0026oi=ao", "https://www.linkedin.com/in/arduin"
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://arduin.io/posts/"
+    }
   ]
 }
 </script>
@@ -122,7 +123,7 @@
         <ul id="menu">
             <li>
                 <a href="https://arduin.io/" title="Home">
-                    <span class="active">Home</span>
+                    <span>Home</span>
                 </a>
             </li>
             <li>
@@ -144,47 +145,26 @@
         </ul>
     </nav>
 </header>
-<main class="main"><div class="profile">
-    <div class="profile_inner">
-        <img draggable="false" src="https://arduin.io/profile_200x200.jpg" alt="Picture" title="Picture"
-            height="160" width="160" />
-        <h1>Arduin Findeis</h1>
-        <span>Hi there! I am a PhD candidate in the <a style='text-decoration:underline;' href='https://www.cst.cam.ac.uk/'>Department of Computer Science</a> at the University of Cambridge and member of the <a style='text-decoration:underline;' href='https://ai4er-cdt.esc.cam.ac.uk/'>AI4ER CDT</a>, supervised by <a style='text-decoration:underline;' href='https://svr-sk818-web.cl.cam.ac.uk/keshav/wiki/index.php/Main_Page'>Srinivasan Keshav</a> and <a style='text-decoration:underline;' href='https://cs.stanford.edu/~fiodar/'>Fiodar Kazhamiaka</a>. My research focuses on machine learning methods that generalise, including (meta) reinforcement learning (RL) and its applications in building energy optimisation.</span><div class="social-icons">
-    <a href="mailto:contact@arduin.io" target="_blank" rel="noopener noreferrer me" title="Email">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 21" fill="none" stroke="currentColor" stroke-width="2"
-    stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-    <polyline points="22,6 12,13 2,6"></polyline>
-</svg>
-    </a>
-    <a href="https://github.com/rdnfn" target="_blank" rel="noopener noreferrer me" title="Github">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-    stroke-linecap="round" stroke-linejoin="round">
-    <path
-        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
-    </path>
-</svg>
-    </a>
-    <a href="https://scholar.google.co.uk/citations?user=BZgz8SgAAAAJ&amp;hl=en&amp;oi=ao" target="_blank" rel="noopener noreferrer me" title="Googlescholar">
-        <svg role="img" viewBox="0 0 24 25" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"
-    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path
-        d="M5.242 13.769L0.5 9.5 12 1l11.5 9-5.242 3.769C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269zM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z" />
-</svg>
-    </a>
-    <a href="https://www.linkedin.com/in/arduin" target="_blank" rel="noopener noreferrer me" title="Linkedin">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-    stroke-linecap="round" stroke-linejoin="round">
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-    <rect x="2" y="9" width="4" height="12"></rect>
-    <circle cx="4" cy="4" r="2"></circle>
-</svg>
-    </a>
-</div>
+<main class="main"> 
+<header class="page-header">
+  <h1>
+    Blog
+  </h1>
+</header>
 
-    </div>
-</div>
-
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2>How to evaluate a language model
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Draft version (v0.1): this post is currently a public draft. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
+Disclaimer: I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).
+Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation....</p>
+  </div>
+  <footer class="entry-footer"><span title='2023-03-06 00:00:00 +0000 UTC'>March 6, 2023</span>&nbsp;·&nbsp;13 min&nbsp;·&nbsp;Arduin Findeis</footer>
+  <a class="entry-link" aria-label="post link to How to evaluate a language model" href="https://arduin.io/posts/2023-03-11-foundation-model-evaluation/"></a>
+</article>
     </main>
     
 <footer class="footer">

@@ -13,7 +13,8 @@
 
 .hugo-cite-group .hugo-cite-citation {
   visibility: hidden;
-  background-color: #ffffff;
+  background-color: var(--theme);
+  /* #ffffff; */
   color: inherit;
   border: 1px solid currentColor;
   padding: 1rem;
