@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>arduin.io</title>
-    <link>https://arduin.io/</link>
-    <description>Recent content on arduin.io</description>
+    <title>Blog on arduin.io</title>
+    <link>https://arduin.io/blog/</link>
+    <description>Recent content in Blog on arduin.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 06 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 06 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How to evaluate an LLM</title>
       <link>https://arduin.io/blog/2023-03-06-evaluation/</link>
@@ -17,9 +17,6 @@
 Disclaimer: I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).
 1. Introduction Large language models (LLMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation.</description>
     </item>
-    
-    
-    
     
   </channel>
 </rss>
