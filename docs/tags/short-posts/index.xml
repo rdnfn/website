@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Blog on arduin.io</title>
-    <link>https://arduin.io/blog/</link>
-    <description>Recent content in Blog on arduin.io</description>
+    <title>short posts on arduin.io</title>
+    <link>https://arduin.io/tags/short-posts/</link>
+    <description>Recent content in short posts on arduin.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 17 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/tags/short-posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>The post-ChatGPT world: opinions on the future of AI</title>
       <link>https://arduin.io/blog/2023-05-17-interesting-ai-viewpoints/</link>
@@ -15,17 +15,6 @@
       <guid>https://arduin.io/blog/2023-05-17-interesting-ai-viewpoints/</guid>
       <description>In the last 12 months, we have seen major leaps in the field of AI with generative models like ChatGPT. Below are selected pieces by researchers, leaders and commentators that make predictions about the future of AI following these leaps. These pieces have been highly influential on my own thinking.
 Geoffrey Hinton: The Godfather of AI on quitting Google to warn of AI risks (podcast) Bill Gates: The age of AI has begun (blog post) Ferenc Huszar: We May be Surprised Again: Why I take LLMs seriously (blog post) Ezra Klein: My view on AI (podcast) Sam Altman: OpenAI CEO on GPT-4, ChatGPT and the Future of AI (podcast) </description>
-    </item>
-    
-    <item>
-      <title>How to evaluate an LLM</title>
-      <link>https://arduin.io/blog/2023-03-06-evaluation/</link>
-      <pubDate>Mon, 06 Mar 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://arduin.io/blog/2023-03-06-evaluation/</guid>
-      <description>Draft version (v0.2): this post is currently a public draft. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
-Disclaimer: I am not an expert in natural language processing (NLP) and I wrote this post out of personal curiousity. Use my assement with care (and a pinch of salt).
-1. Introduction Large language models (LLMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation.</description>
     </item>
     
   </channel>

@@ -5,6 +5,16 @@
     <link>https://arduin.io/tags/</link>
     <description>Recent content in Tags on arduin.io</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://arduin.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    <lastBuildDate>Wed, 17 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>short posts</title>
+      <link>https://arduin.io/tags/short-posts/</link>
+      <pubDate>Wed, 17 May 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/tags/short-posts/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>

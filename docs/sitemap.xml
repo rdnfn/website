@@ -3,10 +3,19 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://arduin.io/</loc>
-    <lastmod>2023-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2023-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://arduin.io/blog/</loc>
-    <lastmod>2023-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2023-05-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://arduin.io/tags/short-posts/</loc>
+    <lastmod>2023-05-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://arduin.io/tags/</loc>
+    <lastmod>2023-05-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://arduin.io/blog/2023-05-17-interesting-ai-viewpoints/</loc>
+    <lastmod>2023-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://arduin.io/blog/2023-03-06-evaluation/</loc>
     <lastmod>2023-03-06T00:00:00+00:00</lastmod>
@@ -20,7 +29,5 @@
     <loc>https://arduin.io/projects/</loc>
   </url><url>
     <loc>https://arduin.io/research/</loc>
-  </url><url>
-    <loc>https://arduin.io/tags/</loc>
   </url>
 </urlset>
