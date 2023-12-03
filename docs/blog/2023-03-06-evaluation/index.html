@@ -57,7 +57,8 @@
         }
 
     </style>
-</noscript><meta property="og:title" content="A short exploration of language model evaluation approaches" />
+</noscript><script data-goatcounter="https://gbqtk.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script><meta property="og:title" content="A short exploration of language model evaluation approaches" />
 <meta property="og:description" content="Disclaimer: This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
 1. Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation. This diversity of tasks means that no single metric can capture overall language model performance." />
 <meta property="og:type" content="article" />
@@ -440,8 +441,9 @@ figure {
 
 
 
-<figure><img class="drawing"
-         src="nlp_benchmark_overview.png" width="100%"/><figcaption>
+<figure style="text-align: center;"><img class="drawing"
+         src="nlp_benchmark_overview.png" width="100%"style="display:inline"
+    /><figcaption>
         <p align="center">Overview of NLP benchmarks.</p>
     </figcaption>
 </figure></p>
@@ -531,8 +533,9 @@ figure {
 </span></span>)</span> was improved in v2.0 to include unanswerable questions. See example questions from both papers below. <br>
 
 
-<figure><img class="screenshot"
-         src="example_squadv1.png" width="250"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_squadv1.png" width="250"style="display:inline"
+    /><figcaption>
         <p align="center">Answerable questions (v1.0). <br/> Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#rajpurkar2016squad100000"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jian"><span itemprop="familyName">Zhang</span></span>
@@ -575,8 +578,9 @@ figure {
 </figure>   
 
 
-<figure><img class="screenshot"
-         src="example_squadv2.png" width="250"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_squadv2.png" width="250"style="display:inline"
+    /><figcaption>
         <p align="center"> Unanswerable questions (v2.0). <br/> Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#rajpurkar2018knowwhatyou"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Robin"><span itemprop="familyName">Jia</span></span>
@@ -663,8 +667,9 @@ figure {
 <td>The DROP dataset aims to assess models&rsquo; ability in <em>discrete reasoning over text in a paragraph</em> (DROP). The dataset consists of 96,000 questions. Given a passage of text, the model is given a question that requires reasoning using discrete operations such as addition, counting, or sorting. See example questions below. <br>
 
 
-<figure><img class="screenshot"
-         src="example_drop.png" width="100%"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_drop.png" width="100%"style="display:inline"
+    /><figcaption>
         <p align="center"> Top four reasoning operation example. Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#dua2019dropreadingcomprehension"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Dheeru"><span itemprop="familyName">Dua</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Yizhong"><span itemprop="familyName">Wang</span></span>
@@ -794,8 +799,9 @@ figure {
 </span></span>)</span>. In addition to the text data from video captioning used in SWAG, HellaSwag adds text data from <a href="https://www.wikihow.com/">WikiHow</a>. Both datasets use <em>adverserial filtering</em> to address the issue of <em>annotation artifacts</em>, where human labellers leave unintended biases in wrong labels. During the data generation a generator and a discriminator model are jointly used to filter out endings that are too easy to distinguish. With this iterative process, this data set provides a template how to come up with more challenging data sets for ever more capable language models. <br><center>
 
 
-<figure><img class="screenshot"
-         src="example_hellaswag.png" width="400"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_hellaswag.png" width="400"style="display:inline"
+    /><figcaption>
         <p align="center"> Example question answered by a BERT model, once correct (blue) and once incorrect (red). The bold text indicates the correct answer. Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#zellers2019hellaswagcanmachine"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rowan"><span itemprop="familyName">Zellers</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ari"><span itemprop="familyName">Holtzman</span></span>
@@ -946,8 +952,9 @@ figure {
 </span></span>)</span> was used.  <br><center>
 
 
-<figure><img class="screenshot"
-         src="example_wmt2015.png" width="400"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_wmt2015.png" width="400"style="display:inline"
+    /><figcaption>
         <p align="center">Screenshot of human evaluation interface with example translation task from Russian to English. Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#bojar2015findings2015workshop"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ondrej"><span itemprop="familyName">Bojar</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rajen"><span itemprop="familyName">Chatterjee</span></span>
@@ -1078,8 +1085,9 @@ figure {
 <td>RealToxicityPrompts consists of 100,000 partial sentences that, when comleted by an LM, may result in racist, sexist or otherwise toxic language. The prompts are given to the LM in a conditional language generation (or auto complete) task. The <a href="https://www.perspectiveapi.com/">Perspective API</a> is used to evaluate the toxicity. The use of this external API as a black-box evaluation method means that the results may not be reproducible - as the API&rsquo;s output may change or be discontinued. More generally, as the authors point out, current methods are unable to adapt an LM to <em>never</em> say toxic things. This limitations presents serious challenges for the safe deployment of LM-based applications. <br><center>
 
 
-<figure><img class="screenshot"
-         src="example_realtoxicprompts.png" width="340"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_realtoxicprompts.png" width="340"style="display:inline"
+    /><figcaption>
         <p align="center">Prompts from the RealToxicityPrompts data set. Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#gehman2020realtoxicitypromptsevaluatingneural"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Samuel"><span itemprop="familyName">Gehman</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Suchin"><span itemprop="familyName">Gururangan</span></span>
@@ -1166,8 +1174,9 @@ figure {
 <td>The Winogender data set aims to detect gender bias in language models. The data set consists of a number of similar sentences that reference occupations and their gender. For the evaluation of InstructGPT (as far as I understand it), pairs of the sentences that only vary in gender were considered. Then the relative probability of produce one of the sentences was computed, to see for example if the model thought paramedics are more likely to be male.<br><center>
 
 
-<figure><img class="screenshot"
-         src="example_winogender.png" width="300"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_winogender.png" width="300"style="display:inline"
+    /><figcaption>
         <p align="center">Winogender example. Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#rudinger2018genderbiascoreference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rachel"><span itemprop="familyName">Rudinger</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jason"><span itemprop="familyName">Naradowsky</span></span>
@@ -1251,8 +1260,9 @@ figure {
 <td>The CrowS-Pairs dataset consists of 1508 pairs of sentences, each with one more stereotyping than the other. The pairs cover various bias including race, religion and age. In the context of InstructGPT, the dataset is used similarly to Winogender: the probability of computing the more stereotyping sentence is computed. <br><center>
 
 
-<figure><img class="screenshot"
-         src="example_crowspairs.png" width="100%"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_crowspairs.png" width="100%"style="display:inline"
+    /><figcaption>
         <p align="center">CrowS-Pairs. Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#nangia2020crowspairschallengedataset"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Nikita"><span itemprop="familyName">Nangia</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Clara"><span itemprop="familyName">Vania</span></span>
@@ -1333,8 +1343,9 @@ figure {
 <td>The TruthfulQA benchmark consists of 817 questions, each crafted such that some humans might answer them incorrectly due to misconceptions. The authors used both human and automated evaluation to assess the truthfullness of model answers. They demonstrated that a finetuned GPT-3 model was 90-96% accurate in detecting truthfulness of answers by other models. <br><center>
 
 
-<figure><img class="screenshot"
-         src="example_truthfulqa.png" width="350"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="example_truthfulqa.png" width="350"style="display:inline"
+    /><figcaption>
         <p align="center">TruthfulQA examples. Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#lin2022truthfulqameasuringhow"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Stephanie"><span itemprop="familyName">Lin</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jacob"><span itemprop="familyName">Hilton</span></span>
@@ -3394,8 +3405,9 @@ figure {
 <center>
 
 
-<figure><img class="screenshot"
-         src="results_instruct_gpt.png" width="100%"/><figcaption>
+<figure style="text-align: center;"><img class="screenshot"
+         src="results_instruct_gpt.png" width="100%"style="display:inline"
+    /><figcaption>
         <p align="center">Results of InstructGPT on public NLP benchmarks. Figure from 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#ouyang2022traininglanguagemodels"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Long"><span itemprop="familyName">Ouyang</span></span>,&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Jeff"><span itemprop="familyName">Wu</span></span>
