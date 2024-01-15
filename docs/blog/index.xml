@@ -6,7 +6,16 @@
     <description>Recent content in Blog on arduin.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 15 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The benchmark problems reviving manual evaluation</title>
+      <link>https://arduin.io/blog/2024-01-15-benchmark-problems/</link>
+      <pubDate>Mon, 15 Jan 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/2024-01-15-benchmark-problems/</guid>
+      <description>There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&amp;rsquo;s &amp;ldquo;vibe&amp;rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes.</description>
+    </item>
+    
     <item>
       <title>Interesting takes on the future of AI in 2023</title>
       <link>https://arduin.io/blog/2023-05-17-interesting-ai-viewpoints/</link>
