@@ -12,9 +12,7 @@ FAQ How can I easily change the size of images?
 You need to allow unsafe rendering in the markdown renderer. As I am the only person adding and adapting content on this page this seemed to me to be a sensible thing to do.">
 <meta name="author" content="">
 <link rel="canonical" href="https://arduin.io/papermod-tweaks/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.f545874d1bf41c846127da0e7a0d159a77dede0ec07d939545d3c145dd01177d.css" integrity="sha256-9UWHTRv0HIRhJ9oOeg0Vmnfe3g7AfZOVRdPBRd0BF30=" rel="preload stylesheet" as="style">
-<script defer crossorigin="anonymous" src="/assets/js/highlight.f413e19d0714851f6474e7ee9632408e58ac146fbdbe62747134bea2fa3415e0.js" integrity="sha256-9BPhnQcUhR9kdOfuljJAjlisFG&#43;9vmJ0cTS&#43;ovo0FeA="
-    onload="hljs.initHighlightingOnLoad();"></script>
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5bc4f8cb762aefc18ccd0fa3270fe39efaeea9d556d18c4c77b417cb328985be.css" integrity="sha256-W8T4y3Yq78GMzQ&#43;jJw/jnvruqdVW0YxMd7QXyzKJhb4=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://arduin.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://arduin.io/favicon-32x32.png">
@@ -39,7 +37,7 @@ You need to allow unsafe rendering in the markdown renderer. As I am the only pe
                 --secondary: rgb(155, 156, 157);
                 --tertiary: rgb(65, 66, 68);
                 --content: rgb(196, 196, 197);
-                --hljs-bg: rgb(46, 46, 51);
+                --code-block-bg: rgb(46, 46, 51);
                 --code-bg: rgb(55, 56, 62);
                 --border: rgb(51, 51, 51);
             }
@@ -199,9 +197,11 @@ You need to allow unsafe rendering in the markdown renderer. As I am the only pe
   <header class="post-header">
     
     <link rel="stylesheet" type="text/css" href="/hugo-cite.css" />
-    <h1 class="post-title">
+    
+    <h1 class="post-title entry-hint-parent">
       PaperMod and Hugo tweaks
     </h1>
+    
     <div class="post-meta">
 
 </div>
@@ -328,6 +328,53 @@ You need to allow unsafe rendering in the markdown renderer. As I am the only pe
 
 </script>
 <script src="/js/table_beautify.js"></script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
 </body>
 
 </html>
