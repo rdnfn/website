@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>arduin.io</title>
-    <link>https://arduin.io/</link>
-    <description>Recent content on arduin.io</description>
+    <title>Recommendations on arduin.io</title>
+    <link>https://arduin.io/tags/recommendations/</link>
+    <description>Recent content in Recommendations on arduin.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 29 Feb 2024 17:30:00 +0000</lastBuildDate><atom:link href="https://arduin.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 29 Feb 2024 17:30:00 +0000</lastBuildDate><atom:link href="https://arduin.io/tags/recommendations/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Recommendations for AI news aggregators</title>
       <link>https://arduin.io/blog/rec-ai-news/</link>
@@ -18,15 +18,6 @@ Last week in AI (newsletter/podast) by Andrey Kurenkov, Jacky Liang et al: weekl
     </item>
     
     <item>
-      <title>The benchmark problems reviving manual evaluation</title>
-      <link>https://arduin.io/blog/benchmark-problems/</link>
-      <pubDate>Mon, 15 Jan 2024 00:00:00 +0000</pubDate>
-      
-      <guid>https://arduin.io/blog/benchmark-problems/</guid>
-      <description>There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&amp;rsquo;s &amp;ldquo;vibe&amp;rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes.</description>
-    </item>
-    
-    <item>
       <title>Interesting takes on the future of AI in 2023</title>
       <link>https://arduin.io/blog/interesting-ai-viewpoints/</link>
       <pubDate>Wed, 17 May 2023 00:00:00 +0000</pubDate>
@@ -35,21 +26,6 @@ Last week in AI (newsletter/podast) by Andrey Kurenkov, Jacky Liang et al: weekl
       <description>In late 2022 and early 2023, we have seen major leaps in the field of AI with generative models like those underpinning the ChatGPT interface. Below are selected commentary pieces by AI researchers, leaders and commentators that make predictions about the future of AI following these leaps. I highly recommend looking at these links – they have been very influential on my own thinking and work.
 Geoffrey Hinton: The Godfather of AI on quitting Google to warn of AI risks (podcast) Bill Gates: The age of AI has begun (blog post) Ferenc Huszár: We May be Surprised Again: Why I take LLMs seriously (blog post) Ezra Klein: My view on AI (podcast) Sam Altman: OpenAI CEO on GPT-4, ChatGPT and the Future of AI (podcast) Andrej Karpathy: Emergence of a whole new computing paradigm (twitter post) Hope you find these helpful!</description>
     </item>
-    
-    <item>
-      <title>A short exploration of language model evaluation approaches</title>
-      <link>https://arduin.io/blog/eval-exploration/</link>
-      <pubDate>Mon, 06 Mar 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://arduin.io/blog/eval-exploration/</guid>
-      <description>Disclaimer: This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
-1. Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation. This diversity of tasks means that no single metric can capture overall language model performance.</description>
-    </item>
-    
-    
-    
-    
-    
     
   </channel>
 </rss>

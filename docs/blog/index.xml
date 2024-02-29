@@ -6,7 +6,17 @@
     <description>Recent content in Blog on arduin.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 15 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 29 Feb 2024 17:30:00 +0000</lastBuildDate><atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Recommendations for AI news aggregators</title>
+      <link>https://arduin.io/blog/rec-ai-news/</link>
+      <pubDate>Thu, 29 Feb 2024 17:30:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/rec-ai-news/</guid>
+      <description>The field of artificial intelligence (AI) is moving fast. Keeping up with the vast number of new research papers on your own is daunting: scrolling through twitter all day does not seem like a good use of time. Below is a number of AI news aggregators that I personally use to get curated updates of AI developments on a regular basis without spending all my time looking at papers:
+Last week in AI (newsletter/podast) by Andrey Kurenkov, Jacky Liang et al: weekly updates on the latest AI research development.</description>
+    </item>
+    
     <item>
       <title>The benchmark problems reviving manual evaluation</title>
       <link>https://arduin.io/blog/benchmark-problems/</link>
