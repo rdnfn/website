@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>GPT illustrated: from high-level diagram to vectors and code | arduin.io</title>
+<meta name="keywords" content="Illustrations, Teaching">
+<meta name="description" content="There are many excellent explanations and illustrations of the original transformer (Vaswani&#32; &#32;et&#32;al.,&#32;2017 Vaswani,&#32; A.,&#32; Shazeer,&#32; N.,&#32; Parmar,&#32; N.,&#32; Uszkoreit,&#32; J.,&#32; Jones,&#32; L.,&#32; Gomez,&#32; A.,&#32; Kaiser,&#32; \.&#32;&amp;&#32;Polosukhin,&#32; I. &#32; (2017). &#32;Attention is all you need. Advances in neural information processing systems,&#32;30. ) and generative pre-trained transformer (GPT) (Radford&#32; &#32;et&#32;al.,&#32;2018 Radford,&#32; A.,&#32; Narasimhan,&#32; K.,&#32; Salimans,&#32; T.&#32;&amp;&#32;Sutskever,&#32; I. &#32; (2018). &#32;Improving language understanding by generative pre-training.&#32;Retrieved from&#32; https://www.mikecaptain.com/resources/pdf/GPT-1.pdf ) architectures. For example, I can highly recommend the write-up by Turner&#32;(2023 Turner,&#32; R.">
+<meta name="author" content="Arduin Findeis">
+<link rel="canonical" href="https://arduin.io/blog/gpt-illustrated/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5bc4f8cb762aefc18ccd0fa3270fe39efaeea9d556d18c4c77b417cb328985be.css" integrity="sha256-W8T4y3Yq78GMzQ&#43;jJw/jnvruqdVW0YxMd7QXyzKJhb4=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://arduin.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://arduin.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://arduin.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://arduin.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><script data-goatcounter="https://gbqtk.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script><meta property="og:title" content="GPT illustrated: from high-level diagram to vectors and code" />
+<meta property="og:description" content="There are many excellent explanations and illustrations of the original transformer (Vaswani&#32; &#32;et&#32;al.,&#32;2017 Vaswani,&#32; A.,&#32; Shazeer,&#32; N.,&#32; Parmar,&#32; N.,&#32; Uszkoreit,&#32; J.,&#32; Jones,&#32; L.,&#32; Gomez,&#32; A.,&#32; Kaiser,&#32; \.&#32;&amp;&#32;Polosukhin,&#32; I. &#32; (2017). &#32;Attention is all you need. Advances in neural information processing systems,&#32;30. ) and generative pre-trained transformer (GPT) (Radford&#32; &#32;et&#32;al.,&#32;2018 Radford,&#32; A.,&#32; Narasimhan,&#32; K.,&#32; Salimans,&#32; T.&#32;&amp;&#32;Sutskever,&#32; I. &#32; (2018). &#32;Improving language understanding by generative pre-training.&#32;Retrieved from&#32; https://www.mikecaptain.com/resources/pdf/GPT-1.pdf ) architectures. For example, I can highly recommend the write-up by Turner&#32;(2023 Turner,&#32; R." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://arduin.io/blog/gpt-illustrated/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2023-03-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-03-10T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="GPT illustrated: from high-level diagram to vectors and code"/>
+<meta name="twitter:description" content="There are many excellent explanations and illustrations of the original transformer (Vaswani&#32; &#32;et&#32;al.,&#32;2017 Vaswani,&#32; A.,&#32; Shazeer,&#32; N.,&#32; Parmar,&#32; N.,&#32; Uszkoreit,&#32; J.,&#32; Jones,&#32; L.,&#32; Gomez,&#32; A.,&#32; Kaiser,&#32; \.&#32;&amp;&#32;Polosukhin,&#32; I. &#32; (2017). &#32;Attention is all you need. Advances in neural information processing systems,&#32;30. ) and generative pre-trained transformer (GPT) (Radford&#32; &#32;et&#32;al.,&#32;2018 Radford,&#32; A.,&#32; Narasimhan,&#32; K.,&#32; Salimans,&#32; T.&#32;&amp;&#32;Sutskever,&#32; I. &#32; (2018). &#32;Improving language understanding by generative pre-training.&#32;Retrieved from&#32; https://www.mikecaptain.com/resources/pdf/GPT-1.pdf ) architectures. For example, I can highly recommend the write-up by Turner&#32;(2023 Turner,&#32; R."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://arduin.io/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "GPT illustrated: from high-level diagram to vectors and code",
+      "item": "https://arduin.io/blog/gpt-illustrated/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "GPT illustrated: from high-level diagram to vectors and code",
+  "name": "GPT illustrated: from high-level diagram to vectors and code",
+  "description": "There are many excellent explanations and illustrations of the original transformer (Vaswani\u0026#32; \u0026#32;et\u0026#32;al.,\u0026#32;2017 Vaswani,\u0026#32; A.,\u0026#32; Shazeer,\u0026#32; N.,\u0026#32; Parmar,\u0026#32; N.,\u0026#32; Uszkoreit,\u0026#32; J.,\u0026#32; Jones,\u0026#32; L.,\u0026#32; Gomez,\u0026#32; A.,\u0026#32; Kaiser,\u0026#32; \\.\u0026#32;\u0026amp;\u0026#32;Polosukhin,\u0026#32; I. \u0026#32; (2017). \u0026#32;Attention is all you need. Advances in neural information processing systems,\u0026#32;30. ) and generative pre-trained transformer (GPT) (Radford\u0026#32; \u0026#32;et\u0026#32;al.,\u0026#32;2018 Radford,\u0026#32; A.,\u0026#32; Narasimhan,\u0026#32; K.,\u0026#32; Salimans,\u0026#32; T.\u0026#32;\u0026amp;\u0026#32;Sutskever,\u0026#32; I. \u0026#32; (2018). \u0026#32;Improving language understanding by generative pre-training.\u0026#32;Retrieved from\u0026#32; https://www.mikecaptain.com/resources/pdf/GPT-1.pdf ) architectures. For example, I can highly recommend the write-up by Turner\u0026#32;(2023 Turner,\u0026#32; R.",
+  "keywords": [
+    "Illustrations", "Teaching"
+  ],
+  "articleBody": "There are many excellent explanations and illustrations of the original transformer (Vaswani et al., 2017 Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A., Kaiser, \\. \u0026 Polosukhin, I. (2017). Attention is all you need. Advances in neural information processing systems, 30. ) and generative pre-trained transformer (GPT) (Radford et al., 2018 Radford, A., Narasimhan, K., Salimans, T. \u0026 Sutskever, I. (2018). Improving language understanding by generative pre-training. Retrieved from https://www.mikecaptain.com/resources/pdf/GPT-1.pdf ) architectures. For example, I can highly recommend the write-up by Turner (2023 Turner, R. (2023). An Introduction to Transformers. https://doi.org/10.48550/arXiv.2304.10557 ) and the video by Karpathy (2023 Karpathy, A.(2023, 1/17). Retrieved from https://www.youtube.com/watch?v=kCc8FmEb1nY ). Nevertheless, I decided to create yet another illustration of GPT for a recent example class I taught. My illustration focuses on two things:\nProvide a direct connection from a high-level diagram all the way to an actual code implementation of a GPT. Make the illustration as simple as possible (avoiding unnecessary complexity, e.g. by focusing on vector instead of full matrix/tensor operations) Whilst it was initially intended for teaching, I adapted my illustration further so that it can hopefully be useful as a stand-alone visualisation of the GPT architecture.\nNote that the illustration contains a diagram from the original GPT paper (Radford et al., 2018 Radford, A., Narasimhan, K., Salimans, T. \u0026 Sutskever, I. (2018). Improving language understanding by generative pre-training. Retrieved from https://www.mikecaptain.com/resources/pdf/GPT-1.pdf ) and code written by Andrej Karpathy and contributors.\nHere is the illustration (it’s very large, zoom in for full details):\nIllustration of the generative pre-trained transformer (GPT) architecture (Yuan et al., 2024 Yuan, W., Cho, K. \u0026 Weston, J. (2024). System-Level Natural Language Feedback. https://doi.org/10.48550/arXiv.2306.13588 ) with diagram (left) from the original paper and code (right) by Andrej Karpathy and contributors.\nHope you found this illustration useful and please let me know if you find any errors. The illustration was created using the concepts iPad app.\nReferences Karpathy, A.(2023, 1/17). Retrieved from https://www.youtube.com/watch?v=kCc8FmEb1nY Radford, A., Narasimhan, K., Salimans, T. \u0026 Sutskever, I. (2018). Improving language understanding by generative pre-training. Retrieved from https://www.mikecaptain.com/resources/pdf/GPT-1.pdf Turner, R. (2023). An Introduction to Transformers. https://doi.org/10.48550/arXiv.2304.10557 Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A., Kaiser, \\. \u0026 Polosukhin, I. (2017). Attention is all you need. Advances in neural information processing systems, 30. Yuan, W., Cho, K. \u0026 Weston, J. (2024). System-Level Natural Language Feedback. https://doi.org/10.48550/arXiv.2306.13588 ",
+  "wordCount" : "373",
+  "inLanguage": "en",
+  "datePublished": "2023-03-10T00:00:00Z",
+  "dateModified": "2023-03-10T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Arduin Findeis"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://arduin.io/blog/gpt-illustrated/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "arduin.io",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://arduin.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://arduin.io/" accesskey="h" title="arduin.io (Alt + H)">arduin.io</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://arduin.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/research" title="Research">
+                    <span>Research</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/projects" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/bio" title="Bio">
+                    <span>Bio</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/blog" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/newsletter" title="Newsletter">
+                    <span>Newsletter</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <link rel="stylesheet" type="text/css" href="/hugo-cite.css" />
+    
+    <h1 class="post-title entry-hint-parent">
+      GPT illustrated: from high-level diagram to vectors and code
+    </h1>
+    
+    <div class="post-meta"><span title='2023-03-10 00:00:00 +0000 UTC'>March 10, 2023</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;Arduin Findeis
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>There are many excellent explanations and illustrations of the original <em>transformer</em> 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#vaswani2017attentionallyou"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ashish"><span itemprop="familyName">Vaswani</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2017</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vaswani</span>,&#32;
+    <meta itemprop="givenName" content="Ashish" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Shazeer</span>,&#32;
+    <meta itemprop="givenName" content="Noam" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Parmar</span>,&#32;
+    <meta itemprop="givenName" content="Niki" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Uszkoreit</span>,&#32;
+    <meta itemprop="givenName" content="Jakob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jones</span>,&#32;
+    <meta itemprop="givenName" content="Llion" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gomez</span>,&#32;
+    <meta itemprop="givenName" content="Aidan N." />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaiser</span>,&#32;
+    <meta itemprop="givenName" content="\Lukasz" />
+    \.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Polosukhin</span>,&#32;
+    <meta itemprop="givenName" content="Illia" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2017</span>).
+  &#32;<span itemprop="name">Attention is all you need</span>.<i>
+    <span itemprop="about">Advances in neural information processing systems</span>,&#32;30</i>.</span>
+
+
+
+
+</span></span>)</span> and <em>generative pre-trained transformer</em> (GPT) 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#radford2018improvinglanguageunderstanding"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Alec"><span itemprop="familyName">Radford</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Radford</span>,&#32;
+    <meta itemprop="givenName" content="Alec" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Narasimhan</span>,&#32;
+    <meta itemprop="givenName" content="Karthik" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Salimans</span>,&#32;
+    <meta itemprop="givenName" content="Tim" />
+    T.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sutskever</span>,&#32;
+    <meta itemprop="givenName" content="Ilya" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Improving language understanding by generative pre-training</span>.&#32;Retrieved from&#32;
+  <a href="https://www.mikecaptain.com/resources/pdf/GPT-1.pdf"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://www.mikecaptain.com/resources/pdf/GPT-1.pdf</a></span>
+
+
+
+
+</span></span>)</span> architectures. For example, I can highly recommend the write-up by 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#turner2023introductiontransformers"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Richard E."><span itemprop="familyName">Turner</span></span>&#32;(<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Turner</span>,&#32;
+    <meta itemprop="givenName" content="Richard E." />
+    R.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">An Introduction to Transformers</span>.
+  <a href="https://doi.org/10.48550/arXiv.2304.10557"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2304.10557</a></span>
+
+
+
+
+</span></span>)</span> and the video by 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#karpathy2023letbuildgpt"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Andrej"><span itemprop="familyName">Karpathy</span></span>&#32;(<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/WebPage"
+      data-type="webpage"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Karpathy</span>,&#32;
+    <meta itemprop="givenName" content="Andrej" />
+    A.</span>(<span itemprop="datePublished">2023,&#32;1/17</span>).&#32;Retrieved from&#32;
+  <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://www.youtube.com/watch?v=kCc8FmEb1nY</a></span>
+
+
+
+
+</span></span>)</span>. Nevertheless, I decided to create <em>yet another illustration of GPT</em> for a recent example class I taught. My illustration focuses on two things:</p>
+<ol>
+<li>Provide a direct <em>connection</em> from a <em>high-level diagram</em> all the way to an actual <em>code implementation</em> of a GPT.</li>
+<li>Make the illustration <em>as simple as possible</em> (avoiding unnecessary complexity, e.g. by focusing on vector instead of full matrix/tensor operations)</li>
+</ol>
+<p>Whilst it was initially intended for teaching, I adapted my illustration further so that it can hopefully be useful as a stand-alone visualisation of the GPT architecture.</p>
+<blockquote>
+<p>Note that the illustration contains a diagram from the original GPT paper 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#radford2018improvinglanguageunderstanding"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Alec"><span itemprop="familyName">Radford</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Radford</span>,&#32;
+    <meta itemprop="givenName" content="Alec" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Narasimhan</span>,&#32;
+    <meta itemprop="givenName" content="Karthik" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Salimans</span>,&#32;
+    <meta itemprop="givenName" content="Tim" />
+    T.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sutskever</span>,&#32;
+    <meta itemprop="givenName" content="Ilya" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Improving language understanding by generative pre-training</span>.&#32;Retrieved from&#32;
+  <a href="https://www.mikecaptain.com/resources/pdf/GPT-1.pdf"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://www.mikecaptain.com/resources/pdf/GPT-1.pdf</a></span>
+
+
+
+
+</span></span>)</span> and <a href="https://github.com/karpathy/minGPT/blame/master/mingpt/model.py">code</a> written by Andrej Karpathy and contributors.</p>
+</blockquote>
+<p><strong>Here is the illustration</strong> (it&rsquo;s very large, zoom in for full details)<strong>:</strong></p>
+
+
+
+<figure style="text-align: center;"><img
+         src="gpt_illustration_arduin_v1.png" width="100%"style="display:inline"
+    /><figcaption>
+        <p align="center">Illustration of the generative pre-trained transformer (GPT) architecture 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#yuan2024systemlevelnaturallanguage"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Weizhe"><span itemprop="familyName">Yuan</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yuan</span>,&#32;
+    <meta itemprop="givenName" content="Weizhe" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Cho</span>,&#32;
+    <meta itemprop="givenName" content="Kyunghyun" />
+    K.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Weston</span>,&#32;
+    <meta itemprop="givenName" content="Jason" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">System-Level Natural Language Feedback</span>.
+  <a href="https://doi.org/10.48550/arXiv.2306.13588"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2306.13588</a></span>
+
+
+
+
+</span></span>)</span> with diagram (left) from the original paper and <a href='https://github.com/karpathy/minGPT/blame/master/mingpt/model.py'>code</a> (right) by Andrej Karpathy and contributors.</p>
+    </figcaption>
+</figure>
+<p>Hope you found this illustration useful and please <a href="mailto:contact@arduin.io">let me know</a> if you find any errors. The illustration was created using the <a href="https://concepts.app/en/">concepts</a> iPad app.</p>
+<h2 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h2>
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+<section class="hugo-cite-bibliography">
+  <ol>
+    
+
+      <div id="karpathy2023letbuildgpt">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/WebPage"
+      data-type="webpage"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Karpathy</span>,&#32;
+    <meta itemprop="givenName" content="Andrej" />
+    A.</span>(<span itemprop="datePublished">2023,&#32;1/17</span>).&#32;Retrieved from&#32;
+  <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://www.youtube.com/watch?v=kCc8FmEb1nY</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="radford2018improvinglanguageunderstanding">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Radford</span>,&#32;
+    <meta itemprop="givenName" content="Alec" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Narasimhan</span>,&#32;
+    <meta itemprop="givenName" content="Karthik" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Salimans</span>,&#32;
+    <meta itemprop="givenName" content="Tim" />
+    T.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sutskever</span>,&#32;
+    <meta itemprop="givenName" content="Ilya" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Improving language understanding by generative pre-training</span>.&#32;Retrieved from&#32;
+  <a href="https://www.mikecaptain.com/resources/pdf/GPT-1.pdf"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://www.mikecaptain.com/resources/pdf/GPT-1.pdf</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="turner2023introductiontransformers">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Turner</span>,&#32;
+    <meta itemprop="givenName" content="Richard E." />
+    R.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">An Introduction to Transformers</span>.
+  <a href="https://doi.org/10.48550/arXiv.2304.10557"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2304.10557</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="vaswani2017attentionallyou">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vaswani</span>,&#32;
+    <meta itemprop="givenName" content="Ashish" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Shazeer</span>,&#32;
+    <meta itemprop="givenName" content="Noam" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Parmar</span>,&#32;
+    <meta itemprop="givenName" content="Niki" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Uszkoreit</span>,&#32;
+    <meta itemprop="givenName" content="Jakob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jones</span>,&#32;
+    <meta itemprop="givenName" content="Llion" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gomez</span>,&#32;
+    <meta itemprop="givenName" content="Aidan N." />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaiser</span>,&#32;
+    <meta itemprop="givenName" content="\Lukasz" />
+    \.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Polosukhin</span>,&#32;
+    <meta itemprop="givenName" content="Illia" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2017</span>).
+  &#32;<span itemprop="name">Attention is all you need</span>.<i>
+    <span itemprop="about">Advances in neural information processing systems</span>,&#32;30</i>.</span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="yuan2024systemlevelnaturallanguage">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yuan</span>,&#32;
+    <meta itemprop="givenName" content="Weizhe" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Cho</span>,&#32;
+    <meta itemprop="givenName" content="Kyunghyun" />
+    K.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Weston</span>,&#32;
+    <meta itemprop="givenName" content="Jason" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">System-Level Natural Language Feedback</span>.
+  <a href="https://doi.org/10.48550/arXiv.2306.13588"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2306.13588</a></span>
+
+
+
+
+</li>
+
+      </div>
+  </ol>
+</section>
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Citation</h2>
+
+<p>If you found this post useful for your work, please consider citing it as:
+
+    <blockquote>
+<p>Findeis, Arduin. (Mar 2023). GPT illustrated: from high-level diagram to vectors and code. Retrieved from <a href="https://arduin.io/blog/gpt-illustrated/">https://arduin.io/blog/gpt-illustrated/</a>.</p>
+</blockquote>
+
+    or
+
+    <pre tabindex="0"><code> @article{Findeis2023GPTillustrated:fromhigh-leveldiagramtovectorsandcode,
+        title = &#34;GPT illustrated: from high-level diagram to vectors and code&#34;,
+        author = &#34;Findeis, Arduin&#34;,
+        journal = &#34;arduin.io&#34;,
+        year = &#34;2023&#34;,
+        month = &#34;March&#34;,
+        url = &#34;https://arduin.io/blog/gpt-illustrated/&#34;
+ } 
+</code></pre>
+
+</p>
+
+    
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://arduin.io/tags/illustrations/">Illustrations</a></li>
+      <li><a href="https://arduin.io/tags/teaching/">Teaching</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>
+        
+        <a href="https://arduin.io/"><img src="/favicon-32x32.png" alt="logo" style="width: 20px; margin: 0 auto;opacity:0.6;"></a>
+    </span>
+    <span>&copy; 2024 <a href="https://arduin.io/">arduin.io</a></span>
+    <span>
+        - powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a> with <a href='https://arduin.io/papermod-tweaks/' rel="noopener" target="_blank">tweaks</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script src="/js/table_beautify.js"></script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
