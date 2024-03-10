@@ -3,10 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://arduin.io/</loc>
-    <lastmod>2024-02-29T17:30:00+00:00</lastmod>
+    <lastmod>2024-03-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://arduin.io/blog/</loc>
-    <lastmod>2024-02-29T17:30:00+00:00</lastmod>
+    <lastmod>2024-03-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://arduin.io/blog/gpt-illustrated/</loc>
+    <lastmod>2024-03-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://arduin.io/tags/illustrations/</loc>
+    <lastmod>2024-03-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://arduin.io/tags/</loc>
+    <lastmod>2024-03-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://arduin.io/tags/teaching/</loc>
+    <lastmod>2024-03-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://arduin.io/tags/recommendations/</loc>
     <lastmod>2024-02-29T17:30:00+00:00</lastmod>
@@ -17,23 +29,11 @@
     <loc>https://arduin.io/tags/short-posts/</loc>
     <lastmod>2024-02-29T17:30:00+00:00</lastmod>
   </url><url>
-    <loc>https://arduin.io/tags/</loc>
-    <lastmod>2024-02-29T17:30:00+00:00</lastmod>
-  </url><url>
     <loc>https://arduin.io/blog/benchmark-problems/</loc>
     <lastmod>2024-01-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://arduin.io/blog/interesting-ai-viewpoints/</loc>
     <lastmod>2023-05-17T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://arduin.io/blog/gpt-illustrated/</loc>
-    <lastmod>2023-03-10T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://arduin.io/tags/illustrations/</loc>
-    <lastmod>2023-03-10T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://arduin.io/tags/teaching/</loc>
-    <lastmod>2023-03-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://arduin.io/blog/eval-exploration/</loc>
     <lastmod>2023-03-06T00:00:00+00:00</lastmod>
