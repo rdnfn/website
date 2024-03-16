@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Evaluation on arduin.io</title>
+    <link>https://arduin.io/tags/evaluation/</link>
+    <description>Recent content in Evaluation on arduin.io</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 16 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/tags/evaluation/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MMLU Benchmark Overview</title>
+      <link>https://arduin.io/blog/mmlu-overview/</link>
+      <pubDate>Sat, 16 Mar 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/mmlu-overview/</guid>
+      <description>The Massive Multitask Language Understanding (MMLU) benchmark (Hendrycks et al., 2021) is widely used to demonstrate state-of-the-art language model capabilities. Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4 models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark’s prominence, the exact model capabilities evaluated and evaluation methods are less widely known. In this blog post, I aim to give a short overview of the MMLU benchmark.</description>
+    </item>
+    
+    <item>
+      <title>The benchmark problems reviving manual evaluation</title>
+      <link>https://arduin.io/blog/benchmark-problems/</link>
+      <pubDate>Mon, 15 Jan 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/benchmark-problems/</guid>
+      <description>There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&amp;rsquo;s &amp;ldquo;vibe&amp;rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes.</description>
+    </item>
+    
+    <item>
+      <title>A short exploration of language model evaluation approaches</title>
+      <link>https://arduin.io/blog/eval-exploration/</link>
+      <pubDate>Mon, 06 Mar 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/eval-exploration/</guid>
+      <description>Disclaimer: This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
+1. Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation. This diversity of tasks means that no single metric can capture overall language model performance.</description>
+    </item>
+    
+  </channel>
+</rss>
