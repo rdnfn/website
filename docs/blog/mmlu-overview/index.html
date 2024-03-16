@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>MMLU Benchmark Overview | arduin.io</title>
+<meta name="keywords" content="">
+<meta name="description" content="The Massive Multitask Language Understanding (MMLU) benchmark (Hendrycks et al., 2021) is widely used to demonstrate state-of-the-art language model capabilities. Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4 models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark’s prominence, the exact model capabilities evaluated and evaluation methods are less widely known. In this blog post, I aim to give a short overview of the MMLU benchmark.">
+<meta name="author" content="Arduin Findeis">
+<link rel="canonical" href="https://arduin.io/blog/mmlu-overview/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5bc4f8cb762aefc18ccd0fa3270fe39efaeea9d556d18c4c77b417cb328985be.css" integrity="sha256-W8T4y3Yq78GMzQ&#43;jJw/jnvruqdVW0YxMd7QXyzKJhb4=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://arduin.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://arduin.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://arduin.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://arduin.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://arduin.io/blog/mmlu-overview/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><script data-goatcounter="https://gbqtk.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script><meta property="og:title" content="MMLU Benchmark Overview" />
+<meta property="og:description" content="The Massive Multitask Language Understanding (MMLU) benchmark (Hendrycks et al., 2021) is widely used to demonstrate state-of-the-art language model capabilities. Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4 models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark’s prominence, the exact model capabilities evaluated and evaluation methods are less widely known. In this blog post, I aim to give a short overview of the MMLU benchmark." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://arduin.io/blog/mmlu-overview/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2024-03-16T00:00:00+00:00" />
+<meta property="article:modified_time" content="2024-03-16T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MMLU Benchmark Overview"/>
+<meta name="twitter:description" content="The Massive Multitask Language Understanding (MMLU) benchmark (Hendrycks et al., 2021) is widely used to demonstrate state-of-the-art language model capabilities. Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4 models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark’s prominence, the exact model capabilities evaluated and evaluation methods are less widely known. In this blog post, I aim to give a short overview of the MMLU benchmark."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://arduin.io/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "MMLU Benchmark Overview",
+      "item": "https://arduin.io/blog/mmlu-overview/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "MMLU Benchmark Overview",
+  "name": "MMLU Benchmark Overview",
+  "description": "The Massive Multitask Language Understanding (MMLU) benchmark (Hendrycks et al., 2021) is widely used to demonstrate state-of-the-art language model capabilities. Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4 models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark’s prominence, the exact model capabilities evaluated and evaluation methods are less widely known. In this blog post, I aim to give a short overview of the MMLU benchmark.",
+  "keywords": [
+    
+  ],
+  "articleBody": "The Massive Multitask Language Understanding (MMLU) benchmark (Hendrycks et al., 2021 Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D. \u0026 Steinhardt, J. (2021). Measuring Massive Multitask Language Understanding. https://doi.org/10.48550/arXiv.2009.03300 ) is widely used to demonstrate state-of-the-art language model capabilities. Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4 models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark’s prominence, the exact model capabilities evaluated and evaluation methods are less widely known. In this blog post, I aim to give a short overview of the MMLU benchmark.\nScreenshots of large model providers prominently sharing MMLU results in recent model releases. Taken from official websites discussing model releases of Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4.\nEvaluated model capabilities As the name suggest, the “massive” MMLU Benchmark was created to evaluate language models’ capabilities on a wider range of tasks than previously available benchmarks such as SuperGLUE (Wang et al., 2019 Wang, A., Pruksachatkun, Y., Nangia, N., Singh, A., Michael, J., Hill, F., Levy, O. \u0026 Bowman, S. (2019). SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems. Curran Associates, Inc.. Retrieved from https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html ). To this end, MMLU’s focus is on diverse knowledge tasks spanning from STEM topics (such as abstract algebra) to humanities subjects (such as world religions). Below is the complete set of 57 categories covered by MMLU as listed in the paper:\nAbstract Algebra, Anatomy, Astronomy, Business Ethics, Clinical Knowledge, College Biology, College Chemistry, College Comp Sci, College Mathematics, College Medicine, College Physics, Computer Security, Conceptual Physics, Econometrics, Electrical Engineering, Elementary Mathematics, Formal Logic, Global Facts, High School Biology, High School Chemistry, High School Comp Sci, High School European History, High School Geography, High School Gov’t and Politics, High School Macroeconomics, High School Mathematics, High School Microeconomics, High School Physics, High School Psychology, High School Statistics, High School US History, High School World History, Human Aging, Human Sexuality, International Law, Jurisprudence, Logical Fallacies, Machine Learning, Management, Marketing, Medical Genetics, Miscellaneous, Moral Disputes, Moral Scenarios, Nutrition, Philosophy, Prehistory, Professional Accounting, Professional Law, Prehistory, Professional Accounting, Professional Law, Professional Medicine, Professional Psychology, Public Relations, Security Studies, Sociology, US Foreign Policy, Virology, and World Religions\nEvaluation methods The MMLU benchmark consists entirely of multiple-choice questions. Each question comes with four possible answers (A, B, C, or D). Thus, a fully random model would in expectation still score 25% accuracy on the benchmark. The authors report that non-expert Amazon Mechanical Turk workers achieve a 34.5% accuracy on the test. Further, the authors estimate that expert human performance on the entire benchmark is approximately an accuracy of 89.8%.\nMMLU’s main test set contains 14,079 multiple-choice questions, with at least 100 questions for each category above. All questions were manually collected by undergraduate and graduate students from materials publicly available online, such as exams and exam preparation guides.\nAs is common practice, a GPT-style language model’s “choice” is determined by putting a prompt to answer a question from the benchmark in the model’s context. Then, the probabilities for the next token are computed and the probabilities of the tokens for the possible answers selected. The token with the highest probability under the prompted model is considered the model’s choice.\nExample tasks The following example tasks are taken from the MMLU paper (Hendrycks et al., 2021 Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D. \u0026 Steinhardt, J. (2021). Measuring Massive Multitask Language Understanding. https://doi.org/10.48550/arXiv.2009.03300 ).\nMicroeconomics example question\nOne of the reasons that the government discourages and regulates monopolies is that\n(A) producer surplus is lost and consumer surplus is gained. (B) monopoly prices ensure productive efficiency but cost society allocative efficiency. (C) monopoly firms do not engage in significant research and development. (D) consumer surplus is lost with higher prices and lower levels of output. Question taken from Figure 3 of paper with some formatting added. Correct answer is (D).\nCollege mathematics example question\nIn the complex z-plane, the set of points satisfying the equation z2 = |z|2 is a\n(A) pair of points (B) circle (C) half-line (D) line Question taken from Figure 4 of paper with some formatting added. Correct answer is (D).\nProfessional medicine example question\nA 33-year-old man undergoes a radical thyroidectomy for thyroid cancer. During the operation, moderate hemorrhaging requires ligation of several vessels in the left side of the neck. Postoperatively, serum studies show a calcium concentration of 7.5 mg/dL, albumin concentration of 4 g/dL, and parathyroid hormone concentration of 200 pg/mL. Damage to which of the following vessels caused the findings in this patient?\n(A) Branch of the costocervical trunk (B) Branch of the external carotid artery (C) Branch of the thyrocervical trunk (D) Tributary of the internal jugular vein Question taken from Figure 5 of paper with some formatting added. Correct answer is (C).\nLimitations As with any ML benchmark, results reported on MMLU should be considered with caution. In particular, the benchmark may have been quite extensively overfitted to. Firstly, it is easily available online and would – unless appropriately decontaminated – automatically form part of pre-training data scraped from the internet. Secondly, even if the benchmark data is not directly leaked into training data: MMLU is clearly a metric that is being tracked (and likely optimised for) by all state-of-the-art model developers. As shown above all major developers have released materials reporting their models’ performance on MMLU. See my blog post on benchmark problems for further discussion of overfitting and related benchmark problems that may apply to MMLU.\nFurther resources The code for reproducing the paper’s results was published on GitHub, including instructions on downloading the MMLU dataset. Interesting follow-up work includes the Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark (Yue et al., 2023 Yue, X., Ni, Y., Zhang, K., Zheng, T., Liu, R., Zhang, G., Stevens, S., Jiang, D., Ren, W., Sun, Y., Wei, C., Yu, B., Yuan, R., Sun, R., Yin, M., Zheng, B., Yang, Z., Liu, Y., Huang, W., Sun, H., Su, Y. \u0026 Chen, W. (2023). MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI. https://doi.org/10.48550/arXiv.2311.16502 ), abbreviated as MMMU.\nReferences Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D. \u0026 Steinhardt, J. (2021). Measuring Massive Multitask Language Understanding. https://doi.org/10.48550/arXiv.2009.03300 Wang, A., Pruksachatkun, Y., Nangia, N., Singh, A., Michael, J., Hill, F., Levy, O. \u0026 Bowman, S. (2019). SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems. Curran Associates, Inc.. Retrieved from https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html Yue, X., Ni, Y., Zhang, K., Zheng, T., Liu, R., Zhang, G., Stevens, S., Jiang, D., Ren, W., Sun, Y., Wei, C., Yu, B., Yuan, R., Sun, R., Yin, M., Zheng, B., Yang, Z., Liu, Y., Huang, W., Sun, H., Su, Y. \u0026 Chen, W. (2023). MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI. https://doi.org/10.48550/arXiv.2311.16502 ",
+  "wordCount" : "1129",
+  "inLanguage": "en",
+  "datePublished": "2024-03-16T00:00:00Z",
+  "dateModified": "2024-03-16T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Arduin Findeis"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://arduin.io/blog/mmlu-overview/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "arduin.io",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://arduin.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://arduin.io/" accesskey="h" title="arduin.io (Alt + H)">arduin.io</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://arduin.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/research" title="Research">
+                    <span>Research</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/projects" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/bio" title="Bio">
+                    <span>Bio</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/blog" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/newsletter" title="Newsletter">
+                    <span>Newsletter</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <link rel="stylesheet" type="text/css" href="/hugo-cite.css" />
+    
+    <h1 class="post-title entry-hint-parent">
+      MMLU Benchmark Overview
+    </h1>
+    
+    <div class="post-meta"><span title='2024-03-16 00:00:00 +0000 UTC'>March 16, 2024</span>&nbsp;·&nbsp;6 min&nbsp;·&nbsp;Arduin Findeis
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#evaluated-model-capabilities" aria-label="Evaluated model capabilities">Evaluated model capabilities</a></li>
+                <li>
+                    <a href="#evaluation-methods" aria-label="Evaluation methods">Evaluation methods</a></li>
+                <li>
+                    <a href="#example-tasks" aria-label="Example tasks">Example tasks</a></li>
+                <li>
+                    <a href="#limitations" aria-label="Limitations">Limitations</a></li>
+                <li>
+                    <a href="#further-resources" aria-label="Further resources">Further resources</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>The <em>Massive Multitask Language Understanding</em> (MMLU) benchmark 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#hendrycks2021measuringmassivemultitask"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Dan"><span itemprop="familyName">Hendrycks</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2021</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hendrycks</span>,&#32;
+    <meta itemprop="givenName" content="Dan" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Burns</span>,&#32;
+    <meta itemprop="givenName" content="Collin" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Basart</span>,&#32;
+    <meta itemprop="givenName" content="Steven" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zou</span>,&#32;
+    <meta itemprop="givenName" content="Andy" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mazeika</span>,&#32;
+    <meta itemprop="givenName" content="Mantas" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Song</span>,&#32;
+    <meta itemprop="givenName" content="Dawn" />
+    D.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Steinhardt</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">Measuring Massive Multitask Language Understanding</span>.
+  <a href="https://doi.org/10.48550/arXiv.2009.03300"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2009.03300</a></span>
+
+
+
+
+</span></span>)</span> is widely used to demonstrate state-of-the-art language model capabilities. <a href="https://www.anthropic.com/news/claude-3-family">Anthropic&rsquo;s Claude 3</a>, <a href="https://deepmind.google/technologies/gemini/">Google&rsquo;s Gemini</a> and <a href="https://openai.com/research/gpt-4">OpenAI&rsquo;s GPT-4</a> models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark&rsquo;s prominence, the <em>exact model capabilities</em> evaluated and <em>evaluation methods</em> are less widely known. In this blog post, I aim to give a <em>short overview of the MMLU benchmark</em>.</p>
+
+
+
+<figure style="text-align: center;"><img
+         src="mmlu_public_mentions.png" width="100%"style="display:inline"
+    /><figcaption>
+        <p align="center"> Screenshots of large model providers prominently sharing MMLU results in recent model releases. Taken from official websites discussing model releases of <a href="https://www.anthropic.com/news/claude-3-family">Anthropic’s Claude 3</a>, <a href="https://deepmind.google/technologies/gemini/">Google’s Gemini</a> and <a href="https://openai.com/research/gpt-4">OpenAI’s GPT-4</a>.</p>
+    </figcaption>
+</figure>
+<h2 id="evaluated-model-capabilities">Evaluated model capabilities<a hidden class="anchor" aria-hidden="true" href="#evaluated-model-capabilities">#</a></h2>
+<p>As the name suggest, the <em>&ldquo;massive&rdquo;</em> MMLU Benchmark was created to evaluate language models&rsquo; capabilities on a wider range of tasks than previously available benchmarks such as <em>SuperGLUE</em> 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#wang2019supergluestickierbenchmark"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Alex"><span itemprop="familyName">Wang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pruksachatkun</span>,&#32;
+    <meta itemprop="givenName" content="Yada" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hill</span>,&#32;
+    <meta itemprop="givenName" content="Felix" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Levy</span>,&#32;
+    <meta itemprop="givenName" content="Omer" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems</i></span>.
+  &#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Curran Associates, Inc.</span></span>.&#32;Retrieved from&#32;
+  <a href="https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html</a></span>
+
+</span></span>)</span>. To this end, MMLU&rsquo;s focus is on diverse knowledge tasks spanning from STEM topics (such as <em>abstract algebra</em>) to humanities subjects (such as <em>world religions</em>). Below is the complete set of 57 categories covered by MMLU as listed in the paper:</p>
+<blockquote>
+<p><em>Abstract Algebra, Anatomy, Astronomy, Business Ethics, Clinical Knowledge, College Biology, College Chemistry, College Comp Sci, College Mathematics, College Medicine, College Physics, Computer Security, Conceptual Physics, Econometrics, Electrical Engineering, Elementary Mathematics, Formal Logic, Global Facts, High School Biology, High School Chemistry, High School Comp Sci, High School European History, High School Geography, High School Gov&rsquo;t and Politics, High School Macroeconomics, High School Mathematics, High School Microeconomics, High School Physics, High School Psychology, High School Statistics, High School US History, High School World History, Human Aging, Human Sexuality, International Law, Jurisprudence, Logical Fallacies, Machine Learning, Management, Marketing, Medical Genetics, Miscellaneous, Moral Disputes, Moral Scenarios, Nutrition, Philosophy, Prehistory, Professional Accounting, Professional Law, Prehistory, Professional Accounting, Professional Law, Professional Medicine, Professional Psychology, Public Relations, Security Studies, Sociology, US Foreign Policy, Virology, and World Religions</em></p>
+</blockquote>
+<h2 id="evaluation-methods">Evaluation methods<a hidden class="anchor" aria-hidden="true" href="#evaluation-methods">#</a></h2>
+<p>The MMLU benchmark consists entirely of <em>multiple-choice questions</em>. Each question comes with four possible answers (<em>A</em>, <em>B</em>, <em>C</em>, or <em>D</em>). Thus, a fully random model would in expectation still score 25% accuracy on the benchmark. The authors report that non-expert Amazon Mechanical Turk workers achieve a 34.5% accuracy on the test. Further, the authors estimate that expert human performance on the entire benchmark is approximately an accuracy of 89.8%.</p>
+<p>MMLU&rsquo;s main test set contains 14,079 multiple-choice questions, with at least 100 questions for each category above. All questions were manually collected by undergraduate and graduate students from materials publicly available online, such as exams and exam preparation guides.</p>
+<p>As is common practice, a GPT-style language model&rsquo;s &ldquo;choice&rdquo; is determined by putting a prompt to answer a question from the benchmark in the model&rsquo;s context. Then, the probabilities for the next token are computed and the probabilities of the tokens for the possible answers selected. The token with the highest probability under the prompted model is considered the model&rsquo;s choice.</p>
+<h2 id="example-tasks">Example tasks<a hidden class="anchor" aria-hidden="true" href="#example-tasks">#</a></h2>
+<p>The following example tasks are taken from the MMLU paper 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#hendrycks2021measuringmassivemultitask"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Dan"><span itemprop="familyName">Hendrycks</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2021</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hendrycks</span>,&#32;
+    <meta itemprop="givenName" content="Dan" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Burns</span>,&#32;
+    <meta itemprop="givenName" content="Collin" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Basart</span>,&#32;
+    <meta itemprop="givenName" content="Steven" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zou</span>,&#32;
+    <meta itemprop="givenName" content="Andy" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mazeika</span>,&#32;
+    <meta itemprop="givenName" content="Mantas" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Song</span>,&#32;
+    <meta itemprop="givenName" content="Dawn" />
+    D.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Steinhardt</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">Measuring Massive Multitask Language Understanding</span>.
+  <a href="https://doi.org/10.48550/arXiv.2009.03300"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2009.03300</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+<hr>
+<p><strong>Microeconomics example question</strong></p>
+<blockquote>
+<p><em>One of the reasons that the government discourages and regulates monopolies is that</em></p>
+<ul>
+<li><em>(A) producer surplus is lost and consumer surplus is gained.</em></li>
+<li><em>(B) monopoly prices ensure productive efficiency but cost society allocative efficiency.</em></li>
+<li><em>(C) monopoly firms do not engage in significant research and development.</em></li>
+<li><em>(D) consumer surplus is lost with higher prices and lower levels of output.</em></li>
+</ul>
+</blockquote>
+<p><small>Question taken from Figure 3 of paper with some formatting added. Correct answer is (D).</small></p>
+<hr>
+<p><strong>College mathematics example question</strong></p>
+<blockquote>
+<p><em>In the complex z-plane, the set of points satisfying the equation z2 = |z|2 is a</em></p>
+<ul>
+<li><em>(A) pair of points</em></li>
+<li><em>(B) circle</em></li>
+<li><em>(C) half-line</em></li>
+<li><em>(D) line</em></li>
+</ul>
+</blockquote>
+<p><small>Question taken from Figure 4 of paper with some formatting added. Correct answer is (D).</small></p>
+<hr>
+<p><strong>Professional medicine example question</strong></p>
+<blockquote>
+<p><em>A 33-year-old man undergoes a radical thyroidectomy for thyroid cancer. During the operation, moderate hemorrhaging requires ligation of several vessels in the left side of the neck. Postoperatively, serum studies show a calcium concentration of 7.5 mg/dL, albumin concentration of 4 g/dL, and parathyroid hormone concentration of 200 pg/mL. Damage to which of the following vessels caused the findings in this patient?</em></p>
+<ul>
+<li><em>(A) Branch of the costocervical trunk</em></li>
+<li><em>(B) Branch of the external carotid artery</em></li>
+<li><em>(C) Branch of the thyrocervical trunk</em></li>
+<li><em>(D) Tributary of the internal jugular vein</em></li>
+</ul>
+</blockquote>
+<p><small>Question taken from Figure 5 of paper with some formatting added. Correct answer is (C).</small></p>
+<hr>
+<h2 id="limitations">Limitations<a hidden class="anchor" aria-hidden="true" href="#limitations">#</a></h2>
+<p>As with any ML benchmark, results reported on MMLU should be considered with caution. In particular, the benchmark may have been quite extensively overfitted to. Firstly, it is easily available online and would – unless appropriately decontaminated – automatically form part of pre-training data scraped from the internet. Secondly, even if the benchmark data is not directly leaked into training data: MMLU is clearly a metric that is being tracked (and likely optimised for) by all state-of-the-art model developers. As shown above all major developers have released materials reporting their models&rsquo; performance on MMLU. See my <a href="https://arduin.io/blog/benchmark-problems/">blog post on benchmark problems</a> for further discussion of overfitting and related benchmark problems that may apply to MMLU.</p>
+<h2 id="further-resources">Further resources<a hidden class="anchor" aria-hidden="true" href="#further-resources">#</a></h2>
+<p>The code for reproducing the paper&rsquo;s results was published on <a href="https://github.com/hendrycks/test">GitHub</a>, including instructions on downloading the MMLU dataset. Interesting follow-up work includes the <em>Massive Multi-discipline Multimodal Understanding and Reasoning</em> Benchmark 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#yue2023mmmumassivemultidiscipline"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Xiang"><span itemprop="familyName">Yue</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yue</span>,&#32;
+    <meta itemprop="givenName" content="Xiang" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ni</span>,&#32;
+    <meta itemprop="givenName" content="Yuansheng" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Kai" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Tianyu" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Ruoqi" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Ge" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stevens</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jiang</span>,&#32;
+    <meta itemprop="givenName" content="Dongfu" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ren</span>,&#32;
+    <meta itemprop="givenName" content="Weiming" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sun</span>,&#32;
+    <meta itemprop="givenName" content="Yuxuan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wei</span>,&#32;
+    <meta itemprop="givenName" content="Cong" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yu</span>,&#32;
+    <meta itemprop="givenName" content="Botao" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yuan</span>,&#32;
+    <meta itemprop="givenName" content="Ruibin" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sun</span>,&#32;
+    <meta itemprop="givenName" content="Renliang" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yin</span>,&#32;
+    <meta itemprop="givenName" content="Ming" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Boyuan" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="Zhenzhu" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Yibo" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huang</span>,&#32;
+    <meta itemprop="givenName" content="Wenhao" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sun</span>,&#32;
+    <meta itemprop="givenName" content="Huan" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Su</span>,&#32;
+    <meta itemprop="givenName" content="Yu" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chen</span>,&#32;
+    <meta itemprop="givenName" content="Wenhu" />
+    W.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI</span>.
+  <a href="https://doi.org/10.48550/arXiv.2311.16502"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2311.16502</a></span>
+
+
+
+
+</span></span>)</span>, abbreviated as MMMU.</p>
+<h2 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h2>
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+<section class="hugo-cite-bibliography">
+  <ol>
+    
+
+      <div id="hendrycks2021measuringmassivemultitask">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hendrycks</span>,&#32;
+    <meta itemprop="givenName" content="Dan" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Burns</span>,&#32;
+    <meta itemprop="givenName" content="Collin" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Basart</span>,&#32;
+    <meta itemprop="givenName" content="Steven" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zou</span>,&#32;
+    <meta itemprop="givenName" content="Andy" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mazeika</span>,&#32;
+    <meta itemprop="givenName" content="Mantas" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Song</span>,&#32;
+    <meta itemprop="givenName" content="Dawn" />
+    D.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Steinhardt</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">Measuring Massive Multitask Language Understanding</span>.
+  <a href="https://doi.org/10.48550/arXiv.2009.03300"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2009.03300</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="wang2019supergluestickierbenchmark">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pruksachatkun</span>,&#32;
+    <meta itemprop="givenName" content="Yada" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hill</span>,&#32;
+    <meta itemprop="givenName" content="Felix" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Levy</span>,&#32;
+    <meta itemprop="givenName" content="Omer" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems</i></span>.
+  &#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Curran Associates, Inc.</span></span>.&#32;Retrieved from&#32;
+  <a href="https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.neurips.cc/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html</a></span>
+
+</li>
+
+      </div>
+
+      <div id="yue2023mmmumassivemultidiscipline">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yue</span>,&#32;
+    <meta itemprop="givenName" content="Xiang" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ni</span>,&#32;
+    <meta itemprop="givenName" content="Yuansheng" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Kai" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Tianyu" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Ruoqi" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Ge" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stevens</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jiang</span>,&#32;
+    <meta itemprop="givenName" content="Dongfu" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ren</span>,&#32;
+    <meta itemprop="givenName" content="Weiming" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sun</span>,&#32;
+    <meta itemprop="givenName" content="Yuxuan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wei</span>,&#32;
+    <meta itemprop="givenName" content="Cong" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yu</span>,&#32;
+    <meta itemprop="givenName" content="Botao" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yuan</span>,&#32;
+    <meta itemprop="givenName" content="Ruibin" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sun</span>,&#32;
+    <meta itemprop="givenName" content="Renliang" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yin</span>,&#32;
+    <meta itemprop="givenName" content="Ming" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Boyuan" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="Zhenzhu" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Yibo" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huang</span>,&#32;
+    <meta itemprop="givenName" content="Wenhao" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sun</span>,&#32;
+    <meta itemprop="givenName" content="Huan" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Su</span>,&#32;
+    <meta itemprop="givenName" content="Yu" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chen</span>,&#32;
+    <meta itemprop="givenName" content="Wenhu" />
+    W.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI</span>.
+  <a href="https://doi.org/10.48550/arXiv.2311.16502"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2311.16502</a></span>
+
+
+
+
+</li>
+
+      </div>
+  </ol>
+</section>
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Citation</h2>
+
+<p>If you found this post useful for your work, please consider citing it as:
+
+    <blockquote>
+<p>Findeis, Arduin. (Mar 2024). MMLU Benchmark Overview. Retrieved from <a href="https://arduin.io/blog/mmlu-overview/">https://arduin.io/blog/mmlu-overview/</a>.</p>
+</blockquote>
+
+    or
+
+    <pre tabindex="0"><code> @article{Findeis2023MMLUBenchmarkOverview,
+        title = &#34;MMLU Benchmark Overview&#34;,
+        author = &#34;Findeis, Arduin&#34;,
+        journal = &#34;arduin.io&#34;,
+        year = &#34;2024&#34;,
+        month = &#34;March&#34;,
+        url = &#34;https://arduin.io/blog/mmlu-overview/&#34;
+ } 
+</code></pre>
+
+</p>
+
+    
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>
+        
+        <a href="https://arduin.io/"><img src="/favicon-32x32.png" alt="logo" style="width: 20px; margin: 0 auto;opacity:0.6;"></a>
+    </span>
+    <span>&copy; 2024 <a href="https://arduin.io/">arduin.io</a></span>
+    <span>
+        - powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a> with <a href='https://arduin.io/papermod-tweaks/' rel="noopener" target="_blank">tweaks</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script src="/js/table_beautify.js"></script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

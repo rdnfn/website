@@ -8,6 +8,15 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 31 Dec 2030 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>MMLU Benchmark Overview</title>
+      <link>https://arduin.io/blog/mmlu-overview/</link>
+      <pubDate>Sat, 16 Mar 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/mmlu-overview/</guid>
+      <description>The Massive Multitask Language Understanding (MMLU) benchmark (Hendrycks et al., 2021) is widely used to demonstrate state-of-the-art language model capabilities. Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4 models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark’s prominence, the exact model capabilities evaluated and evaluation methods are less widely known. In this blog post, I aim to give a short overview of the MMLU benchmark.</description>
+    </item>
+    
+    <item>
       <title>GPT illustrated: from high-level diagram to vectors and code</title>
       <link>https://arduin.io/blog/gpt-illustrated/</link>
       <pubDate>Sun, 10 Mar 2024 00:00:00 +0000</pubDate>
