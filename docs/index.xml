@@ -8,6 +8,15 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 31 Dec 2030 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>People</title>
+      <link>https://arduin.io/blog/people/</link>
+      <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/people/</guid>
+      <description>A short (non-exhaustive) list of people who put great stuff on the internet and consistently help me learn new things.</description>
+    </item>
+    
+    <item>
       <title>MMLU Benchmark Overview</title>
       <link>https://arduin.io/blog/mmlu-overview/</link>
       <pubDate>Sat, 16 Mar 2024 00:00:00 +0000</pubDate>
