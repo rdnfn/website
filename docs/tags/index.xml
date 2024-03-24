@@ -6,7 +6,25 @@
     <description>Recent content in Tags on arduin.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 16 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 24 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Recommendations</title>
+      <link>https://arduin.io/tags/recommendations/</link>
+      <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/tags/recommendations/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Short Posts</title>
+      <link>https://arduin.io/tags/short-posts/</link>
+      <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/tags/short-posts/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Benchmark Overviews</title>
       <link>https://arduin.io/tags/benchmark-overviews/</link>
@@ -40,24 +58,6 @@
       <pubDate>Sun, 10 Mar 2024 00:00:00 +0000</pubDate>
       
       <guid>https://arduin.io/tags/teaching/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Recommendations</title>
-      <link>https://arduin.io/tags/recommendations/</link>
-      <pubDate>Thu, 29 Feb 2024 17:30:00 +0000</pubDate>
-      
-      <guid>https://arduin.io/tags/recommendations/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Short Posts</title>
-      <link>https://arduin.io/tags/short-posts/</link>
-      <pubDate>Thu, 29 Feb 2024 17:30:00 +0000</pubDate>
-      
-      <guid>https://arduin.io/tags/short-posts/</guid>
       <description></description>
     </item>
     
