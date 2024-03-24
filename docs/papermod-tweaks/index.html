@@ -98,8 +98,8 @@ You need to allow unsafe rendering in the markdown renderer. As I am the only pe
   "keywords": [
     
   ],
-  "articleBody": "On this short page I describe some of the tweaks I used to set up this Hugo PaperMod site. This page also serves as a reminder to myself about what I did.\nFAQ How can I easily change the size of images?\nYou need to allow unsafe rendering in the markdown renderer. As I am the only person adding and adapting content on this page this seemed to me to be a sensible thing to do. Please correct me if I am wrong. This change can be done in the config.yaml file using:\nmarkup: goldmark: renderer: unsafe: true How do I get links in the subtitle on the main (landing) profile page to be underlined?\nBy default these links are not underlined. This can be changed using the following code to add links (once unsafe rendering with html is allowed as explained before):\nlink How do I add a citation note at the end of all blog posts?\nI used the advice described in this forum discussion to set the citation note up. First I added a partial template similar to the once described in the link, and named it blog-citation.html, and then adapted the single.html layout template slightly to include this partial template. Further I have made this change conditional on the meta data disableCitation: true no being there.\nIf you using VS Code, you may need to enable templating in your html to be able to add whitespace to string (which you probably want to do for indenting the bibtex entry). This change can be done using the setting:\n\"html.format.templating\": true How do enable citing work using my Zotero library?\nAdding citations is not quite as simple as it might initially seem. There is no built-in system or support for Pandoc Citeproc (yet). Eventually, I decided to use Hugo-cite. I have adapted the original code slightly for my purposes: see the adapted fork here. The references below provide more details on why other approaches are difficult to implement:\nhttps://discourse.gohugo.io/t/how-can-i-manage-a-publication-list-in-hugo-preferrably-from-bibtex-file/2089 https://discourse.gohugo.io/t/bibtex-support/8879 https://discourse.gohugo.io/t/parsing-bibtex/32283 What go templating functions can I use?\nLooking up Hugo functions can be confusing as they overlap with standard go templating functions. The functions that can be used with this setup are enumerated here: https://gohugo.io/functions/.\n",
-  "wordCount" : "370",
+  "articleBody": "On this short page I describe some of the tweaks I used to set up this Hugo PaperMod site. This page also serves as a reminder to myself about what I did.\nFAQ How can I easily change the size of images?\nYou need to allow unsafe rendering in the markdown renderer. As I am the only person adding and adapting content on this page this seemed to me to be a sensible thing to do. Please correct me if I am wrong. This change can be done in the config.yaml file using:\nmarkup: goldmark: renderer: unsafe: true How do I get links in the subtitle on the main (landing) profile page to be underlined?\nBy default these links are not underlined. This can be changed using the following code to add links (once unsafe rendering with html is allowed as explained before):\nlink How do I add a citation note at the end of all blog posts?\nI used the advice described in this forum discussion to set the citation note up. First I added a partial template similar to the once described in the link, and named it blog-citation.html, and then adapted the single.html layout template slightly to include this partial template. Further I have made this change conditional on the meta data disableCitation: true no being there.\nIf you using VS Code, you may need to enable templating in your html to be able to add whitespace to string (which you probably want to do for indenting the bibtex entry). This change can be done using the setting:\n\"html.format.templating\": true How do enable citing work using my Zotero library?\nAdding citations is not quite as simple as it might initially seem. There is no built-in system or support for Pandoc Citeproc (yet). Eventually, I decided to use Hugo-cite. I have adapted the original code slightly for my purposes: see the adapted fork here. The references below provide more details on why other approaches are difficult to implement:\nhttps://discourse.gohugo.io/t/how-can-i-manage-a-publication-list-in-hugo-preferrably-from-bibtex-file/2089 https://discourse.gohugo.io/t/bibtex-support/8879 https://discourse.gohugo.io/t/parsing-bibtex/32283 What go templating functions can I use?\nLooking up Hugo functions can be confusing as they overlap with standard go templating functions. The functions that can be used with this setup are enumerated here: https://gohugo.io/functions/.\nHow can one add last modification data to posts?\nI found the approach described by Jackson Lucky works well.\n",
+  "wordCount" : "389",
   "inLanguage": "en",
   "datePublished": "0001-01-01T00:00:00Z",
   "dateModified": "0001-01-01T00:00:00Z",
@@ -203,9 +203,6 @@ You need to allow unsafe rendering in the markdown renderer. As I am the only pe
       PaperMod and Hugo tweaks
     </h1>
     
-    <div class="post-meta">
-
-</div>
   </header> 
   <div class="post-content"><p>On this short page I describe some of the tweaks I used to set up this Hugo PaperMod site. This page also serves as a reminder to myself about what I did.</p>
 <h2 id="faq">FAQ<a hidden class="anchor" aria-hidden="true" href="#faq">#</a></h2>
@@ -241,6 +238,10 @@ You need to allow unsafe rendering in the markdown renderer. As I am the only pe
 <li>
 <p><strong>What go templating functions can I use?</strong></p>
 <p>Looking up Hugo functions can be confusing as they overlap with standard go templating functions. The functions that can be used with this setup are enumerated here: <a href="https://gohugo.io/functions/">https://gohugo.io/functions/</a>.</p>
+</li>
+<li>
+<p><strong>How can one add last modification data to posts?</strong></p>
+<p>I found the <a href="https://www.jacksonlucky.net/posts/use-lastmod-with-papermod/">approach described by Jackson Lucky</a> works well.</p>
 </li>
 </ol>
 
