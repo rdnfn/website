@@ -8,6 +8,15 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 31 Dec 2030 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>GAIA Benchmark Overview</title>
+      <link>https://arduin.io/blog/gaia-overview/</link>
+      <pubDate>Sun, 31 Mar 2024 20:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/gaia-overview/</guid>
+      <description>The General AI Assistant (GAIA) benchmark by Mialon et al. (2023) aims to provide a “convenient yet challenging benchmark for AI assistants”. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (such as a web browser or code interpreter) and contain multi-modal input (such as images, videos or excel sheets). Whilst requiring complex problem solving capabilities to solve, GAIA’s tasks are simple and cheap to verify with unambiguous (and short) text answers.</description>
+    </item>
+    
+    <item>
       <title>People</title>
       <link>https://arduin.io/blog/people/</link>
       <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>

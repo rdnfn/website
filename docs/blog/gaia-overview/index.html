@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>GAIA Benchmark Overview | arduin.io</title>
+<meta name="keywords" content="Benchmark overviews, Evaluation">
+<meta name="description" content="The General AI Assistant (GAIA) benchmark by Mialon et al. (2023) aims to provide a “convenient yet challenging benchmark for AI assistants”. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (such as a web browser or code interpreter) and contain multi-modal input (such as images, videos or excel sheets). Whilst requiring complex problem solving capabilities to solve, GAIA’s tasks are simple and cheap to verify with unambiguous (and short) text answers.">
+<meta name="author" content="Arduin Findeis">
+<link rel="canonical" href="https://arduin.io/blog/gaia-overview/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5bc4f8cb762aefc18ccd0fa3270fe39efaeea9d556d18c4c77b417cb328985be.css" integrity="sha256-W8T4y3Yq78GMzQ&#43;jJw/jnvruqdVW0YxMd7QXyzKJhb4=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://arduin.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://arduin.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://arduin.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://arduin.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://arduin.io/blog/gaia-overview/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><script data-goatcounter="https://gbqtk.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script><meta property="og:title" content="GAIA Benchmark Overview" />
+<meta property="og:description" content="The General AI Assistant (GAIA) benchmark by Mialon et al. (2023) aims to provide a “convenient yet challenging benchmark for AI assistants”. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (such as a web browser or code interpreter) and contain multi-modal input (such as images, videos or excel sheets). Whilst requiring complex problem solving capabilities to solve, GAIA’s tasks are simple and cheap to verify with unambiguous (and short) text answers." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://arduin.io/blog/gaia-overview/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2024-03-31T20:00:00+00:00" />
+<meta property="article:modified_time" content="2024-03-31T20:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="GAIA Benchmark Overview"/>
+<meta name="twitter:description" content="The General AI Assistant (GAIA) benchmark by Mialon et al. (2023) aims to provide a “convenient yet challenging benchmark for AI assistants”. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (such as a web browser or code interpreter) and contain multi-modal input (such as images, videos or excel sheets). Whilst requiring complex problem solving capabilities to solve, GAIA’s tasks are simple and cheap to verify with unambiguous (and short) text answers."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://arduin.io/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "GAIA Benchmark Overview",
+      "item": "https://arduin.io/blog/gaia-overview/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "GAIA Benchmark Overview",
+  "name": "GAIA Benchmark Overview",
+  "description": "The General AI Assistant (GAIA) benchmark by Mialon et al. (2023) aims to provide a “convenient yet challenging benchmark for AI assistants”. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (such as a web browser or code interpreter) and contain multi-modal input (such as images, videos or excel sheets). Whilst requiring complex problem solving capabilities to solve, GAIA’s tasks are simple and cheap to verify with unambiguous (and short) text answers.",
+  "keywords": [
+    "Benchmark overviews", "Evaluation"
+  ],
+  "articleBody": " This post is currently a public draft. Please send feedback to contact\u003c(at)\u003earduin.io.\nThe General AI Assistant (GAIA) benchmark by Mialon et al. (2023 Mialon, G., Fourrier, C., Swift, C., Wolf, T., LeCun, Y. \u0026 Scialom, T. (2023). GAIA: a benchmark for General AI Assistants. https://doi.org/10.48550/arXiv.2311.12983 ) aims to provide a “convenient yet challenging benchmark for AI assistants”. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (such as a web browser or code interpreter) and contain multi-modal input (such as images, videos or excel sheets). Whilst requiring complex problem solving capabilities to solve, GAIA’s tasks are simple and cheap to verify with unambiguous (and short) text answers.\nExamples Three examples of GAIA tasks with increasing difficulty levels.\nFigure taken and adapted from the GAIA paper by Mialon et al. (2023 Mialon, G., Fourrier, C., Swift, C., Wolf, T., LeCun, Y. \u0026 Scialom, T. (2023). GAIA: a benchmark for General AI Assistants. https://doi.org/10.48550/arXiv.2311.12983 ).\nEvaluation method Each GAIA task has a corresponding unique answer. This answer usually takes the form of short string: a few words or numbers (see examples above). Thus, a model’s answer can be cheaply verified using an exact string match. The authors evaluate models on 300 tasks for which only questions are released (but not the correct answers). The corresponding results are released on their public leaderboard. The authors also release a development set of 166 question for which include the ground-truth answers.\nUnlike other benchmarks for agent-type capabilities, such as AgentBench (Liu et al., 2023 Liu, X., Yu, H., Zhang, H., Xu, Y., Lei, X., Lai, H., Gu, Y., Ding, H., Men, K., Yang, K., Zhang, S., Deng, X., Zeng, A., Du, Z., Zhang, C., Shen, S., Zhang, T., Su, Y., Sun, H., Huang, M., Dong, Y. \u0026 Tang, J. (2023). AgentBench: Evaluating LLMs as Agents. https://doi.org/10.48550/arXiv.2308.03688 ), GAIA does not require any form of simulated environment. This design choice has the potential to make the cost of evaluation (and of setting up the evaluation) significantly lower than other similar benchmarks.\nPerformance Unlike other recent benchmarks like GPQA (Rein et al., 2023 Rein, D., Hou, B., Stickland, A., Petty, J., Pang, R., Dirani, J., Michael, J. \u0026 Bowman, S. (2023). GPQA: A Graduate-Level Google-Proof Q\u0026A Benchmark. https://doi.org/10.48550/arXiv.2311.12022 ) – that seem to get more and more difficult for humans as well as AI models – GAIA tasks are actually quite easy for non-expert humans (albeit tedious). The authors report an average success rate of 92% of non-expert humans on GAIA tasks. The most capable AI models currently (as of March 2023) only score less than 50% on their easiest set of tasks, and worse on the more difficult tasks.\nTop entries on the public GAIA leaderboard. Screenshot taken and adapted on 31 March 2024.\nLimitations Throughout the paper, the authors are very open regarding GAIA’s limitations. Below are three potential issues that I personally consider most relevant:\nOverfitting due to data contamination or usage as optimisation objective. Whilst the authors have not released the correct answers for their test set, it would be relatively easy for humans to solve all tasks (max. 17 min. per task) and use such data for training. String matching may fail. From personal experience, I have found that it can be quite difficult to define truly unambiguous answers. There may be some questions in GAIA that fail, despite the model abstractly correctly solving the task. Reliance on external sources. Some questions require very specific information from the web, which may disappear or change over time. This effect will likely impact overall benchmark performance in the future. Conclusion Despite the GAIA’s relatively simple design, this benchmark promises to continue to provide a useful hint at the current limits of AI capabilities. The benchmark is easy to understand and (relatively) cheap to run, and thus has the potential to be quite influential in helping us understand AI progress. Whilst some of the common challenges with AI benchmarks also apply to GAIA, it is certainly a benchmark I will personally pay close attention to as models are released in the future.\nReferences Liu, X., Yu, H., Zhang, H., Xu, Y., Lei, X., Lai, H., Gu, Y., Ding, H., Men, K., Yang, K., Zhang, S., Deng, X., Zeng, A., Du, Z., Zhang, C., Shen, S., Zhang, T., Su, Y., Sun, H., Huang, M., Dong, Y. \u0026 Tang, J. (2023). AgentBench: Evaluating LLMs as Agents. https://doi.org/10.48550/arXiv.2308.03688 Mialon, G., Fourrier, C., Swift, C., Wolf, T., LeCun, Y. \u0026 Scialom, T. (2023). GAIA: a benchmark for General AI Assistants. https://doi.org/10.48550/arXiv.2311.12983 Rein, D., Hou, B., Stickland, A., Petty, J., Pang, R., Dirani, J., Michael, J. \u0026 Bowman, S. (2023). GPQA: A Graduate-Level Google-Proof Q\u0026A Benchmark. https://doi.org/10.48550/arXiv.2311.12022 ",
+  "wordCount" : "774",
+  "inLanguage": "en",
+  "datePublished": "2024-03-31T20:00:00Z",
+  "dateModified": "2024-03-31T20:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Arduin Findeis"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://arduin.io/blog/gaia-overview/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "arduin.io",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://arduin.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://arduin.io/" accesskey="h" title="arduin.io (Alt + H)">arduin.io</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://arduin.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/research" title="Research">
+                    <span>Research</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/projects" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/bio" title="Bio">
+                    <span>Bio</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/blog" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/newsletter" title="Newsletter">
+                    <span>Newsletter</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <link rel="stylesheet" type="text/css" href="/hugo-cite.css" />
+    
+    <h1 class="post-title entry-hint-parent">
+      GAIA Benchmark Overview
+    </h1>
+    
+    <div class="post-meta"><span title='2024-03-31 20:00:00 +0000 UTC'>March 31, 2024</span>&nbsp;·&nbsp;4 min&nbsp;·&nbsp;Arduin Findeis
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#examples" aria-label="Examples">Examples</a></li>
+                <li>
+                    <a href="#evaluation-method" aria-label="Evaluation method">Evaluation method</a></li>
+                <li>
+                    <a href="#performance" aria-label="Performance">Performance</a></li>
+                <li>
+                    <a href="#limitations" aria-label="Limitations">Limitations</a></li>
+                <li>
+                    <a href="#conclusion" aria-label="Conclusion">Conclusion</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p>This post is currently a public draft. Please send feedback to <code>contact&lt;(at)&gt;arduin.io</code>.</p>
+</blockquote>
+<p>The <em>General AI Assistant</em> (GAIA) benchmark by 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#mialon2023gaiabenchmarkgeneral"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Grégoire"><span itemprop="familyName">Mialon</span></span>&#32;
+                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mialon</span>,&#32;
+    <meta itemprop="givenName" content="Grégoire" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Fourrier</span>,&#32;
+    <meta itemprop="givenName" content="Clémentine" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Swift</span>,&#32;
+    <meta itemprop="givenName" content="Craig" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wolf</span>,&#32;
+    <meta itemprop="givenName" content="Thomas" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">LeCun</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Scialom</span>,&#32;
+    <meta itemprop="givenName" content="Thomas" />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">GAIA: a benchmark for General AI Assistants</span>.
+  <a href="https://doi.org/10.48550/arXiv.2311.12983"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2311.12983</a></span>
+
+
+
+
+</span></span>)</span> aims to provide a <em>&ldquo;convenient yet challenging benchmark for AI assistants&rdquo;</em>. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (such as a <em>web browser</em> or <em>code interpreter</em>) and contain multi-modal input (such as <em>images</em>, <em>videos</em> or <em>excel sheets</em>). Whilst requiring complex problem solving capabilities to solve, GAIA&rsquo;s tasks are simple and cheap to verify with unambiguous (and short) text answers.</p>
+<h2 id="examples">Examples<a hidden class="anchor" aria-hidden="true" href="#examples">#</a></h2>
+
+
+
+<figure style="text-align: center;"><img
+         src="01_gaia_example_v3.png" width="100%"style="display:inline"
+    /><figcaption>
+        <p align="center"> Three examples of GAIA tasks with increasing difficulty levels.<br>Figure taken and adapted from the GAIA paper by 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#mialon2023gaiabenchmarkgeneral"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Grégoire"><span itemprop="familyName">Mialon</span></span>&#32;
+                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mialon</span>,&#32;
+    <meta itemprop="givenName" content="Grégoire" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Fourrier</span>,&#32;
+    <meta itemprop="givenName" content="Clémentine" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Swift</span>,&#32;
+    <meta itemprop="givenName" content="Craig" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wolf</span>,&#32;
+    <meta itemprop="givenName" content="Thomas" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">LeCun</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Scialom</span>,&#32;
+    <meta itemprop="givenName" content="Thomas" />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">GAIA: a benchmark for General AI Assistants</span>.
+  <a href="https://doi.org/10.48550/arXiv.2311.12983"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2311.12983</a></span>
+
+
+
+
+</span></span>)</span>.</p>
+    </figcaption>
+</figure>
+<h2 id="evaluation-method">Evaluation method<a hidden class="anchor" aria-hidden="true" href="#evaluation-method">#</a></h2>
+<p>Each GAIA task has a corresponding unique answer. This answer usually takes the form of short string: a few words or numbers (see examples above). Thus, a model&rsquo;s answer can be cheaply verified using an exact string match. The authors evaluate models on 300 tasks for which only questions are released (but not the correct answers). The corresponding results are released on their <a href="https://gaia-benchmark-leaderboard.hf.space/">public leaderboard</a>. The authors also release a <em>development set</em> of 166 question for which include the ground-truth answers.</p>
+<p>Unlike other benchmarks for agent-type capabilities, such as <em>AgentBench</em> 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#liu2023agentbenchevaluatingllms"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Xiao"><span itemprop="familyName">Liu</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Xiao" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yu</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hanchen" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xu</span>,&#32;
+    <meta itemprop="givenName" content="Yifan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lei</span>,&#32;
+    <meta itemprop="givenName" content="Xuanyu" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lai</span>,&#32;
+    <meta itemprop="givenName" content="Hanyu" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gu</span>,&#32;
+    <meta itemprop="givenName" content="Yu" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ding</span>,&#32;
+    <meta itemprop="givenName" content="Hangliang" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Men</span>,&#32;
+    <meta itemprop="givenName" content="Kaiwen" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="Kejuan" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Shudan" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Deng</span>,&#32;
+    <meta itemprop="givenName" content="Xiang" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zeng</span>,&#32;
+    <meta itemprop="givenName" content="Aohan" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Du</span>,&#32;
+    <meta itemprop="givenName" content="Zhengxiao" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Chenhui" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Shen</span>,&#32;
+    <meta itemprop="givenName" content="Sheng" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Tianjun" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Su</span>,&#32;
+    <meta itemprop="givenName" content="Yu" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sun</span>,&#32;
+    <meta itemprop="givenName" content="Huan" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huang</span>,&#32;
+    <meta itemprop="givenName" content="Minlie" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dong</span>,&#32;
+    <meta itemprop="givenName" content="Yuxiao" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Tang</span>,&#32;
+    <meta itemprop="givenName" content="Jie" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">AgentBench: Evaluating LLMs as Agents</span>.
+  <a href="https://doi.org/10.48550/arXiv.2308.03688"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2308.03688</a></span>
+
+
+
+
+</span></span>)</span>, GAIA does <em>not</em> require any form of simulated environment. This design choice has the potential to make the cost of evaluation (and of setting up the evaluation) significantly lower than other similar benchmarks.</p>
+<h2 id="performance">Performance<a hidden class="anchor" aria-hidden="true" href="#performance">#</a></h2>
+<p>Unlike other recent benchmarks like GPQA 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#rein2023gpqagraduatelevelgoogleproof"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="David"><span itemprop="familyName">Rein</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rein</span>,&#32;
+    <meta itemprop="givenName" content="David" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hou</span>,&#32;
+    <meta itemprop="givenName" content="Betty Li" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stickland</span>,&#32;
+    <meta itemprop="givenName" content="Asa Cooper" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Petty</span>,&#32;
+    <meta itemprop="givenName" content="Jackson" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pang</span>,&#32;
+    <meta itemprop="givenName" content="Richard Yuanzhe" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dirani</span>,&#32;
+    <meta itemprop="givenName" content="Julien" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel R." />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">GPQA: A Graduate-Level Google-Proof Q&amp;A Benchmark</span>.
+  <a href="https://doi.org/10.48550/arXiv.2311.12022"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2311.12022</a></span>
+
+
+
+
+</span></span>)</span> – that seem to get more and more difficult for humans as well as AI models – GAIA tasks are actually quite easy for non-expert humans (albeit tedious). The authors report an average success rate of 92% of non-expert humans on GAIA tasks. The most capable AI models currently (as of March 2023) only score <a href="https://huggingface.co/spaces/gaia-benchmark/leaderboard">less than 50%</a> on their easiest set of tasks, and worse on the more difficult tasks.</p>
+
+
+
+<figure style="text-align: center;"><img
+         src="02_gaia_leaderboard_2024_03_31_v2.png" width="100%"style="display:inline"
+    /><figcaption>
+        <p align="center">Top entries on the public <a href="https://gaia-benchmark-leaderboard.hf.space/">GAIA leaderboard</a>. Screenshot taken and adapted on 31 March 2024.</p>
+    </figcaption>
+</figure>
+<h2 id="limitations">Limitations<a hidden class="anchor" aria-hidden="true" href="#limitations">#</a></h2>
+<p>Throughout the paper, the authors are very open regarding GAIA&rsquo;s limitations. Below are three potential issues that I personally consider most relevant:</p>
+<ul>
+<li><em>Overfitting due to data contamination or usage as optimisation objective.</em> Whilst the authors have not released the correct answers for their test set, it would be relatively easy for humans to solve all tasks (max. 17 min. per task) and use such data for training.</li>
+<li><em>String matching may fail.</em> From personal experience, I have found that it can be quite difficult to define truly <em>unambiguous</em> answers. There may be some questions in GAIA that fail, despite the model abstractly correctly solving the task.</li>
+<li><em>Reliance on external sources.</em> Some questions require very specific information from the web, which may disappear or change over time. This effect will likely impact overall benchmark performance in the future.</li>
+</ul>
+<h2 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h2>
+<p>Despite the GAIA&rsquo;s relatively simple design, this benchmark promises to continue to provide a useful hint at the current limits of AI capabilities. The benchmark is easy to understand and (relatively) cheap to run, and thus has the potential to be quite influential in helping us understand AI progress. Whilst some of the <a href="https://arduin.io/blog/benchmark-problems/">common challenges with AI benchmarks</a> also apply to GAIA, it is certainly <em>a benchmark I will personally pay close attention to as models are released in the future</em>.</p>
+<h2 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h2>
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+<section class="hugo-cite-bibliography">
+  <ol>
+    
+
+      <div id="liu2023agentbenchevaluatingllms">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Xiao" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yu</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hanchen" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xu</span>,&#32;
+    <meta itemprop="givenName" content="Yifan" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lei</span>,&#32;
+    <meta itemprop="givenName" content="Xuanyu" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lai</span>,&#32;
+    <meta itemprop="givenName" content="Hanyu" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gu</span>,&#32;
+    <meta itemprop="givenName" content="Yu" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ding</span>,&#32;
+    <meta itemprop="givenName" content="Hangliang" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Men</span>,&#32;
+    <meta itemprop="givenName" content="Kaiwen" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="Kejuan" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Shudan" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Deng</span>,&#32;
+    <meta itemprop="givenName" content="Xiang" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zeng</span>,&#32;
+    <meta itemprop="givenName" content="Aohan" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Du</span>,&#32;
+    <meta itemprop="givenName" content="Zhengxiao" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Chenhui" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Shen</span>,&#32;
+    <meta itemprop="givenName" content="Sheng" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Tianjun" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Su</span>,&#32;
+    <meta itemprop="givenName" content="Yu" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sun</span>,&#32;
+    <meta itemprop="givenName" content="Huan" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huang</span>,&#32;
+    <meta itemprop="givenName" content="Minlie" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dong</span>,&#32;
+    <meta itemprop="givenName" content="Yuxiao" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Tang</span>,&#32;
+    <meta itemprop="givenName" content="Jie" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">AgentBench: Evaluating LLMs as Agents</span>.
+  <a href="https://doi.org/10.48550/arXiv.2308.03688"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2308.03688</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="mialon2023gaiabenchmarkgeneral">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mialon</span>,&#32;
+    <meta itemprop="givenName" content="Grégoire" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Fourrier</span>,&#32;
+    <meta itemprop="givenName" content="Clémentine" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Swift</span>,&#32;
+    <meta itemprop="givenName" content="Craig" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wolf</span>,&#32;
+    <meta itemprop="givenName" content="Thomas" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">LeCun</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Scialom</span>,&#32;
+    <meta itemprop="givenName" content="Thomas" />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">GAIA: a benchmark for General AI Assistants</span>.
+  <a href="https://doi.org/10.48550/arXiv.2311.12983"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2311.12983</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="rein2023gpqagraduatelevelgoogleproof">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rein</span>,&#32;
+    <meta itemprop="givenName" content="David" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hou</span>,&#32;
+    <meta itemprop="givenName" content="Betty Li" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stickland</span>,&#32;
+    <meta itemprop="givenName" content="Asa Cooper" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Petty</span>,&#32;
+    <meta itemprop="givenName" content="Jackson" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pang</span>,&#32;
+    <meta itemprop="givenName" content="Richard Yuanzhe" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dirani</span>,&#32;
+    <meta itemprop="givenName" content="Julien" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel R." />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">GPQA: A Graduate-Level Google-Proof Q&amp;A Benchmark</span>.
+  <a href="https://doi.org/10.48550/arXiv.2311.12022"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2311.12022</a></span>
+
+
+
+
+</li>
+
+      </div>
+  </ol>
+</section>
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Citation</h2>
+
+<p>If you found this post useful for your work, please consider citing it as:
+
+    <blockquote>
+<p>Findeis, Arduin. (Mar 2024). GAIA Benchmark Overview. Retrieved from <a href="https://arduin.io/blog/gaia-overview/">https://arduin.io/blog/gaia-overview/</a>.</p>
+</blockquote>
+
+    or
+
+    <pre tabindex="0"><code> @article{Findeis2023GAIABenchmarkOverview,
+        title = &#34;GAIA Benchmark Overview&#34;,
+        author = &#34;Findeis, Arduin&#34;,
+        journal = &#34;arduin.io&#34;,
+        year = &#34;2024&#34;,
+        month = &#34;March&#34;,
+        url = &#34;https://arduin.io/blog/gaia-overview/&#34;
+ } 
+</code></pre>
+
+</p>
+
+    
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://arduin.io/tags/benchmark-overviews/">Benchmark Overviews</a></li>
+      <li><a href="https://arduin.io/tags/evaluation/">Evaluation</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>
+        
+        <a href="https://arduin.io/"><img src="/favicon-32x32.png" alt="logo" style="width: 20px; margin: 0 auto;opacity:0.6;"></a>
+    </span>
+    <span>&copy; 2024 <a href="https://arduin.io/">arduin.io</a></span>
+    <span>
+        - powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a> with <a href='https://arduin.io/papermod-tweaks/' rel="noopener" target="_blank">tweaks</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script src="/js/table_beautify.js"></script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
