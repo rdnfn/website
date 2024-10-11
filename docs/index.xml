@@ -49,8 +49,12 @@
       <pubDate>Thu, 29 Feb 2024 17:30:00 +0000</pubDate>
       
       <guid>https://arduin.io/blog/rec-ai-news/</guid>
-      <description>The field of artificial intelligence (AI) is moving fast. Keeping up with the vast number of new research papers on your own is daunting: scrolling through twitter all day does not seem like a good use of time. Below is a number of AI news aggregators that I personally use to get curated updates of AI developments on a regular basis without spending all my time looking at papers:
-Last week in AI (newsletter/podast) by Andrey Kurenkov, Jacky Liang et al: weekly updates on the latest AI research development.</description>
+      <description>&lt;p&gt;The field of artificial intelligence (AI) is moving fast. Keeping up with the vast number of new research papers on your own is daunting: scrolling through twitter all day does not seem like a good use of time. Below is a number of AI news aggregators that I personally use to get curated updates of AI developments on a regular basis &lt;em&gt;without spending all my time looking at papers&lt;/em&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;https://lastweekin.ai/&#34;&gt;&lt;em&gt;Last week in AI&lt;/em&gt; (newsletter/podast)&lt;/a&gt; by Andrey Kurenkov, Jacky Liang et al: weekly updates on the latest AI research development. Also available as a podcast.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://nathanbenaich.substack.com/&#34;&gt;&lt;em&gt;Guide to AI&lt;/em&gt; (newsletter)&lt;/a&gt; by Nathan Benaich: in-depth monthly analysis of AI developments, from a commercial/startup/venture capital lense.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://importai.substack.com/&#34;&gt;&lt;em&gt;Import AI&lt;/em&gt; (newsletter)&lt;/a&gt; by Jack Clark: provides a regular stream of very interesting research papers, with detailed summaries.&lt;/li&gt;
+&lt;/ol&gt;</description>
     </item>
     
     <item>
@@ -59,7 +63,88 @@ Last week in AI (newsletter/podast) by Andrey Kurenkov, Jacky Liang et al: weekl
       <pubDate>Mon, 15 Jan 2024 00:00:00 +0000</pubDate>
       
       <guid>https://arduin.io/blog/benchmark-problems/</guid>
-      <description>There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&amp;rsquo;s &amp;ldquo;vibe&amp;rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes.</description>
+      <description>&lt;p&gt;There is a curious trend in &lt;em&gt;machine learning&lt;/em&gt; (ML): researchers developing the most capable &lt;em&gt;large language models&lt;/em&gt; (LLMs) increasingly evaluate them using manual methods such as &lt;em&gt;red teaming&lt;/em&gt;. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&amp;rsquo;s &lt;em&gt;&amp;ldquo;vibe&amp;rdquo;&lt;/em&gt;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are &lt;em&gt;surprisingly manual evaluation processes&lt;/em&gt;. This trend towards manual evaluation hints at fundamental problems that prevent more automatic evaluation methods, such as benchmarks, to be used effectively for LLMs 
+  &lt;span class=&#34;hugo-cite-intext&#34;
+        itemprop=&#34;citation&#34;&gt;(&lt;span class=&#34;hugo-cite-group&#34;&gt;&lt;a href=&#34;#ganguli2023challengesevaluatingai&#34;&gt;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;meta itemprop=&#34;givenName&#34; content=&#34;Deep&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Ganguli&lt;/span&gt;&lt;/span&gt;&amp;#32;
+                &amp;#32;et&amp;#32;al.,&amp;#32;&lt;span itemprop=&#34;datePublished&#34;&gt;2023&lt;/span&gt;&lt;/a&gt;&lt;span class=&#34;hugo-cite-citation&#34;&gt; 
+
+
+
+
+
+
+
+
+
+
+&lt;span itemscope
+      itemtype=&#34;https://schema.org/WebPage&#34;
+      data-type=&#34;webpage&#34;&gt;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Ganguli&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Deep&#34; /&gt;
+    D.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Schiefer&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Nicholas&#34; /&gt;
+    N.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Favaro&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Marina&#34; /&gt;
+    M.&lt;/span&gt;&amp;#32;&amp;amp;&amp;#32;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Clark&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Jack&#34; /&gt;
+    J.&lt;/span&gt;(&lt;span itemprop=&#34;datePublished&#34;&gt;2023,&amp;#32;10&lt;/span&gt;).&amp;#32;Retrieved from&amp;#32;
+  &lt;a href=&#34;https://www.anthropic.com/index/evaluating-ai-systems&#34;
+     itemprop=&#34;identifier&#34;
+     itemtype=&#34;https://schema.org/URL&#34;&gt;https://www.anthropic.com/index/evaluating-ai-systems&lt;/a&gt;&lt;/span&gt;
+
+
+
+
+&lt;/span&gt;&lt;/span&gt;;&amp;#32;&lt;span class=&#34;hugo-cite-group&#34;&gt;&lt;a href=&#34;#lamalfa2023arrtlanguagemodelsasaserviceoverview&#34;&gt;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;meta itemprop=&#34;givenName&#34; content=&#34;Emanuele&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;La Malfa&lt;/span&gt;&lt;/span&gt;&amp;#32;
+                &amp;#32;et&amp;#32;al.,&amp;#32;&lt;span itemprop=&#34;datePublished&#34;&gt;2023&lt;/span&gt;&lt;/a&gt;&lt;span class=&#34;hugo-cite-citation&#34;&gt; 
+
+
+
+
+
+
+
+
+
+
+&lt;span itemscope
+      itemtype=&#34;https://schema.org/Article&#34;
+      data-type=&#34;article&#34;&gt;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;La Malfa&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Emanuele&#34; /&gt;
+    E.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Petrov&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Aleksandar&#34; /&gt;
+    A.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Frieder&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Simon&#34; /&gt;
+    S.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Weinhuber&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Christoph&#34; /&gt;
+    C.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Burnell&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Ryan&#34; /&gt;
+    R.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Cohn&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Anthony G.&#34; /&gt;
+    A.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Shadbolt&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Nigel&#34; /&gt;
+    N.&lt;/span&gt;&amp;#32;&amp;amp;&amp;#32;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Wooldridge&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Michael&#34; /&gt;
+    M.&lt;/span&gt;
+  &amp;#32;
+    (&lt;span itemprop=&#34;datePublished&#34;&gt;2023&lt;/span&gt;).
+  &amp;#32;&lt;span itemprop=&#34;name&#34;&gt;The ARRT of Language-Models-as-a-Service: Overview of a New Paradigm and its Challenges&lt;/span&gt;.
+  &lt;a href=&#34;https://doi.org/10.48550/arXiv.2309.16573&#34;
+     itemprop=&#34;identifier&#34;
+     itemtype=&#34;https://schema.org/URL&#34;&gt;https://doi.org/10.48550/arXiv.2309.16573&lt;/a&gt;&lt;/span&gt;
+
+
+
+
+&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;. In this blog post, I aim to give an illustrated overview of the problems preventing LLM benchmarks from being a fully satisfactory alternative to more manual approaches.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -68,8 +153,16 @@ Last week in AI (newsletter/podast) by Andrey Kurenkov, Jacky Liang et al: weekl
       <pubDate>Wed, 17 May 2023 00:00:00 +0000</pubDate>
       
       <guid>https://arduin.io/blog/interesting-ai-viewpoints/</guid>
-      <description>In late 2022 and early 2023, we have seen major leaps in the field of AI with generative models like those underpinning the ChatGPT interface. Below are selected commentary pieces by AI researchers, leaders and commentators that make predictions about the future of AI following these leaps. I highly recommend looking at these links – they have been very influential on my own thinking and work.
-Geoffrey Hinton: The Godfather of AI on quitting Google to warn of AI risks (podcast) Bill Gates: The age of AI has begun (blog post) Ferenc Huszár: We May be Surprised Again: Why I take LLMs seriously (blog post) Ezra Klein: My view on AI (podcast) Sam Altman: OpenAI CEO on GPT-4, ChatGPT and the Future of AI (podcast) Andrej Karpathy: Emergence of a whole new computing paradigm (twitter post) Hope you find these helpful!</description>
+      <description>&lt;p&gt;In late 2022 and early 2023, we have seen major leaps in the field of AI with generative models like those underpinning the ChatGPT interface.  Below are selected commentary pieces by AI researchers, leaders and commentators that make predictions about the future of AI following these leaps. I highly recommend looking at these links – they have been very influential on my own thinking and work.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Geoffrey Hinton:&lt;/strong&gt; &lt;a href=&#34;https://open.spotify.com/episode/5fqYMFp8JEoJmCwkRxJJee?si=7301fdca557a492b&#34;&gt;The Godfather of AI on quitting Google to warn of AI risks&lt;/a&gt; (podcast)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Bill Gates:&lt;/strong&gt; &lt;a href=&#34;https://www.gatesnotes.com/The-Age-of-AI-Has-Begun&#34;&gt;The age of AI has begun&lt;/a&gt; (blog post)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ferenc Huszár:&lt;/strong&gt; &lt;a href=&#34;https://www.inference.vc/we-may-be-surprised-again/&#34;&gt;We May be Surprised Again: Why I take LLMs seriously&lt;/a&gt; (blog post)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ezra Klein:&lt;/strong&gt; &lt;a href=&#34;https://open.spotify.com/episode/7zJkQ2sqltA5RUXGXXVlUC?si=ae6edd1017b44fce&#34;&gt;My view on AI&lt;/a&gt; (podcast)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Sam Altman:&lt;/strong&gt; &lt;a href=&#34;https://open.spotify.com/episode/6rAOusZcsuNtCv8mefmwND?si=oyFi_s_QS62HcntHCUD6dA&#34;&gt;OpenAI CEO on GPT-4, ChatGPT and the Future of AI&lt;/a&gt; (podcast)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Andrej Karpathy:&lt;/strong&gt; &lt;a href=&#34;https://twitter.com/karpathy/status/1707437820045062561&#34;&gt;Emergence of a whole new computing paradigm&lt;/a&gt; (twitter post)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Hope you find these helpful!&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -78,8 +171,30 @@ Geoffrey Hinton: The Godfather of AI on quitting Google to warn of AI risks (pod
       <pubDate>Mon, 06 Mar 2023 00:00:00 +0000</pubDate>
       
       <guid>https://arduin.io/blog/eval-exploration/</guid>
-      <description>Disclaimer: This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
-1. Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation. This diversity of tasks means that no single metric can capture overall language model performance.</description>
+      <description>&lt;style&gt;
+td {
+  vertical-align: top;
+}
+figure {
+    display: inline-block;
+}
+.screenshot {
+    box-shadow: 0 0px 14px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 6px !important;
+    padding: 8px;
+    background: white;
+}
+
+.drawing {
+    box-shadow: None;
+    border-radius: 6px !important;
+    padding: 8px;
+    background: white;
+}
+
+&lt;/style&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Disclaimer:&lt;/strong&gt; This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to &lt;code&gt;contact (at) arduin.io&lt;/code&gt;.&lt;/em&gt;&lt;/p&gt;</description>
     </item>
     
     

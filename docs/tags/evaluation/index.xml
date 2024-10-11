@@ -31,7 +31,88 @@
       <pubDate>Mon, 15 Jan 2024 00:00:00 +0000</pubDate>
       
       <guid>https://arduin.io/blog/benchmark-problems/</guid>
-      <description>There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&amp;rsquo;s &amp;ldquo;vibe&amp;rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes.</description>
+      <description>&lt;p&gt;There is a curious trend in &lt;em&gt;machine learning&lt;/em&gt; (ML): researchers developing the most capable &lt;em&gt;large language models&lt;/em&gt; (LLMs) increasingly evaluate them using manual methods such as &lt;em&gt;red teaming&lt;/em&gt;. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&amp;rsquo;s &lt;em&gt;&amp;ldquo;vibe&amp;rdquo;&lt;/em&gt;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are &lt;em&gt;surprisingly manual evaluation processes&lt;/em&gt;. This trend towards manual evaluation hints at fundamental problems that prevent more automatic evaluation methods, such as benchmarks, to be used effectively for LLMs 
+  &lt;span class=&#34;hugo-cite-intext&#34;
+        itemprop=&#34;citation&#34;&gt;(&lt;span class=&#34;hugo-cite-group&#34;&gt;&lt;a href=&#34;#ganguli2023challengesevaluatingai&#34;&gt;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;meta itemprop=&#34;givenName&#34; content=&#34;Deep&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Ganguli&lt;/span&gt;&lt;/span&gt;&amp;#32;
+                &amp;#32;et&amp;#32;al.,&amp;#32;&lt;span itemprop=&#34;datePublished&#34;&gt;2023&lt;/span&gt;&lt;/a&gt;&lt;span class=&#34;hugo-cite-citation&#34;&gt; 
+
+
+
+
+
+
+
+
+
+
+&lt;span itemscope
+      itemtype=&#34;https://schema.org/WebPage&#34;
+      data-type=&#34;webpage&#34;&gt;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Ganguli&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Deep&#34; /&gt;
+    D.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Schiefer&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Nicholas&#34; /&gt;
+    N.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Favaro&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Marina&#34; /&gt;
+    M.&lt;/span&gt;&amp;#32;&amp;amp;&amp;#32;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Clark&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Jack&#34; /&gt;
+    J.&lt;/span&gt;(&lt;span itemprop=&#34;datePublished&#34;&gt;2023,&amp;#32;10&lt;/span&gt;).&amp;#32;Retrieved from&amp;#32;
+  &lt;a href=&#34;https://www.anthropic.com/index/evaluating-ai-systems&#34;
+     itemprop=&#34;identifier&#34;
+     itemtype=&#34;https://schema.org/URL&#34;&gt;https://www.anthropic.com/index/evaluating-ai-systems&lt;/a&gt;&lt;/span&gt;
+
+
+
+
+&lt;/span&gt;&lt;/span&gt;;&amp;#32;&lt;span class=&#34;hugo-cite-group&#34;&gt;&lt;a href=&#34;#lamalfa2023arrtlanguagemodelsasaserviceoverview&#34;&gt;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;meta itemprop=&#34;givenName&#34; content=&#34;Emanuele&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;La Malfa&lt;/span&gt;&lt;/span&gt;&amp;#32;
+                &amp;#32;et&amp;#32;al.,&amp;#32;&lt;span itemprop=&#34;datePublished&#34;&gt;2023&lt;/span&gt;&lt;/a&gt;&lt;span class=&#34;hugo-cite-citation&#34;&gt; 
+
+
+
+
+
+
+
+
+
+
+&lt;span itemscope
+      itemtype=&#34;https://schema.org/Article&#34;
+      data-type=&#34;article&#34;&gt;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;La Malfa&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Emanuele&#34; /&gt;
+    E.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Petrov&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Aleksandar&#34; /&gt;
+    A.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Frieder&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Simon&#34; /&gt;
+    S.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Weinhuber&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Christoph&#34; /&gt;
+    C.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Burnell&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Ryan&#34; /&gt;
+    R.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Cohn&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Anthony G.&#34; /&gt;
+    A.&lt;/span&gt;,&amp;#32;
+  &lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Shadbolt&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Nigel&#34; /&gt;
+    N.&lt;/span&gt;&amp;#32;&amp;amp;&amp;#32;&lt;span itemprop=&#34;author&#34; itemscope itemtype=&#34;https://schema.org/Person&#34;&gt;&lt;span itemprop=&#34;familyName&#34;&gt;Wooldridge&lt;/span&gt;,&amp;#32;
+    &lt;meta itemprop=&#34;givenName&#34; content=&#34;Michael&#34; /&gt;
+    M.&lt;/span&gt;
+  &amp;#32;
+    (&lt;span itemprop=&#34;datePublished&#34;&gt;2023&lt;/span&gt;).
+  &amp;#32;&lt;span itemprop=&#34;name&#34;&gt;The ARRT of Language-Models-as-a-Service: Overview of a New Paradigm and its Challenges&lt;/span&gt;.
+  &lt;a href=&#34;https://doi.org/10.48550/arXiv.2309.16573&#34;
+     itemprop=&#34;identifier&#34;
+     itemtype=&#34;https://schema.org/URL&#34;&gt;https://doi.org/10.48550/arXiv.2309.16573&lt;/a&gt;&lt;/span&gt;
+
+
+
+
+&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;. In this blog post, I aim to give an illustrated overview of the problems preventing LLM benchmarks from being a fully satisfactory alternative to more manual approaches.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -40,8 +121,30 @@
       <pubDate>Mon, 06 Mar 2023 00:00:00 +0000</pubDate>
       
       <guid>https://arduin.io/blog/eval-exploration/</guid>
-      <description>Disclaimer: This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.
-1. Introduction Language models (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation. This diversity of tasks means that no single metric can capture overall language model performance.</description>
+      <description>&lt;style&gt;
+td {
+  vertical-align: top;
+}
+figure {
+    display: inline-block;
+}
+.screenshot {
+    box-shadow: 0 0px 14px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 6px !important;
+    padding: 8px;
+    background: white;
+}
+
+.drawing {
+    box-shadow: None;
+    border-radius: 6px !important;
+    padding: 8px;
+    background: white;
+}
+
+&lt;/style&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Disclaimer:&lt;/strong&gt; This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to &lt;code&gt;contact (at) arduin.io&lt;/code&gt;.&lt;/em&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>

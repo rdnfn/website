@@ -7,7 +7,79 @@
 <meta name="robots" content="index, follow">
 <title>The benchmark problems reviving manual evaluation | arduin.io</title>
 <meta name="keywords" content="Evaluation">
-<meta name="description" content="There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&rsquo;s &ldquo;vibe&rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes.">
+<meta name="description" content="There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&rsquo;s &ldquo;vibe&rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes. This trend towards manual evaluation hints at fundamental problems that prevent more automatic evaluation methods, such as benchmarks, to be used effectively for LLMs 
+  (Ganguli&#32;
+                &#32;et&#32;al.,&#32;2023 
+
+
+
+
+
+
+
+
+
+
+Ganguli,&#32;
+    
+    D.,&#32;
+  Schiefer,&#32;
+    
+    N.,&#32;
+  Favaro,&#32;
+    
+    M.&#32;&amp;&#32;Clark,&#32;
+    
+    J.(2023,&#32;10).&#32;Retrieved from&#32;
+  https://www.anthropic.com/index/evaluating-ai-systems
+
+
+
+
+;&#32;La Malfa&#32;
+                &#32;et&#32;al.,&#32;2023 
+
+
+
+
+
+
+
+
+
+
+La Malfa,&#32;
+    
+    E.,&#32;
+  Petrov,&#32;
+    
+    A.,&#32;
+  Frieder,&#32;
+    
+    S.,&#32;
+  Weinhuber,&#32;
+    
+    C.,&#32;
+  Burnell,&#32;
+    
+    R.,&#32;
+  Cohn,&#32;
+    
+    A.,&#32;
+  Shadbolt,&#32;
+    
+    N.&#32;&amp;&#32;Wooldridge,&#32;
+    
+    M.
+  &#32;
+    (2023).
+  &#32;The ARRT of Language-Models-as-a-Service: Overview of a New Paradigm and its Challenges.
+  https://doi.org/10.48550/arXiv.2309.16573
+
+
+
+
+). In this blog post, I aim to give an illustrated overview of the problems preventing LLM benchmarks from being a fully satisfactory alternative to more manual approaches.">
 <meta name="author" content="Arduin Findeis">
 <link rel="canonical" href="https://arduin.io/blog/benchmark-problems/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.5bc4f8cb762aefc18ccd0fa3270fe39efaeea9d556d18c4c77b417cb328985be.css" integrity="sha256-W8T4y3Yq78GMzQ&#43;jJw/jnvruqdVW0YxMd7QXyzKJhb4=" rel="preload stylesheet" as="style">
@@ -57,7 +129,79 @@
     </style>
 </noscript><script data-goatcounter="https://gbqtk.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script><meta property="og:title" content="The benchmark problems reviving manual evaluation" />
-<meta property="og:description" content="There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&rsquo;s &ldquo;vibe&rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes." />
+<meta property="og:description" content="There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&rsquo;s &ldquo;vibe&rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes. This trend towards manual evaluation hints at fundamental problems that prevent more automatic evaluation methods, such as benchmarks, to be used effectively for LLMs 
+  (Ganguli&#32;
+                &#32;et&#32;al.,&#32;2023 
+
+
+
+
+
+
+
+
+
+
+Ganguli,&#32;
+    
+    D.,&#32;
+  Schiefer,&#32;
+    
+    N.,&#32;
+  Favaro,&#32;
+    
+    M.&#32;&amp;&#32;Clark,&#32;
+    
+    J.(2023,&#32;10).&#32;Retrieved from&#32;
+  https://www.anthropic.com/index/evaluating-ai-systems
+
+
+
+
+;&#32;La Malfa&#32;
+                &#32;et&#32;al.,&#32;2023 
+
+
+
+
+
+
+
+
+
+
+La Malfa,&#32;
+    
+    E.,&#32;
+  Petrov,&#32;
+    
+    A.,&#32;
+  Frieder,&#32;
+    
+    S.,&#32;
+  Weinhuber,&#32;
+    
+    C.,&#32;
+  Burnell,&#32;
+    
+    R.,&#32;
+  Cohn,&#32;
+    
+    A.,&#32;
+  Shadbolt,&#32;
+    
+    N.&#32;&amp;&#32;Wooldridge,&#32;
+    
+    M.
+  &#32;
+    (2023).
+  &#32;The ARRT of Language-Models-as-a-Service: Overview of a New Paradigm and its Challenges.
+  https://doi.org/10.48550/arXiv.2309.16573
+
+
+
+
+). In this blog post, I aim to give an illustrated overview of the problems preventing LLM benchmarks from being a fully satisfactory alternative to more manual approaches." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://arduin.io/blog/benchmark-problems/" /><meta property="article:section" content="blog" />
 <meta property="article:published_time" content="2024-01-15T00:00:00+00:00" />
@@ -65,7 +209,79 @@
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="The benchmark problems reviving manual evaluation"/>
-<meta name="twitter:description" content="There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&rsquo;s &ldquo;vibe&rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes."/>
+<meta name="twitter:description" content="There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&rsquo;s &ldquo;vibe&rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes. This trend towards manual evaluation hints at fundamental problems that prevent more automatic evaluation methods, such as benchmarks, to be used effectively for LLMs 
+  (Ganguli&#32;
+                &#32;et&#32;al.,&#32;2023 
+
+
+
+
+
+
+
+
+
+
+Ganguli,&#32;
+    
+    D.,&#32;
+  Schiefer,&#32;
+    
+    N.,&#32;
+  Favaro,&#32;
+    
+    M.&#32;&amp;&#32;Clark,&#32;
+    
+    J.(2023,&#32;10).&#32;Retrieved from&#32;
+  https://www.anthropic.com/index/evaluating-ai-systems
+
+
+
+
+;&#32;La Malfa&#32;
+                &#32;et&#32;al.,&#32;2023 
+
+
+
+
+
+
+
+
+
+
+La Malfa,&#32;
+    
+    E.,&#32;
+  Petrov,&#32;
+    
+    A.,&#32;
+  Frieder,&#32;
+    
+    S.,&#32;
+  Weinhuber,&#32;
+    
+    C.,&#32;
+  Burnell,&#32;
+    
+    R.,&#32;
+  Cohn,&#32;
+    
+    A.,&#32;
+  Shadbolt,&#32;
+    
+    N.&#32;&amp;&#32;Wooldridge,&#32;
+    
+    M.
+  &#32;
+    (2023).
+  &#32;The ARRT of Language-Models-as-a-Service: Overview of a New Paradigm and its Challenges.
+  https://doi.org/10.48550/arXiv.2309.16573
+
+
+
+
+). In this blog post, I aim to give an illustrated overview of the problems preventing LLM benchmarks from being a fully satisfactory alternative to more manual approaches."/>
 
 
 <script type="application/ld+json">
@@ -94,7 +310,7 @@
   "@type": "BlogPosting",
   "headline": "The benchmark problems reviving manual evaluation",
   "name": "The benchmark problems reviving manual evaluation",
-  "description": "There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM\u0026rsquo;s \u0026ldquo;vibe\u0026rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes.",
+  "description": "There is a curious trend in machine learning (ML): researchers developing the most capable large language models (LLMs) increasingly evaluate them using manual methods such as red teaming. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM\u0026rsquo;s \u0026ldquo;vibe\u0026rdquo;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are surprisingly manual evaluation processes. This trend towards manual evaluation hints at fundamental problems that prevent more automatic evaluation methods, such as benchmarks, to be used effectively for LLMs (Ganguli\u0026#32; \u0026#32;et\u0026#32;al.,\u0026#32;2023 Ganguli,\u0026#32; D.,\u0026#32; Schiefer,\u0026#32; N.,\u0026#32; Favaro,\u0026#32; M.\u0026#32;\u0026amp;\u0026#32;Clark,\u0026#32; J.(2023,\u0026#32;10).\u0026#32;Retrieved from\u0026#32; https://www.anthropic.com/index/evaluating-ai-systems ;\u0026#32;La Malfa\u0026#32; \u0026#32;et\u0026#32;al.,\u0026#32;2023 La Malfa,\u0026#32; E.,\u0026#32; Petrov,\u0026#32; A.,\u0026#32; Frieder,\u0026#32; S.,\u0026#32; Weinhuber,\u0026#32; C.,\u0026#32; Burnell,\u0026#32; R.,\u0026#32; Cohn,\u0026#32; A.,\u0026#32; Shadbolt,\u0026#32; N.\u0026#32;\u0026amp;\u0026#32;Wooldridge,\u0026#32; M. \u0026#32; (2023). \u0026#32;The ARRT of Language-Models-as-a-Service: Overview of a New Paradigm and its Challenges. https://doi.org/10.48550/arXiv.2309.16573 ). In this blog post, I aim to give an illustrated overview of the problems preventing LLM benchmarks from being a fully satisfactory alternative to more manual approaches.\n",
   "keywords": [
     "Evaluation"
   ],
