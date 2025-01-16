@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Common issues with pairwise feedback | arduin.io</title>
+<meta name="keywords" content="">
+<meta name="description" content="A list of common issues with pairwise feedback data relevant both for model evaluation and training.">
+<meta name="author" content="Arduin Findeis">
+<link rel="canonical" href="https://arduin.io/blog/pairwise-feedback-issues/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.74192b248365a4732a0332cce11ae250dc937c12cac437447139705f932a2159.css" integrity="sha256-dBkrJINlpHMqAzLM4RriUNyTfBLKxDdEcTlwX5MqIVk=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://arduin.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://arduin.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://arduin.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://arduin.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://arduin.io/blog/pairwise-feedback-issues/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><script data-goatcounter="https://gbqtk.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script><meta property="og:title" content="Common issues with pairwise feedback" />
+<meta property="og:description" content="A list of common issues with pairwise feedback data relevant both for model evaluation and training." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://arduin.io/blog/pairwise-feedback-issues/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2025-01-16T00:00:00+00:00" />
+<meta property="article:modified_time" content="2025-01-16T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Common issues with pairwise feedback"/>
+<meta name="twitter:description" content="A list of common issues with pairwise feedback data relevant both for model evaluation and training."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://arduin.io/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Common issues with pairwise feedback",
+      "item": "https://arduin.io/blog/pairwise-feedback-issues/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Common issues with pairwise feedback",
+  "name": "Common issues with pairwise feedback",
+  "description": "A list of common issues with pairwise feedback data relevant both for model evaluation and training.",
+  "keywords": [
+    
+  ],
+  "articleBody": " 🚧 This post is currently a public draft. I appreciate any feedback! 🚧\n1. Introduction The AI community extensively uses human feedback for training and evaluation. In the context of large language models (LLMs), this feedback is typically collected as pairwise preferences: given a prompt and two (or more) responses, annotators select the “better” response. Such data is then directly used to fine-tune models (e.g. via RLHF (Kaufmann et al., 2023 Kaufmann, T., Weng, P., Bengs, V. \u0026 Hüllermeier, E. (2023). A Survey of Reinforcement Learning from Human Feedback. https://doi.org/10.48550/arXiv.2312.14925 )), or to evaluate models (e.g. in Chatbot Arena (Chiang et al., 2024 Chiang, W., Zheng, L., Sheng, Y., Angelopoulos, A., Li, T., Li, D., Zhang, H., Zhu, B., Jordan, M., Gonzalez, J. \u0026 Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. https://doi.org/10.48550/arXiv.2403.04132 )). As with any data, there are some common issues with pairwise preferences that negatively affect downstream use-cases — potentially resulting in misleading evaluation results or trained models that are poorly aligned to human values. Whilst various pairwise data issues are frequently discussed separately, I have not come across a good overview summary of all common issues with pairwise preferences.\nThis blog post aims to fill this gap: a list of the (in my opinion) most common issues with pairwise feedback. This list is partially based on my own experience generating and working with pairwise feedback datasets — and often running into some of these very same issues. I hope it helps!\nCall for feedback: If you think I have missed an issue that you run into or relevant work, please reach out! I would be very happy to add it here and would of course acknowledge your contribution (if wanted).\n2. Background: pairwise feedback data Each datapoint in a pairwise feedback dataset at least has the following parts: (A) a prompt, (B) two or more responses and a (C) general ranking annotation that orders the responses. In many datasets further information is included, such as (D) additional annotations (e.g. regarding the truthfulness of each response) and (E) metadata about the models used to sample responses and annotator details (e.g. demographics or, if LLM-based, configuration parameters). The (pseudo-)yaml below illustrates this typical structure of a pairwise preference datapoint:\n💬 prompt: task for which model responses are sampled and compared on, can sometimes be full prior conversation history with multiple back-and-forth messages 🤖 responses: sampled responses to the prompt, typically two (i.e. a pair of) responses, recently also often 4 or more. ✏️ annotation: - general_ranking: ranking of all responses, typically allowing for ties between responses - additional_annotations: other annotation data often collected from annotators, e.g. ratings for each response of its harmfulness and truthfulness # optional 📋 metadata: - response_models: names and configurations of models from which responses are sampled # optional - annotator: id and demographic details if human annotators, LLM configuration if LLM-as-a-Judge # optional Example datapoint:\n💬 prompt: 'How far away is the moon?' 🤖 responses: ['Not very far at all!', 'About 384,000 km'] ✏️ annotation: - general_ranking: '1 \u003e 0' - additional_annotations: truthful: [0.1, 0.9] 📋 metadata: - response_models: ['model-x', 'model-y'] - annotator: name: 'anonymous' 3. Common issues As any form of dataset, pairwise preference datasets frequently have issues affecting downstream uses. I split common issues into two separate lists: first issues related to the selection of prompts and responses (dataset design issues) and then issues related to the annotation of these datasets (annotation issues). Most issues affect both evaluation and training use-cases. Issues that are only relevant for one use-case are marked as such (e.g. ’eval only’).\nOverview of issues with pairwise feedback datasets Dataset design issues Issue Description A 💬 Prompts out-of-distribution Prompts in dataset from different distribution than real-world usage prompts B ⚖️ Imbalanced response models Not all models sampled equally frequently, leading to some over-/underrepresented (Chiang et al., 2024 Chiang, W., Zheng, L., Sheng, Y., Angelopoulos, A., Li, T., Li, D., Zhang, H., Zhu, B., Jordan, M., Gonzalez, J. \u0026 Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. https://doi.org/10.48550/arXiv.2403.04132 ) C 🎲 Inconsistent sampling methods (eval only) Equivalent sampling parameters not set equally between models (e.g. max tokens), affecting validity of ranking results D 👻 Off-policy responses (train only) Responses sampled from different model than that to be trained on data, thus often responses unlikely under trained model (policy) (Lambert et al., 2024 Lambert, N., Morrison, J., Pyatkin, V., Huang, S., Ivison, H., Brahman, F., Miranda, L., Liu, A., Dziri, N., Lyu, S., Gu, Y., Malik, S., Graf, V., Hwang, J., Yang, J., Bras, R., Tafjord, O., Wilhelm, C., Soldaini, L., Smith, N., Wang, Y., Dasigi, P. \u0026 Hajishirzi, H. (2024). Tulu 3: Pushing Frontiers in Open Language Model Post-Training. https://doi.org/10.48550/arXiv.2411.15124 ) Annotation issues Issue Description E 🌍 Non-representative annotators Annotators are not representative of the model users, e.g. all annotator US-based for globally used model (Kirk et al., 2024 Kirk, H., Whitefield, A., Röttger, P., Bean, A., Margatina, K., Ciro, J., Mosquera, R., Bartolo, M., Williams, A., He, H., Vidgen, B. \u0026 Hale, S. (2024). The PRISM Alignment Project: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models. https://doi.org/10.48550/arXiv.2404.16019 ) F 🤝 High tie-rate Either model responses are too similar or annotators too hesitant to make clear ranking judgement G 🗣️ High inter-annotator disagreement Annotators frequently disagree on rankings (Dubois et al., 2023 Dubois, Y., Li, X., Taori, R., Zhang, T., Gulrajani, I., Ba, J., Guestrin, C., Liang, P. \u0026 Hashimoto, T. (2023). AlpacaFarm: A Simulation Framework for Methods that Learn from Human Feedback. https://doi.org/10.48550/arXiv.2305.14387 ; Li et al., 2023 Li, X., Zhang, T., Dubois, Y., Taori, R., Gulrajani, I., Guestrin, C., Liang, P. \u0026 Hashimoto, T. (2023). AlpacaEval: An Automatic Evaluator of Instruction-following Models. Retrieved from https://github.com/tatsu-lab/alpaca_eval ) H 🤔 High intra-annotator disagreement When shown the same datapoint twice, annotators frequently provide inconsistent annotations I ↓ Annotator biases Annotators overemphasize certain response qualities over other factors (e.g. factuality) beyond what would be widely agreed as sensible. Can be difficult to clearly distinguish from valid preferences. Below is an (incomplete) list of widely-discussed biases. I.1 ↳ 📏 Length bias Annotators overemphasize the importance of response length, often favouring longer responses (Zheng et al., 2023 Zheng, L., Chiang, W., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E., Zhang, H., Gonzalez, J. \u0026 Stoica, I. (2023). Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. https://doi.org/10.48550/arXiv.2306.05685 ; Dubois et al., 2024 Dubois, Y., Galambosi, B., Liang, P. \u0026 Hashimoto, T. (2024). Length-Controlled AlpacaEval: A Simple Way to Debias Automatic Evaluators. https://doi.org/10.48550/arXiv.2404.04475 ) I.2 ↳ 1️⃣ Position bias Annotators consider the order in which responses are shown to them (should not matter) (Zheng et al., 2023 Zheng, L., Chiang, W., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E., Zhang, H., Gonzalez, J. \u0026 Stoica, I. (2023). Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. https://doi.org/10.48550/arXiv.2306.05685 ) I.3 ↳ 🎨 Style bias Annotators overemphasize the importance of writing style (e.g. using lists) (Wu \u0026 Aji, 2023 Wu, M. \u0026 Aji, A. (2023). Style Over Substance: Evaluation Biases for Large Language Models. https://doi.org/10.48550/arXiv.2307.03025 ; Li et al., 2024 Li, T., Angelopoulos, A. \u0026 Chiang, W.(2024, 8/28). Retrieved from https://lmsys.org/blog/2024-08-28-style-control ) I.4 ↳ 👮‍♂️Assertiveness bias Annotators overemphasize the importance of response assertiveness (Hosking et al., 2024 Hosking, T., Blunsom, P. \u0026 Bartolo, M. (2024). Human Feedback is not Gold Standard. https://doi.org/10.48550/arXiv.2309.16349 ) I.5 ↳ 💫 Self-preference bias (LLM-as-a-Judge only) Annotators have a preference for output that is generated by their own underlying model (Stureborg et al., 2024 Stureborg, R., Alikaniotis, D. \u0026 Suhara, Y. (2024). Large Language Models are Inconsistent and Biased Evaluators. Retrieved from http://arxiv.org/abs/2405.01724 ) I.[…] ↳ many more biases less widely-discussed 4. Conclusion Pairwise feedback can be flawed in many ways. Yet, the above list is undoubtedly incomplete: there are many dataset properties that are difficult to measure and haven’t been detected yet. Exploring this open problem, our recent work on Inverse Constitutional AI (Findeis et al., 2024 Findeis, A., Kaufmann, T., Hüllermeier, E., Albanie, S. \u0026 Mullins, R. (2024). Inverse Constitutional AI: Compressing Preferences into Principles. Retrieved from http://arxiv.org/abs/2406.06560 ) aims to provide a method to automatically find new kinds of annotator biases. I think there is great potential to develop further (potentially similar) methods that can effectively discover and measure data issues. Given the cost of both data collection and model training, making the effort to fully understand your pairwise feedback datasets seems well-justified.\n5. Further reading There of course are many papers in the space of pairwise preference (issues). Below are few I found particularly useful:\nKirk et al. (2024 Kirk, H., Whitefield, A., Röttger, P., Bean, A., Margatina, K., Ciro, J., Mosquera, R., Bartolo, M., Williams, A., He, H., Vidgen, B. \u0026 Hale, S. (2024). The PRISM Alignment Project: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models. https://doi.org/10.48550/arXiv.2404.16019 ) provide possibly the most extensive public discussion of any pairwise feedback dataset (PRISM). I can recommend having a look at that paper! Chiang et al. (2024 Chiang, W., Zheng, L., Sheng, Y., Angelopoulos, A., Li, T., Li, D., Zhang, H., Zhu, B., Jordan, M., Gonzalez, J. \u0026 Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. https://doi.org/10.48550/arXiv.2403.04132 ) provide an extensive analysis of Chatbot Arena data, a popular dataset that is worth to understand well! Lambert et al. (2024 Lambert, N., Morrison, J., Pyatkin, V., Huang, S., Ivison, H., Brahman, F., Miranda, L., Liu, A., Dziri, N., Lyu, S., Gu, Y., Malik, S., Graf, V., Hwang, J., Yang, J., Bras, R., Tafjord, O., Wilhelm, C., Soldaini, L., Smith, N., Wang, Y., Dasigi, P. \u0026 Hajishirzi, H. (2024). Tulu 3: Pushing Frontiers in Open Language Model Post-Training. https://doi.org/10.48550/arXiv.2411.15124 ) provide a detailed description of preference data considerations during large model training in this Tülu post-training discussion — similar details are hard to come by from other labs. Definitely worth looking through! Acknowledgements This post is currently a public draft, acknowledgements to be added in the final version. Big thanks to you up-front for your feedback!\nReferences Li, T., Angelopoulos, A. \u0026 Chiang, W.(2024, 8/28). Retrieved from https://lmsys.org/blog/2024-08-28-style-control Chiang, W., Zheng, L., Sheng, Y., Angelopoulos, A., Li, T., Li, D., Zhang, H., Zhu, B., Jordan, M., Gonzalez, J. \u0026 Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. https://doi.org/10.48550/arXiv.2403.04132 Dubois, Y., Li, X., Taori, R., Zhang, T., Gulrajani, I., Ba, J., Guestrin, C., Liang, P. \u0026 Hashimoto, T. (2023). AlpacaFarm: A Simulation Framework for Methods that Learn from Human Feedback. https://doi.org/10.48550/arXiv.2305.14387 Dubois, Y., Galambosi, B., Liang, P. \u0026 Hashimoto, T. (2024). Length-Controlled AlpacaEval: A Simple Way to Debias Automatic Evaluators. https://doi.org/10.48550/arXiv.2404.04475 Findeis, A., Kaufmann, T., Hüllermeier, E., Albanie, S. \u0026 Mullins, R. (2024). Inverse Constitutional AI: Compressing Preferences into Principles. Retrieved from http://arxiv.org/abs/2406.06560 Hosking, T., Blunsom, P. \u0026 Bartolo, M. (2024). Human Feedback is not Gold Standard. https://doi.org/10.48550/arXiv.2309.16349 Kaufmann, T., Weng, P., Bengs, V. \u0026 Hüllermeier, E. (2023). A Survey of Reinforcement Learning from Human Feedback. https://doi.org/10.48550/arXiv.2312.14925 Kirk, H., Whitefield, A., Röttger, P., Bean, A., Margatina, K., Ciro, J., Mosquera, R., Bartolo, M., Williams, A., He, H., Vidgen, B. \u0026 Hale, S. (2024). The PRISM Alignment Project: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models. https://doi.org/10.48550/arXiv.2404.16019 Lambert, N., Morrison, J., Pyatkin, V., Huang, S., Ivison, H., Brahman, F., Miranda, L., Liu, A., Dziri, N., Lyu, S., Gu, Y., Malik, S., Graf, V., Hwang, J., Yang, J., Bras, R., Tafjord, O., Wilhelm, C., Soldaini, L., Smith, N., Wang, Y., Dasigi, P. \u0026 Hajishirzi, H. (2024). Tulu 3: Pushing Frontiers in Open Language Model Post-Training. https://doi.org/10.48550/arXiv.2411.15124 Li, X., Zhang, T., Dubois, Y., Taori, R., Gulrajani, I., Guestrin, C., Liang, P. \u0026 Hashimoto, T. (2023). AlpacaEval: An Automatic Evaluator of Instruction-following Models. Retrieved from https://github.com/tatsu-lab/alpaca_eval Stureborg, R., Alikaniotis, D. \u0026 Suhara, Y. (2024). Large Language Models are Inconsistent and Biased Evaluators. Retrieved from http://arxiv.org/abs/2405.01724 Wu, M. \u0026 Aji, A. (2023). Style Over Substance: Evaluation Biases for Large Language Models. https://doi.org/10.48550/arXiv.2307.03025 Zheng, L., Chiang, W., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E., Zhang, H., Gonzalez, J. \u0026 Stoica, I. (2023). Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. https://doi.org/10.48550/arXiv.2306.05685 ",
+  "wordCount" : "1988",
+  "inLanguage": "en",
+  "datePublished": "2025-01-16T00:00:00Z",
+  "dateModified": "2025-01-16T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Arduin Findeis"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://arduin.io/blog/pairwise-feedback-issues/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "arduin.io",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://arduin.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://arduin.io/" accesskey="h" title="arduin.io (Alt + H)">arduin.io</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://arduin.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/research" title="Research">
+                    <span>Research</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/projects" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/bio" title="Bio">
+                    <span>Bio</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/blog" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/newsletter" title="Newsletter">
+                    <span>Newsletter</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <link rel="stylesheet" type="text/css" href="/hugo-cite.css" />
+    
+    <h1 class="post-title entry-hint-parent">
+      Common issues with pairwise feedback
+    </h1>
+    
+    <div class="post-meta"><span title='2025-01-16 00:00:00 +0000 UTC'>January 16, 2025</span>&nbsp;·&nbsp;10 min&nbsp;·&nbsp;Arduin Findeis
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#1-introduction" aria-label="1. Introduction">1. Introduction</a></li>
+                <li>
+                    <a href="#2-background-pairwise-feedback-data" aria-label="2. Background: pairwise feedback data">2. Background: pairwise feedback data</a></li>
+                <li>
+                    <a href="#3-common-issues" aria-label="3. Common issues">3. Common issues</a><ul>
+                        
+                <li>
+                    <a href="#dataset-design-issues" aria-label="Dataset design issues">Dataset design issues</a></li>
+                <li>
+                    <a href="#annotation-issues" aria-label="Annotation issues">Annotation issues</a></li></ul>
+                </li>
+                <li>
+                    <a href="#4-conclusion" aria-label="4. Conclusion">4. Conclusion</a></li>
+                <li>
+                    <a href="#5-further-reading" aria-label="5. Further reading">5. Further reading</a></li>
+                <li>
+                    <a href="#acknowledgements" aria-label="Acknowledgements">Acknowledgements</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><style>
+.faded { opacity: 0.6; }
+</style>
+<blockquote>
+<p>🚧 This post is currently a public draft. I appreciate any feedback! 🚧</p>
+</blockquote>
+<h2 id="1-introduction">1. Introduction<a hidden class="anchor" aria-hidden="true" href="#1-introduction">#</a></h2>
+<p>The AI community extensively uses human feedback for training and evaluation. In the context of <em>large language models</em> (LLMs), this feedback is typically collected as <em>pairwise preferences</em>: given a prompt and two (or more) responses, annotators select the &ldquo;better&rdquo; response. Such data is then directly used to <em>fine-tune</em> models (e.g. via RLHF 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#kaufmann2023surveyreinforcementlearning"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Timo"><span itemprop="familyName">Kaufmann</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaufmann</span>,&#32;
+    <meta itemprop="givenName" content="Timo" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Weng</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bengs</span>,&#32;
+    <meta itemprop="givenName" content="Viktor" />
+    V.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hüllermeier</span>,&#32;
+    <meta itemprop="givenName" content="Eyke" />
+    E.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">A Survey of Reinforcement Learning from Human Feedback</span>.
+  <a href="https://doi.org/10.48550/arXiv.2312.14925"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2312.14925</a></span>
+
+
+
+
+</span></span>)</span>), or to <em>evaluate</em> models (e.g. in Chatbot Arena 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#chiang2024chatbotarenaopen"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Wei-Lin"><span itemprop="familyName">Chiang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios Nikolas" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Banghua" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jordan</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference</span>.
+  <a href="https://doi.org/10.48550/arXiv.2403.04132"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2403.04132</a></span>
+
+
+
+
+</span></span>)</span>). As with any data, there are some common issues with pairwise preferences that negatively affect downstream use-cases &mdash; potentially resulting in misleading evaluation results or trained models that are poorly aligned to human values. Whilst various pairwise data issues are frequently discussed separately, I have not come across a good overview summary of all common issues with pairwise preferences.</p>
+<p>This blog post aims to fill this gap: a list of the (in my opinion) most common issues with pairwise feedback. This list is partially based on my own experience generating and working with pairwise feedback datasets &mdash; and often running into some of these very same issues. I hope it helps!</p>
+<blockquote>
+<p>Call for feedback: If you think I have missed an issue that you run into or relevant work, please reach out! I would be very happy to add it here and would of course acknowledge your contribution (if wanted).</p>
+</blockquote>
+<h2 id="2-background-pairwise-feedback-data">2. Background: pairwise feedback data<a hidden class="anchor" aria-hidden="true" href="#2-background-pairwise-feedback-data">#</a></h2>
+<p>Each datapoint in a pairwise feedback dataset at least has the following parts: (A) a <em>prompt</em>, (B) two or more <em>responses</em> and a (C) <em>general ranking</em> annotation that orders the responses. In many datasets further information is included, such as (D) <em>additional annotations</em> (e.g. regarding the truthfulness of each response) and (E) <em>metadata</em> about the models used to sample responses and annotator details (e.g. demographics or, if LLM-based, configuration parameters). The (pseudo-)yaml below illustrates this typical structure of a pairwise preference datapoint:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">💬 prompt</span>: <span style="color:#ae81ff">task for which model responses are sampled and compared on,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">can sometimes be full prior conversation history with multiple</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">back-and-forth messages</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">🤖 responses</span>: <span style="color:#ae81ff">sampled responses to the prompt, typically two (i.e. a pair of)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">responses, recently also often 4 or more.</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">✏️ annotation</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">general_ranking</span>: <span style="color:#ae81ff">ranking of all responses,</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">typically allowing for ties between responses</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">additional_annotations</span>: <span style="color:#ae81ff">other annotation data often collected</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">from annotators, e.g. ratings for each response of its</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">harmfulness and truthfulness</span> <span style="color:#75715e"># optional</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">📋 metadata</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">response_models</span>: <span style="color:#ae81ff">names and configurations of models from</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">which responses are sampled</span> <span style="color:#75715e"># optional</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">annotator</span>: <span style="color:#ae81ff">id and demographic details if human annotators,</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">LLM configuration if LLM-as-a-Judge</span> <span style="color:#75715e"># optional</span>
+</span></span></code></pre></div><br>
+<p>Example datapoint:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">💬 prompt</span>: <span style="color:#e6db74">&#39;How far away is the moon?&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">🤖 responses</span>: [<span style="color:#e6db74">&#39;Not very far at all!&#39;</span>, <span style="color:#e6db74">&#39;About 384,000 km&#39;</span>]
+</span></span><span style="display:flex;"><span><span style="color:#f92672">✏️ annotation</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">general_ranking</span>: <span style="color:#e6db74">&#39;1 &gt; 0&#39;</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">additional_annotations</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">truthful</span>: [<span style="color:#ae81ff">0.1</span>, <span style="color:#ae81ff">0.9</span>]
+</span></span><span style="display:flex;"><span><span style="color:#f92672">📋 metadata</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">response_models</span>: [<span style="color:#e6db74">&#39;model-x&#39;</span>, <span style="color:#e6db74">&#39;model-y&#39;</span>]
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">annotator</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#39;anonymous&#39;</span>
+</span></span></code></pre></div><hr>
+<h2 id="3-common-issues">3. Common issues<a hidden class="anchor" aria-hidden="true" href="#3-common-issues">#</a></h2>
+<p>As any form of dataset, pairwise preference datasets frequently have issues affecting downstream uses. I split common issues into two separate lists: first issues related to the selection of prompts and responses (<em>dataset design issues</em>) and then issues related to the annotation of these datasets (<em>annotation issues</em>). Most issues affect both evaluation and training use-cases. Issues that are only relevant for one use-case are marked as such (e.g. &rsquo;eval only&rsquo;).</p>
+
+
+
+<figure style="text-align: center;"><img
+         src="img/overview_v3.png" width="800px"style="display:inline"
+    /><figcaption>
+        <p align="center"> Overview of issues with pairwise feedback datasets </p>
+    </figcaption>
+</figure>
+<h3 id="dataset-design-issues">Dataset design issues<a hidden class="anchor" aria-hidden="true" href="#dataset-design-issues">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left"></th>
+          <th style="text-align: left">Issue</th>
+          <th style="text-align: left">Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">A</td>
+          <td style="text-align: left">💬 <em>Prompts out-of-distribution</em></td>
+          <td style="text-align: left">Prompts in dataset from different distribution than real-world usage prompts</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">B</td>
+          <td style="text-align: left">⚖️ <em>Imbalanced response models</em></td>
+          <td style="text-align: left">Not all models sampled equally frequently, leading to some over-/underrepresented 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#chiang2024chatbotarenaopen"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Wei-Lin"><span itemprop="familyName">Chiang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios Nikolas" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Banghua" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jordan</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference</span>.
+  <a href="https://doi.org/10.48550/arXiv.2403.04132"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2403.04132</a></span>
+
+
+
+
+</span></span>)</span></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">C</td>
+          <td style="text-align: left">🎲 <em>Inconsistent sampling methods</em> <span class="faded">(eval only)</span></td>
+          <td style="text-align: left">Equivalent sampling parameters not set equally between models (e.g. max tokens), affecting validity of ranking results</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">D</td>
+          <td style="text-align: left">👻 <em>Off-policy responses</em> <span class="faded">(train only)</span></td>
+          <td style="text-align: left">Responses sampled from different model than that to be trained on data, thus often responses unlikely under trained model (policy) 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#lambert2024tulu3pushing"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Nathan"><span itemprop="familyName">Lambert</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lambert</span>,&#32;
+    <meta itemprop="givenName" content="Nathan" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Morrison</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pyatkin</span>,&#32;
+    <meta itemprop="givenName" content="Valentina" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huang</span>,&#32;
+    <meta itemprop="givenName" content="Shengyi" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ivison</span>,&#32;
+    <meta itemprop="givenName" content="Hamish" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Brahman</span>,&#32;
+    <meta itemprop="givenName" content="Faeze" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Miranda</span>,&#32;
+    <meta itemprop="givenName" content="Lester James V." />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Alisa" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dziri</span>,&#32;
+    <meta itemprop="givenName" content="Nouha" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lyu</span>,&#32;
+    <meta itemprop="givenName" content="Shane" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gu</span>,&#32;
+    <meta itemprop="givenName" content="Yuling" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Malik</span>,&#32;
+    <meta itemprop="givenName" content="Saumya" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Graf</span>,&#32;
+    <meta itemprop="givenName" content="Victoria" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hwang</span>,&#32;
+    <meta itemprop="givenName" content="Jena D." />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="Jiangjiang" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bras</span>,&#32;
+    <meta itemprop="givenName" content="Ronan Le" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Tafjord</span>,&#32;
+    <meta itemprop="givenName" content="Oyvind" />
+    O.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wilhelm</span>,&#32;
+    <meta itemprop="givenName" content="Chris" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Soldaini</span>,&#32;
+    <meta itemprop="givenName" content="Luca" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Smith</span>,&#32;
+    <meta itemprop="givenName" content="Noah A." />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Yizhong" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dasigi</span>,&#32;
+    <meta itemprop="givenName" content="Pradeep" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hajishirzi</span>,&#32;
+    <meta itemprop="givenName" content="Hannaneh" />
+    H.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Tulu 3: Pushing Frontiers in Open Language Model Post-Training</span>.
+  <a href="https://doi.org/10.48550/arXiv.2411.15124"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2411.15124</a></span>
+
+
+
+
+</span></span>)</span></td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="annotation-issues">Annotation issues<a hidden class="anchor" aria-hidden="true" href="#annotation-issues">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left"></th>
+          <th style="text-align: left">Issue</th>
+          <th style="text-align: left">Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">E</td>
+          <td style="text-align: left">🌍 <em>Non-representative annotators</em></td>
+          <td style="text-align: left">Annotators are not representative of the model users, e.g. all annotator US-based for globally used model 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#kirk2024prismalignmentproject"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Hannah Rose"><span itemprop="familyName">Kirk</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kirk</span>,&#32;
+    <meta itemprop="givenName" content="Hannah Rose" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Whitefield</span>,&#32;
+    <meta itemprop="givenName" content="Alexander" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Röttger</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bean</span>,&#32;
+    <meta itemprop="givenName" content="Andrew" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Margatina</span>,&#32;
+    <meta itemprop="givenName" content="Katerina" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ciro</span>,&#32;
+    <meta itemprop="givenName" content="Juan" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mosquera</span>,&#32;
+    <meta itemprop="givenName" content="Rafael" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bartolo</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Williams</span>,&#32;
+    <meta itemprop="givenName" content="Adina" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">He</span>,&#32;
+    <meta itemprop="givenName" content="He" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vidgen</span>,&#32;
+    <meta itemprop="givenName" content="Bertie" />
+    B.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hale</span>,&#32;
+    <meta itemprop="givenName" content="Scott A." />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">The PRISM Alignment Project: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2404.16019"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2404.16019</a></span>
+
+
+
+
+</span></span>)</span></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">F</td>
+          <td style="text-align: left">🤝 <em>High tie-rate</em></td>
+          <td style="text-align: left">Either model responses are too similar or annotators too hesitant to make clear ranking judgement</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">G</td>
+          <td style="text-align: left">🗣️ <em>High inter-annotator disagreement</em></td>
+          <td style="text-align: left">Annotators frequently disagree on rankings 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#dubois2023alpacafarmsimulationframework"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Yann"><span itemprop="familyName">Dubois</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dubois</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Xuechen" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Taori</span>,&#32;
+    <meta itemprop="givenName" content="Rohan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Tianyi" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gulrajani</span>,&#32;
+    <meta itemprop="givenName" content="Ishaan" />
+    I.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ba</span>,&#32;
+    <meta itemprop="givenName" content="Jimmy" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Guestrin</span>,&#32;
+    <meta itemprop="givenName" content="Carlos" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hashimoto</span>,&#32;
+    <meta itemprop="givenName" content="Tatsunori B." />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">AlpacaFarm: A Simulation Framework for Methods that Learn from Human Feedback</span>.
+  <a href="https://doi.org/10.48550/arXiv.2305.14387"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2305.14387</a></span>
+
+
+
+
+</span></span>;&#32;<span class="hugo-cite-group"><a href="#li2024alpacaevalautomaticevaluator"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Xuechen"><span itemprop="familyName">Li</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="software"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Xuechen" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Tianyi" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dubois</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Taori</span>,&#32;
+    <meta itemprop="givenName" content="Rohan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gulrajani</span>,&#32;
+    <meta itemprop="givenName" content="Ishaan" />
+    I.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Guestrin</span>,&#32;
+    <meta itemprop="givenName" content="Carlos" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hashimoto</span>,&#32;
+    <meta itemprop="givenName" content="Tatsunori B." />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">
+    <i>AlpacaEval: An Automatic Evaluator of Instruction-following Models</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://github.com/tatsu-lab/alpaca_eval"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://github.com/tatsu-lab/alpaca_eval</a></span>
+
+</span></span>)</span></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">H</td>
+          <td style="text-align: left">🤔 <em>High intra-annotator disagreement</em></td>
+          <td style="text-align: left">When shown the same datapoint twice, annotators frequently provide inconsistent annotations</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">I</td>
+          <td style="text-align: left">↓ <em>Annotator biases</em></td>
+          <td style="text-align: left">Annotators overemphasize certain response qualities over other factors (e.g. factuality) beyond what would be widely agreed as sensible. Can be difficult to clearly distinguish from valid preferences. Below is an (incomplete) list of widely-discussed biases.</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">I.1</td>
+          <td style="text-align: left">↳ 📏 <em>Length bias</em></td>
+          <td style="text-align: left">Annotators overemphasize the importance of response length, often favouring longer responses 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#zheng2023judgingllmasajudgemtbench"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Lianmin"><span itemprop="familyName">Zheng</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Siyuan" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Zhanghao" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Yonghao" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lin</span>,&#32;
+    <meta itemprop="givenName" content="Zi" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Zhuohan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xing</span>,&#32;
+    <meta itemprop="givenName" content="Eric P." />
+    E.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">Judging LLM-as-a-judge with MT-Bench and Chatbot Arena</span>.
+  <a href="https://doi.org/10.48550/arXiv.2306.05685"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2306.05685</a></span>
+
+
+
+
+</span></span>;&#32;<span class="hugo-cite-group"><a href="#dubois2024lengthcontrolledalpacaevalsimple"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Yann"><span itemprop="familyName">Dubois</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dubois</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Galambosi</span>,&#32;
+    <meta itemprop="givenName" content="Balázs" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hashimoto</span>,&#32;
+    <meta itemprop="givenName" content="Tatsunori B." />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Length-Controlled AlpacaEval: A Simple Way to Debias Automatic Evaluators</span>.
+  <a href="https://doi.org/10.48550/arXiv.2404.04475"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2404.04475</a></span>
+
+
+
+
+</span></span>)</span></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">I.2</td>
+          <td style="text-align: left">↳ 1️⃣ <em>Position bias</em></td>
+          <td style="text-align: left">Annotators consider the order in which responses are shown to them (should not matter) 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#zheng2023judgingllmasajudgemtbench"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Lianmin"><span itemprop="familyName">Zheng</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Siyuan" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Zhanghao" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Yonghao" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lin</span>,&#32;
+    <meta itemprop="givenName" content="Zi" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Zhuohan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xing</span>,&#32;
+    <meta itemprop="givenName" content="Eric P." />
+    E.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">Judging LLM-as-a-judge with MT-Bench and Chatbot Arena</span>.
+  <a href="https://doi.org/10.48550/arXiv.2306.05685"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2306.05685</a></span>
+
+
+
+
+</span></span>)</span></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">I.3</td>
+          <td style="text-align: left">↳ 🎨 <em>Style bias</em></td>
+          <td style="text-align: left">Annotators overemphasize the importance of writing style (e.g. using lists) 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#wu2023stylesubstanceevaluation"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Minghao"><span itemprop="familyName">Wu</span></span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Alham Fikri"><span itemprop="familyName">Aji</span></span>,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Minghao" />
+    M.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Aji</span>,&#32;
+    <meta itemprop="givenName" content="Alham Fikri" />
+    A.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">Style Over Substance: Evaluation Biases for Large Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2307.03025"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2307.03025</a></span>
+
+
+
+
+</span></span>;&#32;<span class="hugo-cite-group"><a href="#doesstylematter"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Tianle"><span itemprop="familyName">Li</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/WebPage"
+      data-type="webpage"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>(<span itemprop="datePublished">2024,&#32;8/28</span>).&#32;Retrieved from&#32;
+  <a href="https://lmsys.org/blog/2024-08-28-style-control"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://lmsys.org/blog/2024-08-28-style-control</a></span>
+
+
+
+
+</span></span>)</span></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">I.4</td>
+          <td style="text-align: left">↳ 👮‍♂️<em>Assertiveness bias</em></td>
+          <td style="text-align: left">Annotators overemphasize the importance of response assertiveness  
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#hosking2024humanfeedbacknot"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Tom"><span itemprop="familyName">Hosking</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hosking</span>,&#32;
+    <meta itemprop="givenName" content="Tom" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Blunsom</span>,&#32;
+    <meta itemprop="givenName" content="Phil" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bartolo</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Human Feedback is not Gold Standard</span>.
+  <a href="https://doi.org/10.48550/arXiv.2309.16349"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2309.16349</a></span>
+
+
+
+
+</span></span>)</span></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">I.5</td>
+          <td style="text-align: left">↳ 💫 <em>Self-preference bias</em> <span class="faded">(LLM-as-a-Judge only)</span></td>
+          <td style="text-align: left">Annotators have a preference for output that is generated by their own underlying model 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#stureborg2024largelanguagemodels"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rickard"><span itemprop="familyName">Stureborg</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stureborg</span>,&#32;
+    <meta itemprop="givenName" content="Rickard" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Alikaniotis</span>,&#32;
+    <meta itemprop="givenName" content="Dimitris" />
+    D.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Suhara</span>,&#32;
+    <meta itemprop="givenName" content="Yoshi" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Large Language Models are Inconsistent and Biased Evaluators</span>.&#32;Retrieved from&#32;
+  <a href="http://arxiv.org/abs/2405.01724"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">http://arxiv.org/abs/2405.01724</a></span>
+
+
+
+
+</span></span>)</span></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">I.[&hellip;]</td>
+          <td style="text-align: left">↳ <em>many more biases less widely-discussed</em></td>
+          <td style="text-align: left"></td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="4-conclusion">4. Conclusion<a hidden class="anchor" aria-hidden="true" href="#4-conclusion">#</a></h2>
+<p>Pairwise feedback can be flawed in many ways. Yet, the above list is undoubtedly incomplete: there are many dataset properties that are difficult to measure and haven&rsquo;t been detected yet. Exploring this open problem, our recent work on <em>Inverse Constitutional AI</em> 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#findeis2024inverseconstitutionalai"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Arduin"><span itemprop="familyName">Findeis</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Findeis</span>,&#32;
+    <meta itemprop="givenName" content="Arduin" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaufmann</span>,&#32;
+    <meta itemprop="givenName" content="Timo" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hüllermeier</span>,&#32;
+    <meta itemprop="givenName" content="Eyke" />
+    E.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Albanie</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mullins</span>,&#32;
+    <meta itemprop="givenName" content="Robert" />
+    R.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Inverse Constitutional AI: Compressing Preferences into Principles</span>.&#32;Retrieved from&#32;
+  <a href="http://arxiv.org/abs/2406.06560"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">http://arxiv.org/abs/2406.06560</a></span>
+
+
+
+
+</span></span>)</span> aims to provide a method to automatically find new kinds of annotator biases. I think there is great potential to develop further (potentially similar) methods that can effectively discover and measure data issues. Given the cost of both data collection and model training, making the effort to fully understand your pairwise feedback datasets seems well-justified.</p>
+<h2 id="5-further-reading">5. Further reading<a hidden class="anchor" aria-hidden="true" href="#5-further-reading">#</a></h2>
+<p>There of course are many papers in the space of pairwise preference (issues). Below are few I found particularly useful:</p>
+<ul>
+<li>
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#kirk2024prismalignmentproject"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Hannah Rose"><span itemprop="familyName">Kirk</span></span>&#32;
+                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kirk</span>,&#32;
+    <meta itemprop="givenName" content="Hannah Rose" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Whitefield</span>,&#32;
+    <meta itemprop="givenName" content="Alexander" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Röttger</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bean</span>,&#32;
+    <meta itemprop="givenName" content="Andrew" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Margatina</span>,&#32;
+    <meta itemprop="givenName" content="Katerina" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ciro</span>,&#32;
+    <meta itemprop="givenName" content="Juan" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mosquera</span>,&#32;
+    <meta itemprop="givenName" content="Rafael" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bartolo</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Williams</span>,&#32;
+    <meta itemprop="givenName" content="Adina" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">He</span>,&#32;
+    <meta itemprop="givenName" content="He" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vidgen</span>,&#32;
+    <meta itemprop="givenName" content="Bertie" />
+    B.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hale</span>,&#32;
+    <meta itemprop="givenName" content="Scott A." />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">The PRISM Alignment Project: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2404.16019"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2404.16019</a></span>
+
+
+
+
+</span></span>)</span> provide possibly the most extensive public discussion of any pairwise feedback dataset (PRISM). I can recommend having a look at that paper!</li>
+<li>
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#chiang2024chatbotarenaopen"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Wei-Lin"><span itemprop="familyName">Chiang</span></span>&#32;
+                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios Nikolas" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Banghua" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jordan</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference</span>.
+  <a href="https://doi.org/10.48550/arXiv.2403.04132"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2403.04132</a></span>
+
+
+
+
+</span></span>)</span> provide an extensive analysis of Chatbot Arena data, a popular dataset that is worth to understand well!</li>
+<li>
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#lambert2024tulu3pushing"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Nathan"><span itemprop="familyName">Lambert</span></span>&#32;
+                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lambert</span>,&#32;
+    <meta itemprop="givenName" content="Nathan" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Morrison</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pyatkin</span>,&#32;
+    <meta itemprop="givenName" content="Valentina" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huang</span>,&#32;
+    <meta itemprop="givenName" content="Shengyi" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ivison</span>,&#32;
+    <meta itemprop="givenName" content="Hamish" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Brahman</span>,&#32;
+    <meta itemprop="givenName" content="Faeze" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Miranda</span>,&#32;
+    <meta itemprop="givenName" content="Lester James V." />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Alisa" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dziri</span>,&#32;
+    <meta itemprop="givenName" content="Nouha" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lyu</span>,&#32;
+    <meta itemprop="givenName" content="Shane" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gu</span>,&#32;
+    <meta itemprop="givenName" content="Yuling" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Malik</span>,&#32;
+    <meta itemprop="givenName" content="Saumya" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Graf</span>,&#32;
+    <meta itemprop="givenName" content="Victoria" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hwang</span>,&#32;
+    <meta itemprop="givenName" content="Jena D." />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="Jiangjiang" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bras</span>,&#32;
+    <meta itemprop="givenName" content="Ronan Le" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Tafjord</span>,&#32;
+    <meta itemprop="givenName" content="Oyvind" />
+    O.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wilhelm</span>,&#32;
+    <meta itemprop="givenName" content="Chris" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Soldaini</span>,&#32;
+    <meta itemprop="givenName" content="Luca" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Smith</span>,&#32;
+    <meta itemprop="givenName" content="Noah A." />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Yizhong" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dasigi</span>,&#32;
+    <meta itemprop="givenName" content="Pradeep" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hajishirzi</span>,&#32;
+    <meta itemprop="givenName" content="Hannaneh" />
+    H.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Tulu 3: Pushing Frontiers in Open Language Model Post-Training</span>.
+  <a href="https://doi.org/10.48550/arXiv.2411.15124"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2411.15124</a></span>
+
+
+
+
+</span></span>)</span> provide a detailed description of preference data considerations during large model training in this Tülu post-training discussion &mdash; similar details are hard to come by from other labs. Definitely worth looking through!</li>
+</ul>
+<h2 id="acknowledgements">Acknowledgements<a hidden class="anchor" aria-hidden="true" href="#acknowledgements">#</a></h2>
+<p>This post is currently a public draft, acknowledgements to be added in the final version. Big thanks to you up-front for your feedback!</p>
+<h2 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h2>
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+<section class="hugo-cite-bibliography">
+  <ol>
+    
+
+      <div id="doesstylematter">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/WebPage"
+      data-type="webpage"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>(<span itemprop="datePublished">2024,&#32;8/28</span>).&#32;Retrieved from&#32;
+  <a href="https://lmsys.org/blog/2024-08-28-style-control"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://lmsys.org/blog/2024-08-28-style-control</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="chiang2024chatbotarenaopen">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios Nikolas" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Banghua" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jordan</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference</span>.
+  <a href="https://doi.org/10.48550/arXiv.2403.04132"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2403.04132</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="dubois2023alpacafarmsimulationframework">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dubois</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Xuechen" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Taori</span>,&#32;
+    <meta itemprop="givenName" content="Rohan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Tianyi" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gulrajani</span>,&#32;
+    <meta itemprop="givenName" content="Ishaan" />
+    I.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ba</span>,&#32;
+    <meta itemprop="givenName" content="Jimmy" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Guestrin</span>,&#32;
+    <meta itemprop="givenName" content="Carlos" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hashimoto</span>,&#32;
+    <meta itemprop="givenName" content="Tatsunori B." />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">AlpacaFarm: A Simulation Framework for Methods that Learn from Human Feedback</span>.
+  <a href="https://doi.org/10.48550/arXiv.2305.14387"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2305.14387</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="dubois2024lengthcontrolledalpacaevalsimple">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dubois</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Galambosi</span>,&#32;
+    <meta itemprop="givenName" content="Balázs" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hashimoto</span>,&#32;
+    <meta itemprop="givenName" content="Tatsunori B." />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Length-Controlled AlpacaEval: A Simple Way to Debias Automatic Evaluators</span>.
+  <a href="https://doi.org/10.48550/arXiv.2404.04475"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2404.04475</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="findeis2024inverseconstitutionalai">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Findeis</span>,&#32;
+    <meta itemprop="givenName" content="Arduin" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaufmann</span>,&#32;
+    <meta itemprop="givenName" content="Timo" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hüllermeier</span>,&#32;
+    <meta itemprop="givenName" content="Eyke" />
+    E.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Albanie</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mullins</span>,&#32;
+    <meta itemprop="givenName" content="Robert" />
+    R.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Inverse Constitutional AI: Compressing Preferences into Principles</span>.&#32;Retrieved from&#32;
+  <a href="http://arxiv.org/abs/2406.06560"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">http://arxiv.org/abs/2406.06560</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="hosking2024humanfeedbacknot">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hosking</span>,&#32;
+    <meta itemprop="givenName" content="Tom" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Blunsom</span>,&#32;
+    <meta itemprop="givenName" content="Phil" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bartolo</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Human Feedback is not Gold Standard</span>.
+  <a href="https://doi.org/10.48550/arXiv.2309.16349"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2309.16349</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="kaufmann2023surveyreinforcementlearning">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaufmann</span>,&#32;
+    <meta itemprop="givenName" content="Timo" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Weng</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bengs</span>,&#32;
+    <meta itemprop="givenName" content="Viktor" />
+    V.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hüllermeier</span>,&#32;
+    <meta itemprop="givenName" content="Eyke" />
+    E.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">A Survey of Reinforcement Learning from Human Feedback</span>.
+  <a href="https://doi.org/10.48550/arXiv.2312.14925"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2312.14925</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="kirk2024prismalignmentproject">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kirk</span>,&#32;
+    <meta itemprop="givenName" content="Hannah Rose" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Whitefield</span>,&#32;
+    <meta itemprop="givenName" content="Alexander" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Röttger</span>,&#32;
+    <meta itemprop="givenName" content="Paul" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bean</span>,&#32;
+    <meta itemprop="givenName" content="Andrew" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Margatina</span>,&#32;
+    <meta itemprop="givenName" content="Katerina" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ciro</span>,&#32;
+    <meta itemprop="givenName" content="Juan" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mosquera</span>,&#32;
+    <meta itemprop="givenName" content="Rafael" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bartolo</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Williams</span>,&#32;
+    <meta itemprop="givenName" content="Adina" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">He</span>,&#32;
+    <meta itemprop="givenName" content="He" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vidgen</span>,&#32;
+    <meta itemprop="givenName" content="Bertie" />
+    B.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hale</span>,&#32;
+    <meta itemprop="givenName" content="Scott A." />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">The PRISM Alignment Project: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2404.16019"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2404.16019</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="lambert2024tulu3pushing">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lambert</span>,&#32;
+    <meta itemprop="givenName" content="Nathan" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Morrison</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pyatkin</span>,&#32;
+    <meta itemprop="givenName" content="Valentina" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Huang</span>,&#32;
+    <meta itemprop="givenName" content="Shengyi" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ivison</span>,&#32;
+    <meta itemprop="givenName" content="Hamish" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Brahman</span>,&#32;
+    <meta itemprop="givenName" content="Faeze" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Miranda</span>,&#32;
+    <meta itemprop="givenName" content="Lester James V." />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liu</span>,&#32;
+    <meta itemprop="givenName" content="Alisa" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dziri</span>,&#32;
+    <meta itemprop="givenName" content="Nouha" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lyu</span>,&#32;
+    <meta itemprop="givenName" content="Shane" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gu</span>,&#32;
+    <meta itemprop="givenName" content="Yuling" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Malik</span>,&#32;
+    <meta itemprop="givenName" content="Saumya" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Graf</span>,&#32;
+    <meta itemprop="givenName" content="Victoria" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hwang</span>,&#32;
+    <meta itemprop="givenName" content="Jena D." />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="Jiangjiang" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bras</span>,&#32;
+    <meta itemprop="givenName" content="Ronan Le" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Tafjord</span>,&#32;
+    <meta itemprop="givenName" content="Oyvind" />
+    O.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wilhelm</span>,&#32;
+    <meta itemprop="givenName" content="Chris" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Soldaini</span>,&#32;
+    <meta itemprop="givenName" content="Luca" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Smith</span>,&#32;
+    <meta itemprop="givenName" content="Noah A." />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Yizhong" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dasigi</span>,&#32;
+    <meta itemprop="givenName" content="Pradeep" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hajishirzi</span>,&#32;
+    <meta itemprop="givenName" content="Hannaneh" />
+    H.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Tulu 3: Pushing Frontiers in Open Language Model Post-Training</span>.
+  <a href="https://doi.org/10.48550/arXiv.2411.15124"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2411.15124</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="li2024alpacaevalautomaticevaluator">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="software"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Xuechen" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Tianyi" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Dubois</span>,&#32;
+    <meta itemprop="givenName" content="Yann" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Taori</span>,&#32;
+    <meta itemprop="givenName" content="Rohan" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gulrajani</span>,&#32;
+    <meta itemprop="givenName" content="Ishaan" />
+    I.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Guestrin</span>,&#32;
+    <meta itemprop="givenName" content="Carlos" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hashimoto</span>,&#32;
+    <meta itemprop="givenName" content="Tatsunori B." />
+    T.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">
+    <i>AlpacaEval: An Automatic Evaluator of Instruction-following Models</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://github.com/tatsu-lab/alpaca_eval"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://github.com/tatsu-lab/alpaca_eval</a></span>
+
+</li>
+
+      </div>
+
+      <div id="stureborg2024largelanguagemodels">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stureborg</span>,&#32;
+    <meta itemprop="givenName" content="Rickard" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Alikaniotis</span>,&#32;
+    <meta itemprop="givenName" content="Dimitris" />
+    D.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Suhara</span>,&#32;
+    <meta itemprop="givenName" content="Yoshi" />
+    Y.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">Large Language Models are Inconsistent and Biased Evaluators</span>.&#32;Retrieved from&#32;
+  <a href="http://arxiv.org/abs/2405.01724"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">http://arxiv.org/abs/2405.01724</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="wu2023stylesubstanceevaluation">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Minghao" />
+    M.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Aji</span>,&#32;
+    <meta itemprop="givenName" content="Alham Fikri" />
+    A.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">Style Over Substance: Evaluation Biases for Large Language Models</span>.
+  <a href="https://doi.org/10.48550/arXiv.2307.03025"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2307.03025</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="zheng2023judgingllmasajudgemtbench">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Siyuan" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Zhanghao" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Yonghao" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lin</span>,&#32;
+    <meta itemprop="givenName" content="Zi" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Zhuohan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xing</span>,&#32;
+    <meta itemprop="givenName" content="Eric P." />
+    E.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">Judging LLM-as-a-judge with MT-Bench and Chatbot Arena</span>.
+  <a href="https://doi.org/10.48550/arXiv.2306.05685"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2306.05685</a></span>
+
+
+
+
+</li>
+
+      </div>
+  </ol>
+</section>
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Citation</h2>
+
+<p>If you found this post useful for your work, please consider citing it as:
+
+    <blockquote>
+<p>Findeis, Arduin. (Jan 2025). Common issues with pairwise feedback. Retrieved from <a href="https://arduin.io/blog/pairwise-feedback-issues/">https://arduin.io/blog/pairwise-feedback-issues/</a>.</p>
+</blockquote>
+
+    or
+
+    <pre tabindex="0"><code> @article{Findeis2023Commonissueswithpairwisefeedback,
+        title = &#34;Common issues with pairwise feedback&#34;,
+        author = &#34;Findeis, Arduin&#34;,
+        journal = &#34;arduin.io&#34;,
+        year = &#34;2025&#34;,
+        month = &#34;January&#34;,
+        url = &#34;https://arduin.io/blog/pairwise-feedback-issues/&#34;
+ } 
+</code></pre>
+
+</p>
+
+    
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>
+        
+        <a href="https://arduin.io/"><img src="/favicon-32x32.png" alt="logo" style="width: 20px; margin: 0 auto;opacity:0.6;"></a>
+    </span>
+    <span>&copy; 2025 <a href="https://arduin.io/">arduin.io</a></span>
+    <span>
+        - powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a> with <a href='https://arduin.io/papermod-tweaks/' rel="noopener" target="_blank">tweaks</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script src="/js/table_beautify.js"></script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
