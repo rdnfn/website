@@ -8,6 +8,15 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 31 Dec 2030 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>What exactly was different about the Chatbot Arena version of Llama 4 Maverick?</title>
+      <link>https://arduin.io/blog/llama4-analysis/</link>
+      <pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://arduin.io/blog/llama4-analysis/</guid>
+      <description>An analysis using the Feedback Forensics app to detect the differences between the Chatbot Arena and the publicly released version of Llama 4 Maverick.</description>
+    </item>
+    
+    <item>
       <title>Some predictions for AI in 2025</title>
       <link>https://arduin.io/blog/ai-predictions-2025/</link>
       <pubDate>Thu, 09 Jan 2025 10:00:00 +0000</pubDate>
