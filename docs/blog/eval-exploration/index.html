@@ -12,7 +12,7 @@
 Disclaimer: This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.">
 <meta name="author" content="Arduin Findeis">
 <link rel="canonical" href="https://arduin.io/blog/eval-exploration/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.74192b248365a4732a0332cce11ae250dc937c12cac437447139705f932a2159.css" integrity="sha256-dBkrJINlpHMqAzLM4RriUNyTfBLKxDdEcTlwX5MqIVk=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.97173b9cc135611d0f7b99e6d2436218d03f30d019c115fd8b3f323360d9bb7e.css" integrity="sha256-lxc7nME1YR0Pe5nm0kNiGNA/MNAZwRX9iz8yM2DZu34=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://arduin.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://arduin.io/favicon-32x32.png">
@@ -67,11 +67,11 @@ Disclaimer: This post collects some notes from exploring language model evaluati
 <meta property="article:published_time" content="2023-03-06T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-03-06T00:00:00+00:00" />
 
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="A short exploration of language model evaluation approaches"/>
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="A short exploration of language model evaluation approaches">
 <meta name="twitter:description" content="
 
-Disclaimer: This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to contact (at) arduin.io."/>
+Disclaimer: This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to contact (at) arduin.io.">
 
 
 <script type="application/ld+json">
@@ -146,7 +146,7 @@ Disclaimer: This post collects some notes from exploring language model evaluati
         <div class="logo">
             <a href="https://arduin.io/" accesskey="h" title="arduin.io (Alt + H)">arduin.io</a>
             <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -284,8 +284,7 @@ figure {
 
 </style>
 <blockquote>
-<p><em><strong>Disclaimer:</strong> This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to <code>contact (at) arduin.io</code>.</em></p>
-</blockquote>
+<p><em><strong>Disclaimer:</strong> This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to <code>contact (at) arduin.io</code>.</em></p></blockquote>
 <h2 id="1-introduction">1. Introduction<a hidden class="anchor" aria-hidden="true" href="#1-introduction">#</a></h2>
 <p><em>Language models</em> (LMs) are notoriosly difficult to evaluate. Modern LMs are used for a wide variety of complex downstream tasks, such as text translation or conversation. This diversity of tasks means that no single metric can capture overall language model performance. Even for individual tasks, it can be difficult to come up with well-setup benchmarks to measure performance. Some benchmarks have been shown to allow models to achieve top performance <em>without</em> truly mastering the underlying tasks 
   <span class="hugo-cite-intext"
@@ -461,13 +460,13 @@ figure {
 <table>
   <thead>
       <tr>
-          <th style="text-align: left"></th>
-          <th style="text-align: left"></th>
+          <th></th>
+          <th></th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left"><strong>SQuAD</strong><br>
+          <td><strong>SQuAD</strong><br>
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#rajpurkar2018knowwhatyou"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
@@ -502,7 +501,7 @@ figure {
 
 
 </span></span>)</span></td>
-          <td style="text-align: left">The <em>Stanford Question Answering Dataset</em> (SQuAD) v2.0 consists of a large corpus of small text excerpts from Wikipedia articles (100,000+). Each text has corresponding questions and anwers created by crowdworkers. The original SQuAD v1.0 
+          <td>The <em>Stanford Question Answering Dataset</em> (SQuAD) v2.0 consists of a large corpus of small text excerpts from Wikipedia articles (100,000+). Each text has corresponding questions and anwers created by crowdworkers. The original SQuAD v1.0 
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#rajpurkar2016squad100000"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2016</span></a><span class="hugo-cite-citation"> 
@@ -629,7 +628,7 @@ figure {
 </figure></td>
       </tr>
       <tr>
-          <td style="text-align: left"><strong>DROP</strong><br>
+          <td><strong>DROP</strong><br>
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#dua2019dropreadingcomprehension"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Dheeru"><span itemprop="familyName">Dua</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
@@ -673,7 +672,7 @@ figure {
 
 
 </span></span>)</span></td>
-          <td style="text-align: left">The DROP dataset aims to assess models&rsquo; ability in <em>discrete reasoning over text in a paragraph</em> (DROP). The dataset consists of 96,000 questions. Given a passage of text, the model is given a question that requires reasoning using discrete operations such as addition, counting, or sorting. See example questions below. <br>
+          <td>The DROP dataset aims to assess models&rsquo; ability in <em>discrete reasoning over text in a paragraph</em> (DROP). The dataset consists of 96,000 questions. Given a passage of text, the model is given a question that requires reasoning using discrete operations such as addition, counting, or sorting. See example questions below. <br>
 
 
 <figure style="text-align: center;"><img class="screenshot"
@@ -727,7 +726,7 @@ figure {
 </figure></td>
       </tr>
       <tr>
-          <td style="text-align: left"><strong>HellaSwag</strong><br>
+          <td><strong>HellaSwag</strong><br>
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#zellers2019hellaswagcanmachine"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rowan"><span itemprop="familyName">Zellers</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
@@ -768,7 +767,7 @@ figure {
 
 
 </span></span>)</span></td>
-          <td style="text-align: left">The HellaSwag dataset consists of 70,000 questions attempting to evaluate the commonsense natural language inference ability of a model. Given a text fragment referred to as <em>context</em>, the model is asked to select the most plausible of multiple possible endings. HellaSwag is an extension of the SWAG data set by 
+          <td>The HellaSwag dataset consists of 70,000 questions attempting to evaluate the commonsense natural language inference ability of a model. Given a text fragment referred to as <em>context</em>, the model is asked to select the most plausible of multiple possible endings. HellaSwag is an extension of the SWAG data set by 
   <span class="hugo-cite-intext"
         itemprop="citation"><span class="hugo-cite-group"><a href="#zellers2018swaglargescaleadversarial"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rowan"><span itemprop="familyName">Zellers</span></span>&#32;
                 &#32;et&#32;al.&#32;(<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
@@ -856,7 +855,7 @@ figure {
 </figure></center></td>
       </tr>
       <tr>
-          <td style="text-align: left"><strong>WMT 2015 French to English translation</strong><br>
+          <td><strong>WMT 2015 French to English translation</strong><br>
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#bojar2015findings2015workshop"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Ondrej"><span itemprop="familyName">Bojar</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2015</span></a><span class="hugo-cite-citation"> 
@@ -925,7 +924,7 @@ figure {
 
 
 </span></span>)</span></td>
-          <td style="text-align: left">A dataset challenges a model to translate from french text to english text. In the original workshop, models were evaluated using human annotators that make a pairwise comparison of the translation of the same text by different systems. For purpose of evaluating InstructGPT instead of the human evaluation the automatic translation quality score BLEU 
+          <td>A dataset challenges a model to translate from french text to english text. In the original workshop, models were evaluated using human annotators that make a pairwise comparison of the translation of the same text by different systems. For purpose of evaluating InstructGPT instead of the human evaluation the automatic translation quality score BLEU 
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#papineni2002bleumethodautomatic"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Kishore"><span itemprop="familyName">Papineni</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2002</span></a><span class="hugo-cite-citation"> 
@@ -1044,13 +1043,13 @@ figure {
 <table>
   <thead>
       <tr>
-          <th style="text-align: left"></th>
-          <th style="text-align: left"></th>
+          <th></th>
+          <th></th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left"><strong>RealToxicityPrompts</strong><br>
+          <td><strong>RealToxicityPrompts</strong><br>
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#gehman2020realtoxicitypromptsevaluatingneural"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Samuel"><span itemprop="familyName">Gehman</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2020</span></a><span class="hugo-cite-citation"> 
@@ -1091,7 +1090,7 @@ figure {
 
 
 </span></span>)</span></td>
-          <td style="text-align: left">RealToxicityPrompts consists of 100,000 partial sentences that, when comleted by an LM, may result in racist, sexist or otherwise toxic language. The prompts are given to the LM in a conditional language generation (or auto complete) task. The <a href="https://www.perspectiveapi.com/">Perspective API</a> is used to evaluate the toxicity. The use of this external API as a black-box evaluation method means that the results may not be reproducible - as the API&rsquo;s output may change or be discontinued. More generally, as the authors point out, current methods are unable to adapt an LM to <em>never</em> say toxic things. This limitations presents serious challenges for the safe deployment of LM-based applications. <br><center>
+          <td>RealToxicityPrompts consists of 100,000 partial sentences that, when comleted by an LM, may result in racist, sexist or otherwise toxic language. The prompts are given to the LM in a conditional language generation (or auto complete) task. The <a href="https://www.perspectiveapi.com/">Perspective API</a> is used to evaluate the toxicity. The use of this external API as a black-box evaluation method means that the results may not be reproducible - as the API&rsquo;s output may change or be discontinued. More generally, as the authors point out, current methods are unable to adapt an LM to <em>never</em> say toxic things. This limitations presents serious challenges for the safe deployment of LM-based applications. <br><center>
 
 
 <figure style="text-align: center;"><img class="screenshot"
@@ -1142,7 +1141,7 @@ figure {
 </figure></center></td>
       </tr>
       <tr>
-          <td style="text-align: left"><strong>Winogender</strong><br>
+          <td><strong>Winogender</strong><br>
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#rudinger2018genderbiascoreference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Rachel"><span itemprop="familyName">Rudinger</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
@@ -1180,7 +1179,7 @@ figure {
 
 
 </span></span>)</span></td>
-          <td style="text-align: left">The Winogender data set aims to detect gender bias in language models. The data set consists of a number of similar sentences that reference occupations and their gender. For the evaluation of InstructGPT (as far as I understand it), pairs of the sentences that only vary in gender were considered. Then the relative probability of produce one of the sentences was computed, to see for example if the model thought paramedics are more likely to be male.<br><center>
+          <td>The Winogender data set aims to detect gender bias in language models. The data set consists of a number of similar sentences that reference occupations and their gender. For the evaluation of InstructGPT (as far as I understand it), pairs of the sentences that only vary in gender were considered. Then the relative probability of produce one of the sentences was computed, to see for example if the model thought paramedics are more likely to be male.<br><center>
 
 
 <figure style="text-align: center;"><img class="screenshot"
@@ -1228,7 +1227,7 @@ figure {
 </figure></center></td>
       </tr>
       <tr>
-          <td style="text-align: left"><strong>CrowS-Pairs</strong><br>
+          <td><strong>CrowS-Pairs</strong><br>
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#nangia2020crowspairschallengedataset"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Nikita"><span itemprop="familyName">Nangia</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2020</span></a><span class="hugo-cite-citation"> 
@@ -1266,7 +1265,7 @@ figure {
 
 
 </span></span>)</span></td>
-          <td style="text-align: left">The CrowS-Pairs dataset consists of 1508 pairs of sentences, each with one more stereotyping than the other. The pairs cover various bias including race, religion and age. In the context of InstructGPT, the dataset is used similarly to Winogender: the probability of computing the more stereotyping sentence is computed. <br><center>
+          <td>The CrowS-Pairs dataset consists of 1508 pairs of sentences, each with one more stereotyping than the other. The pairs cover various bias including race, religion and age. In the context of InstructGPT, the dataset is used similarly to Winogender: the probability of computing the more stereotyping sentence is computed. <br><center>
 
 
 <figure style="text-align: center;"><img class="screenshot"
@@ -1314,7 +1313,7 @@ figure {
 </figure></center></td>
       </tr>
       <tr>
-          <td style="text-align: left"><strong>TruthfulQA</strong><br>
+          <td><strong>TruthfulQA</strong><br>
   <span class="hugo-cite-intext"
         itemprop="citation">(<span class="hugo-cite-group"><a href="#lin2022truthfulqameasuringhow"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Stephanie"><span itemprop="familyName">Lin</span></span>&#32;
                 &#32;et&#32;al.,&#32;<span itemprop="datePublished">2022</span></a><span class="hugo-cite-citation"> 
@@ -1349,7 +1348,7 @@ figure {
 
 
 </span></span>)</span></td>
-          <td style="text-align: left">The TruthfulQA benchmark consists of 817 questions, each crafted such that some humans might answer them incorrectly due to misconceptions. The authors used both human and automated evaluation to assess the truthfullness of model answers. They demonstrated that a finetuned GPT-3 model was 90-96% accurate in detecting truthfulness of answers by other models. <br><center>
+          <td>The TruthfulQA benchmark consists of 817 questions, each crafted such that some humans might answer them incorrectly due to misconceptions. The authors used both human and automated evaluation to assess the truthfullness of model answers. They demonstrated that a finetuned GPT-3 model was 90-96% accurate in detecting truthfulness of answers by other models. <br><center>
 
 
 <figure style="text-align: center;"><img class="screenshot"
@@ -3534,8 +3533,7 @@ figure {
 <p>If you found this post useful for your work, please consider citing it as:
 
     <blockquote>
-<p>Findeis, Arduin. (Mar 2023). A short exploration of language model evaluation approaches. Retrieved from <a href="https://arduin.io/blog/eval-exploration/">https://arduin.io/blog/eval-exploration/</a>.</p>
-</blockquote>
+<p>Findeis, Arduin. (Mar 2023). A short exploration of language model evaluation approaches. Retrieved from <a href="https://arduin.io/blog/eval-exploration/">https://arduin.io/blog/eval-exploration/</a>.</p></blockquote>
 
     or
 
