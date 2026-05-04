@@ -1,26 +1,26 @@
+
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Recommendations on arduin.io</title>
     <link>https://arduin.io/tags/recommendations/</link>
     <description>Recent content in Recommendations on arduin.io</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 24 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/tags/recommendations/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 24 Mar 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://arduin.io/tags/recommendations/index.xml" rel="self" type="application/rss+xml" />
+    
     <item>
       <title>People</title>
       <link>https://arduin.io/blog/people/</link>
       <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/people/</guid>
       <description>A short (non-exhaustive) list of people who put great stuff on the internet and consistently help me learn new things.</description>
     </item>
-    
     <item>
       <title>Recommendations for AI news aggregators</title>
       <link>https://arduin.io/blog/rec-ai-news/</link>
       <pubDate>Thu, 29 Feb 2024 17:30:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/rec-ai-news/</guid>
       <description>&lt;p&gt;The field of artificial intelligence (AI) is moving fast. Keeping up with the vast number of new research papers on your own is daunting: scrolling through twitter all day does not seem like a good use of time. Below is a number of AI news aggregators that I personally use to get curated updates of AI developments on a regular basis &lt;em&gt;without spending all my time looking at papers&lt;/em&gt;:&lt;/p&gt;
 &lt;ol&gt;
@@ -29,12 +29,10 @@
 &lt;li&gt;&lt;a href=&#34;https://importai.substack.com/&#34;&gt;&lt;em&gt;Import AI&lt;/em&gt; (newsletter)&lt;/a&gt; by Jack Clark: provides a regular stream of very interesting research papers, with detailed summaries.&lt;/li&gt;
 &lt;/ol&gt;</description>
     </item>
-    
     <item>
       <title>Interesting takes on the future of AI in 2023</title>
       <link>https://arduin.io/blog/interesting-ai-viewpoints/</link>
       <pubDate>Wed, 17 May 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/interesting-ai-viewpoints/</guid>
       <description>&lt;p&gt;In late 2022 and early 2023, we have seen major leaps in the field of AI with generative models like those underpinning the ChatGPT interface.  Below are selected commentary pieces by AI researchers, leaders and commentators that make predictions about the future of AI following these leaps. I highly recommend looking at these links – they have been very influential on my own thinking and work.&lt;/p&gt;
 &lt;ol&gt;
@@ -47,6 +45,5 @@
 &lt;/ol&gt;
 &lt;p&gt;Hope you find these helpful!&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>

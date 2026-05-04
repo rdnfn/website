@@ -1,65 +1,56 @@
+
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on arduin.io</title>
     <link>https://arduin.io/tags/</link>
     <description>Recent content in Tags on arduin.io</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 31 Mar 2024 20:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 31 Mar 2024 20:00:00 +0000</lastBuildDate>
+    <atom:link href="https://arduin.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    
     <item>
       <title>Benchmark Overviews</title>
       <link>https://arduin.io/tags/benchmark-overviews/</link>
       <pubDate>Sun, 31 Mar 2024 20:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/tags/benchmark-overviews/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>Evaluation</title>
       <link>https://arduin.io/tags/evaluation/</link>
       <pubDate>Sun, 31 Mar 2024 20:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/tags/evaluation/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>Recommendations</title>
       <link>https://arduin.io/tags/recommendations/</link>
       <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/tags/recommendations/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>Short Posts</title>
       <link>https://arduin.io/tags/short-posts/</link>
       <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/tags/short-posts/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>Illustrations</title>
       <link>https://arduin.io/tags/illustrations/</link>
       <pubDate>Sun, 10 Mar 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/tags/illustrations/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>Teaching</title>
       <link>https://arduin.io/tags/teaching/</link>
       <pubDate>Sun, 10 Mar 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/tags/teaching/</guid>
       <description></description>
     </item>
-    
   </channel>
 </rss>

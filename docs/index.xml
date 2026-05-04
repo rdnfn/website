@@ -1,71 +1,61 @@
+
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>arduin.io</title>
     <link>https://arduin.io/</link>
     <description>Recent content on arduin.io</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Dec 2030 00:00:00 +0000</lastBuildDate><atom:link href="https://arduin.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 17 Apr 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://arduin.io/index.xml" rel="self" type="application/rss+xml" />
+    
     <item>
       <title>What exactly was different about the Chatbot Arena version of Llama 4 Maverick?</title>
       <link>https://arduin.io/blog/llama4-analysis/</link>
       <pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/llama4-analysis/</guid>
       <description>An analysis using the Feedback Forensics app to detect the differences between the Chatbot Arena and the publicly released version of Llama 4 Maverick.</description>
     </item>
-    
     <item>
       <title>Some predictions for AI in 2025</title>
       <link>https://arduin.io/blog/ai-predictions-2025/</link>
       <pubDate>Thu, 09 Jan 2025 10:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/ai-predictions-2025/</guid>
       <description>As we enter the new year, I wanted to share some of my (tentative) predictions about AI development in 2025.</description>
     </item>
-    
     <item>
       <title>GAIA benchmark overview</title>
       <link>https://arduin.io/blog/gaia-overview/</link>
       <pubDate>Sun, 31 Mar 2024 20:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/gaia-overview/</guid>
       <description>The General AI Assistant (GAIA) benchmark by Mialon et al. (2023) aims to provide a “convenient yet challenging benchmark for AI assistants”. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (web browser, code interpreter,…) and contain multi-modal input (images, videos, excel sheets,…). Whilst requiring advanced problem-solving capabilities to solve, GAIA’s tasks are simple and cheap to verify with unambiguous (and short) text answers. In this post, I give a short overview of the GAIA benchmark.</description>
     </item>
-    
     <item>
       <title>People</title>
       <link>https://arduin.io/blog/people/</link>
       <pubDate>Sun, 24 Mar 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/people/</guid>
       <description>A short (non-exhaustive) list of people who put great stuff on the internet and consistently help me learn new things.</description>
     </item>
-    
     <item>
       <title>MMLU benchmark overview</title>
       <link>https://arduin.io/blog/mmlu-overview/</link>
       <pubDate>Sat, 16 Mar 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/mmlu-overview/</guid>
       <description>The Massive Multitask Language Understanding (MMLU) benchmark (Hendrycks et al., 2021) is widely used to demonstrate state-of-the-art language model capabilities. Anthropic’s Claude 3, Google’s Gemini and OpenAI’s GPT-4 models were all introduced alongside prominently placed MMLU results. This publicity makes MMLU one of the most prominently discussed benchmarks for language models. Despite the benchmark’s prominence, the exact model capabilities evaluated and evaluation methods are less widely known. In this blog post, I aim to give a short overview of the MMLU benchmark.</description>
     </item>
-    
     <item>
       <title>GPT illustrated: from high-level diagram to vectors and code</title>
       <link>https://arduin.io/blog/gpt-illustrated/</link>
       <pubDate>Sun, 10 Mar 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/gpt-illustrated/</guid>
       <description>There are many excellent explanations and illustrations of the generative pre-trained transformer (GPT) (Radford et al., 2018) and the original transformer architectures (Vaswani et al., 2017). For example, I can highly recommend the write-up by Turner (2023 ) and the video by Karpathy (2023). Nevertheless, I decided to create yet another illustration of GPT for a recent example class I taught. My illustration focuses on two things: (1) Provide a direct connection from a high-level diagram all the way to an actual code implementation of a GPT, and (2) make the illustration as simple as possible (avoiding unnecessary complexity, e.g. by focusing on vector instead of full matrix/tensor operations).</description>
     </item>
-    
     <item>
       <title>Recommendations for AI news aggregators</title>
       <link>https://arduin.io/blog/rec-ai-news/</link>
       <pubDate>Thu, 29 Feb 2024 17:30:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/rec-ai-news/</guid>
       <description>&lt;p&gt;The field of artificial intelligence (AI) is moving fast. Keeping up with the vast number of new research papers on your own is daunting: scrolling through twitter all day does not seem like a good use of time. Below is a number of AI news aggregators that I personally use to get curated updates of AI developments on a regular basis &lt;em&gt;without spending all my time looking at papers&lt;/em&gt;:&lt;/p&gt;
 &lt;ol&gt;
@@ -74,12 +64,10 @@
 &lt;li&gt;&lt;a href=&#34;https://importai.substack.com/&#34;&gt;&lt;em&gt;Import AI&lt;/em&gt; (newsletter)&lt;/a&gt; by Jack Clark: provides a regular stream of very interesting research papers, with detailed summaries.&lt;/li&gt;
 &lt;/ol&gt;</description>
     </item>
-    
     <item>
       <title>The benchmark problems reviving manual evaluation</title>
       <link>https://arduin.io/blog/benchmark-problems/</link>
       <pubDate>Mon, 15 Jan 2024 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/benchmark-problems/</guid>
       <description>&lt;p&gt;There is a curious trend in &lt;em&gt;machine learning&lt;/em&gt; (ML): researchers developing the most capable &lt;em&gt;large language models&lt;/em&gt; (LLMs) increasingly evaluate them using manual methods such as &lt;em&gt;red teaming&lt;/em&gt;. In red teaming, researchers hire workers to manually try to break the LLM in some form by interacting with it. Similarly, some users (including myself) pick their preferred LLM assistant by manually trying out various models – checking each LLM&amp;rsquo;s &lt;em&gt;&amp;ldquo;vibe&amp;rdquo;&lt;/em&gt;. Given that LLM researchers and users both actively seek to automate all sorts of other tasks, red teaming and vibe checks are &lt;em&gt;surprisingly manual evaluation processes&lt;/em&gt;. This trend towards manual evaluation hints at fundamental problems that prevent more automatic evaluation methods, such as benchmarks, to be used effectively for LLMs 
   &lt;span class=&#34;hugo-cite-intext&#34;
@@ -164,12 +152,10 @@
 
 &lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;. In this blog post, I aim to give an illustrated overview of the problems preventing LLM benchmarks from being a fully satisfactory alternative to more manual approaches.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Interesting takes on the future of AI in 2023</title>
       <link>https://arduin.io/blog/interesting-ai-viewpoints/</link>
       <pubDate>Wed, 17 May 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/interesting-ai-viewpoints/</guid>
       <description>&lt;p&gt;In late 2022 and early 2023, we have seen major leaps in the field of AI with generative models like those underpinning the ChatGPT interface.  Below are selected commentary pieces by AI researchers, leaders and commentators that make predictions about the future of AI following these leaps. I highly recommend looking at these links – they have been very influential on my own thinking and work.&lt;/p&gt;
 &lt;ol&gt;
@@ -182,12 +168,10 @@
 &lt;/ol&gt;
 &lt;p&gt;Hope you find these helpful!&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>A short exploration of language model evaluation approaches</title>
       <link>https://arduin.io/blog/eval-exploration/</link>
       <pubDate>Mon, 06 Mar 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://arduin.io/blog/eval-exploration/</guid>
       <description>&lt;style&gt;
 td {
@@ -214,12 +198,5 @@ figure {
 &lt;blockquote&gt;
 &lt;p&gt;&lt;em&gt;&lt;strong&gt;Disclaimer:&lt;/strong&gt; This post collects some notes from exploring language model evaluation approaches in early 2023. It will (likely) be outdated by the time you read this. Improvement suggestions are welcome and can be sent to &lt;code&gt;contact (at) arduin.io&lt;/code&gt;.&lt;/em&gt;&lt;/p&gt;</description>
     </item>
-    
-    
-    
-    
-    
-    
-    
   </channel>
 </rss>
