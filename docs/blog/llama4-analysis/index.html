@@ -293,26 +293,26 @@
 <p>Numerically, <em>strength</em> is defined as the <a href="https://en.wikipedia.org/wiki/Cohen's_kappa">Cohen&rsquo;s kappa</a> agreement-level measure of two annotators, a principle-following (e.g. selecting the more polite response) and a model-selecting (e.g. always picking the arena model), weighted by the <em>relevance</em> of the principle-following annotator (e.g. the proportion of comparisons where the principle-following annotator decided that the principle applies).</p>
 <p>In the context of this analysis, <strong>the strength measure can be interpreted as follows:</strong></p>
 <table>
-  <thead>
-      <tr>
-          <th>Strength metric</th>
-          <th>Interpretation</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><strong>close to +1</strong></td>
-          <td><em>The selected model&rsquo;s responses exhibit a certain behaviour <strong>more</strong> than other models.</em><br><div style="margin-top: 7px;"></div>Explanation: the behaviour associated with the principle annotator seems to separate model X from other models, as an annotator following exclusively this principle is able to separate the model from the others.</td>
-      </tr>
-      <tr>
-          <td><strong>close to 0</strong></td>
-          <td><em>The selected model&rsquo;s responses are <strong>similar</strong> to other models with respect to the annotated behaviour.</em> <br><div style="margin-top: 7px;"></div>Explanation: all compared models similarly exhibited a certain behaviour with similar frequency &mdash; meaning that the principle-following annotator could not distinguish between models.</td>
-      </tr>
-      <tr>
-          <td><strong>close to -1</strong></td>
-          <td><em>The selected model&rsquo;s responses exhibit a certain behaviour <strong>less</strong> than other models.</em> <br><div style="margin-top: 7px;"></div>Explanation: other models exhibited the principle&rsquo;s behaviour more than the selected model, the principle-following annotator selected those models more than the model of our model-selecting annotator.</td>
-      </tr>
-  </tbody>
+	<thead>
+			<tr>
+					<th>Strength metric</th>
+					<th>Interpretation</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><strong>close to +1</strong></td>
+					<td><em>The selected model&rsquo;s responses exhibit a certain behaviour <strong>more</strong> than other models.</em><br><div style="margin-top: 7px;"></div>Explanation: the behaviour associated with the principle annotator seems to separate model X from other models, as an annotator following exclusively this principle is able to separate the model from the others.</td>
+			</tr>
+			<tr>
+					<td><strong>close to 0</strong></td>
+					<td><em>The selected model&rsquo;s responses are <strong>similar</strong> to other models with respect to the annotated behaviour.</em> <br><div style="margin-top: 7px;"></div>Explanation: all compared models similarly exhibited a certain behaviour with similar frequency &mdash; meaning that the principle-following annotator could not distinguish between models.</td>
+			</tr>
+			<tr>
+					<td><strong>close to -1</strong></td>
+					<td><em>The selected model&rsquo;s responses exhibit a certain behaviour <strong>less</strong> than other models.</em> <br><div style="margin-top: 7px;"></div>Explanation: other models exhibited the principle&rsquo;s behaviour more than the selected model, the principle-following annotator selected those models more than the model of our model-selecting annotator.</td>
+			</tr>
+	</tbody>
 </table>
 <h2 id="3-results-whats-different-about-the-arena-model">3. Results: What&rsquo;s different about the arena model?<a hidden class="anchor" aria-hidden="true" href="#3-results-whats-different-about-the-arena-model">#</a></h2>
 <p>Using this setup, we are now able to get a good overview of how the <em>arena</em> version of Llama 4 Maverick differs from the <em>public</em> version. In this section, I go through the main observations.</p>
