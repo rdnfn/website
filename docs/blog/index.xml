@@ -7,9 +7,16 @@
     <description>Recent content in Blog on arduin.io</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 17 Apr 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 17 Aug 2026 16:00:00 +0000</lastBuildDate>
     <atom:link href="https://arduin.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    <item>
+      <title>Two surprisingly persistent challenges of AI evaluation</title>
+      <link>https://arduin.io/blog/persistent-eval-problems/</link>
+      <pubDate>Mon, 17 Aug 2026 16:00:00 +0000</pubDate>
+      <guid>https://arduin.io/blog/persistent-eval-problems/</guid>
+      <description>Everything in the field of AI seems to change constantly, from models to benchmarks. Yet, some fundamental issues of evaluation remain surprisingly enduring despite all these other changes.</description>
+    </item>
     <item>
       <title>What exactly was different about the Chatbot Arena version of Llama 4 Maverick?</title>
       <link>https://arduin.io/blog/llama4-analysis/</link>

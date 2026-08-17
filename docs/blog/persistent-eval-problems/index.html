@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Two surprisingly persistent challenges of AI evaluation | arduin.io</title>
+<meta name="keywords" content="">
+<meta name="description" content="Everything in the field of AI seems to change constantly, from models to benchmarks. Yet, some fundamental issues of evaluation remain surprisingly enduring despite all these other changes.">
+<meta name="author" content="Arduin Findeis">
+<link rel="canonical" href="https://arduin.io/blog/persistent-eval-problems/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0ae2c957e5ca12b91f87ec58519c41bb0c36a74d9e0ac64ea869119b9d9312be.css" integrity="sha256-CuLJV&#43;XKErkfh&#43;xYUZxBuww2p02eCsZOqGkRm52TEr4=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://arduin.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://arduin.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://arduin.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://arduin.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://arduin.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://arduin.io/blog/persistent-eval-problems/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><script data-goatcounter="https://gbqtk.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script><meta property="og:title" content="Two surprisingly persistent challenges of AI evaluation" />
+<meta property="og:description" content="Everything in the field of AI seems to change constantly, from models to benchmarks. Yet, some fundamental issues of evaluation remain surprisingly enduring despite all these other changes." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://arduin.io/blog/persistent-eval-problems/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2026-08-17T16:00:00+00:00" />
+<meta property="article:modified_time" content="2026-08-17T16:00:00+00:00" />
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Two surprisingly persistent challenges of AI evaluation">
+<meta name="twitter:description" content="Everything in the field of AI seems to change constantly, from models to benchmarks. Yet, some fundamental issues of evaluation remain surprisingly enduring despite all these other changes.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://arduin.io/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Two surprisingly persistent challenges of AI evaluation",
+      "item": "https://arduin.io/blog/persistent-eval-problems/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Two surprisingly persistent challenges of AI evaluation",
+  "name": "Two surprisingly persistent challenges of AI evaluation",
+  "description": "Everything in the field of AI seems to change constantly, from models to benchmarks. Yet, some fundamental issues of evaluation remain surprisingly enduring despite all these other changes.",
+  "keywords": [
+    
+  ],
+  "articleBody": " This post is based on a talk I gave at the NLIP Seminar Series at the CS Department in Cambridge.\nAI evolves rapidly: top models are superseded by the next generation within months, if not weeks. Alongside models, the benchmarks aiming to measure them also see rapid turnover. Having started doing AI stuff over eight years ago, I have felt this constant change first-hand, most intensely when I had to pivot research direction mid-PhD. Yet, throughout my experience, two fundamental challenges of evaluation have remained surprisingly persistent: overfitting and saturation. In this post, I discuss these challenges, why they are fundamental to AI development and how attempts to solve them have failed so far (and likely will continue failing). To me, these persistent challenges provide a little predictability within the constant storm that is AI progress. Perhaps they can also do that for you!\nIllustration of persistent challenges of AI evaluation: like a resilient tree in the storm of AI progress.\nIntro: A short history of AI My very personal experience of rapid AI progress. In 2018, I first started in AI and training my first neural network. Things looked quite a bit different back then: the field was still largely called machine learning and most models were still pretty small, millions rather than billions of parameters. Support vector machines and random forests were still popular. LSTMs and CNNs were the most widely taught neural network architectures, whilst transformers were still relatively unknown (the Attention Is All You Need paper came out in mid-2017). As we all know, things in the field have shifted a little since 2018.\nChange 1: Name. Most superficially, the name of the field effectively changed: from machine learning (ML) to artificial intelligence (AI). As the capabilities of neural network-based systems improved, the term AI became more acceptable. Fun fact: 2026 was the first year that the term AI was used more than ML in the NeurIPS Call-for-Papers (CFP) (see figure below). Yet, on its own, this name change would not quite justify the description “storm of AI progress”.\nRelative usage of the terms AI vs ML since 2018 in NeurIPS Call-for-Papers. Generated with Claude Code.\nChange 2: Training compute. More substantially than naming, the amount of training compute used for state-of-the-art models has increased significantly since 2018, by multiple orders of magnitude (~10,000x, see figure below). Importantly, the training compute of the average AI model in use has likely increased even more significantly, though exact numbers are challenging to get. Many users now access AI models via APIs to rent GPUs by-the-token, allowing them to run far bigger models than they could afford to buy hardware for. Some are critical of API-based models (for legitimate reasons), but I am personally also in awe of the engineering marvel that are modern model APIs: working with enormous models is so easy now, all the complex inference engineering (software \u0026 hardware!) is completely abstracted away.\nTraining compute in FLOPs for notable AI models. Generated with Epoch AI's great visualisation tool.\nChange 3: Model capabilities (and alongside evals). Perhaps most importantly for real-world impact, models have just gotten much, much better at stuff. Most tasks that were considered challenging goals for AI in 2018 are long (mostly) solved, e.g. translation, image tagging or code completion. Over the last 8 years, we have seen benchmark after benchmark become saturated: ImageNet, SuperGLUE, MMLU, GPQA Diamond, OSWorld, SWE-Bench, VQA, SQuAD, MATH, MMMU … and so many more. These saturated benchmarks are no longer able to meaningfully distinguish state-of-the-art models. As a consequence, none of the benchmarks that people looked at when I started my AI journey in 2018 remain relevant today. Just looking at a recent model score card by Anthropic, we see that the oldest benchmark they share results on was just a bit over a year old. Benchmarks have incredibly short shelf-lives these days. To keep up with model progress, not just the tasks within benchmarks but also the methods used to evaluate tasks have changed: from simple word-matching (e.g. MMLU (Hendrycks et al., 2021 Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D. \u0026 Steinhardt, J. (2021). Measuring Massive Multitask Language Understanding. Retrieved from https://openreview.net/forum?id=d7KBjmI3GmQ )) to human (e.g. Arena (Chiang et al., 2024 Chiang, W., Zheng, L., Sheng, Y., Angelopoulos, A., Li, T., Li, D., Zhu, B., Zhang, H., Jordan, M., Gonzalez, J. \u0026 Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. PMLR. Retrieved from https://proceedings.mlr.press/v235/chiang24b.html )) and AI judgement (e.g. LLM-as-a-Judge (Zheng et al., 2023 Zheng, L., Chiang, W., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E., Zhang, H., Gonzalez, J. \u0026 Stoica, I. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. Retrieved from https://proceedings.neurips.cc/paper_files/paper/2023/hash/91f18a1287b398d378ef22505bf41832-Abstract-Datasets_and_Benchmarks.html )).\nIncreasing performance of AI models on various benchmarks: from image classification to autonomous software engineering. Figure adapted from HAI Stanford's 2026 AI Index Report.\nChallenges weathering the storm So far, I have established the uncontroversial observation that there have been rapid changes in AI over the last years. This post is about the opposite, two aspects of AI development that have persisted. Specifically, two long-standing challenges of AI evaluation: overfitting and saturation. Despite significant research effort to address them, both have stayed around. In this post, I argue that this persistence is not a historical accident but rather can be explained by fundamental limitations of the process of AI development and the nature of AI evaluation.\nBackground: AI development as hillclimbing First, we need a bit of context. I personally find the perspective of AI development as a collective hillclimbing exercise very helpful: developers train models to “climb” up in terms of some form of utility function (user, economic, etc.). The goal of developers is to build models that reach higher and higher utility levels, “climbing” up a figurative Mt Utility, illustrated below. The exact nature of the hill is usually not well-defined and changes but the notion of “some” hill being climbed is common amongst researchers working on frontier AI.\nAI development as hillclimbing. The goal of AI development can be seen as finding the model that maximizes utility (climbs \"Mt Utility\" most effectively). Utility itself is not directly measurable, instead developers use benchmarks to estimate a model's utility: they serve as a sort of altimeter on the ascent up Mt Utility.\nBenchmarks. In practice, directly measuring the “altitude” (i.e. utility level) of a model on this Mt Utility is either difficult or impossible. Instead, developers have to rely on benchmarks as a proxy measure. A benchmark is a software+data package that aims to measure a specific model property related to utility (in most cases), such as coding, math or writing skills. Capabilities are evaluated through a set of test cases, each with a clear instruction to the model as well as a method of assessing its output. For example, the popular SWE-Bench benchmark (Jimenez et al., 2024 Jimenez, C., Yang, J., Wettig, A., Yao, S., Pei, K., Press, O. \u0026 Narasimhan, K. (2024). SWE-bench: Can Language Models Resolve Real-world Github Issues?. Retrieved from https://openreview.net/forum?id=VTF8yNQM66 ) captures a model’s coding skills with test cases built from GitHub issues and unit-test-based verification. What such benchmarks measure is a model’s ability to solve a small set of specific coding tasks, commonly used as a proxy for coding capabilities, and user utility more generally.\nCreating a utility altimeter. In the context of training general-purpose LLMs, many benchmarks are aggregated to approximate overall utility across diverse use-cases. Combined, benchmarks provide model developers a clear and actionable objective to optimize against. During training, developers constantly query their benchmarks to determine progress. Here, benchmarks serve as a form of utility altimeter that indicates whether algorithm or data changes improved downstream model utility. Benchmarks don’t directly tell developers where to go, but given a model benchmarks can tell where they are (at least roughly).\nChallenge 1: Overfitting Yet, like real altimeters, the utility estimates of benchmarks can be broken and wildly off. Benchmarks’ reliance on test cases causes fundamental issues: instead of obtaining high-level capabilities, models can focus on the specific test cases without generalizing. For example for SWE-Bench, a model can be good at solving a fixed set of known GitHub issues without being much help on new issues. This opens up a second peak on our benchmark objective function, much quicker to climb but without generalisation beyond the benchmark’s test cases. In our hillclimbing analogy, this means our benchmark altimeter has ghost peaks: peaks of our benchmark score that do not correspond to real-world utility spikes (often the opposite!). Zhang et al. (2024 Zhang, H., Da, J., Lee, D., Robinson, V., Wu, C., Song, W., Zhao, T., Raja, P., Zhuang, C., Slack, D., Lyu, Q., Hendryx, S., Kaplan, R., Lunati, M. \u0026 Yue, S. (2024). A Careful Examination of Large Language Model Performance on Grade School Arithmetic. https://doi.org/10.52202/079017-1485 ) demonstrated heavy overfitting on the previously popular GSM8k benchmark: some models performed well on the publicly available math questions of GSM8k but failed on roughly equivalent previously unseen questions. The results indicate that some models mimicked a lookup table (the ghost peak) more than a general math solver (the real utility peak).\nGhost peaks enable overfitting. Benchmarks are imperfect utility altimeters. There are areas of model space where the benchmark scores highly but real-world utility is low.\nMitigations. Many have tried to prevent these ghost peaks, none have fully solved the problem.\nHidden benchmarks. If you train a model on benchmark data, that is often almost like giving the model a map leading it directly up a ghost peak. Because most benchmarks have ghost peaks that lead to rapid increase in score without real-world utility increases, any gradient descent-based method will generally quickly go up such peaks with direct data access. Thus, a simple way to reduce the likelihood of ending up with a model on a ghost peak is to hide the benchmark from developers training models. However, if used to select model candidates, even without access during training, benchmarks apply selection pressure on models. In such a scenario, the mechanism is more evolutionary rather than direct gradient-based optimization. Nevertheless, if ghost peaks exist (which they likely do), they are likely to be found eventually (albeit slower than with direct training). Benchmarks can’t escape Goodhart’s law: once a measure becomes a target it ceases to be a good measure (paraphrased). Hidden benchmarks are unable to truly mitigate selection pressure effects. Increasing benchmark size. A straightforward mitigation proposed by some is to simply increase the scale of the number of test cases (e.g. HELM or BIG Bench). However, as long as the test set is finite and fixed, it is possible to construct a non-generalizing model that performs well (I have not come across a counter-example yet). For example, for any benchmark with fixed correct answers, a simple answer look-up model suffices to achieve top performance. Size alone cannot change the fundamental issue of ghost peaks. Dynamic test case generation. Yet another alternative approach is to dynamically generate test cases, as done by Dynabench (Kiela et al., 2021 Kiela, D., Bartolo, M., Nie, Y., Kaushik, D., Geiger, A., Wu, Z., Vidgen, B., Prasad, G., Singh, A., Ringshia, P., Ma, Z., Thrush, T., Riedel, S., Waseem, Z., Stenetorp, P., Jia, R., Bansal, M., Potts, C. \u0026 Williams, A. (2021). Dynabench: Rethinking Benchmarking in NLP. Association for Computational Linguistics. https://doi.org/10.18653/v1/2021.naacl-main.324 ) and Arena (Chiang et al., 2024 Chiang, W., Zheng, L., Sheng, Y., Angelopoulos, A., Li, T., Li, D., Zhu, B., Zhang, H., Jordan, M., Gonzalez, J. \u0026 Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. PMLR. Retrieved from https://proceedings.mlr.press/v235/chiang24b.html ). This setup removes the possibility of learning-by-heart peaks: there is no way to learn a theoretically infinite set of test cases by heart. Nevertheless, there may be ghost peaks. The first failure mode introducing ghost peaks is if there are any shortcuts to solving tasks introduced by the test case assessment method. For example, for Arena focusing on response style rather than substance allowed some models to boost their scores without matching real-world utility (see my post on the well-known Llama-4-Maverick case here). The second failure mode occurs if the test case distribution is different from the real-world distribution, the resulting utility estimates also fail to estimate real-world utility. For Arena, likely both failure modes apply to some extent: the human assessment method is biased (Li et al., 2024 Li, T., Angelopoulos, A. \u0026 Chiang, W. (2024). Does style matter? Disentangling style and substance in Chatbot Arena. Retrieved from https://lmsys.org/blog/2024-08-28-style-control ) and the distribution of usage on Arena does not perfectly match real-world usage. In conclusion, whenever it is possible to perform well on a benchmark without matching real-world utility, overfitting can (and will) occur. At least so far, this observation has held empirically across all popular benchmarks old enough to have applied selection pressure on models. Ultimately, if a benchmark is an efficient (and lossy) compression of real-world utility, a benchmark will always have some flaws that can be exploited. And the hillclimbing optimization of the AI community will reveal these (sooner or later).\nChallenge 2: Saturation Beyond showing ghost peaks, the altimeter formed by benchmarks can exhibit a second class of issues: saturation. Benchmark altimeters have a relatively small operating range: below and above certain levels of utility the benchmark is no longer able to provide any helpful readings. Outside that range, all models score the same value. New models may indeed provide significant real-world utility but an old benchmark altimeter will still show the same level of utility. The reachable maximum often won’t be literally “100%” performance, but perhaps 96% where the remaining 4% are impossible or broken test cases. This saturation represents the last step in a constant cycle: (1) benchmark gets released, (2) models start to improve on the benchmark, and (3) benchmark becomes saturated (models converge in terms of benchmark performance).\nSaturation. Once models reach a certain capability level, the benchmark altimeters go outside their operating range and can no longer indicate if progress is being made.\nMitigations. As with overfitting, there have been many attempts to solve saturation, none fully solving the issue.\nCreate really hard tasks. A straightforward way to pre-emptively avoid future saturation, is to simply pick really challenging tasks. History has shown that even supposedly hard tasks get solved fairly quickly. SuperGLUE (Wang et al., 2019 Wang, A., Pruksachatkun, Y., Nangia, N., Singh, A., Michael, J., Hill, F., Levy, O. \u0026 Bowman, S. (2019). SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems. Retrieved from https://proceedings.neurips.cc/paper_files/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html ) tried to create a much more challenging version of the GLUE benchmark (Wang et al., 2018 Wang, A., Singh, A., Michael, J., Hill, F., Levy, O. \u0026 Bowman, S. (2018). GLUE: A multi-task benchmark and analysis platform for natural language understanding. Retrieved from https://aclanthology.org/W18-5446/ ), SQuAD 2.0 (Rajpurkar et al., 2018 Rajpurkar, P., Jia, R. \u0026 Liang, P. (2018). Know What You Don’t Know: Unanswerable Questions for SQuAD. https://doi.org/10.48550/arXiv.1806.03822 ) did the same for SQuAD (Rajpurkar et al., 2016 Rajpurkar, P., Zhang, J., Lopyrev, K. \u0026 Liang, P. (2016). SQuAD: 100,000+ Questions for Machine Comprehension of Text. Association for Computational Linguistics. https://doi.org/10.18653/v1/D16-1264 ), MMLU-Pro (Wang et al., 2024 Wang, Y., Ma, X., Zhang, G., Ni, Y., Chandra, A., Guo, S., Ren, W., Arulraj, A., He, X., Jiang, Z., Li, T., Ku, M., Wang, K., Zhuang, A., Fan, R., Yue, X. \u0026 Chen, W. (2024). MMLU-Pro: A More Robust and Challenging Multi-Task Language Understanding Benchmark. Advances in Neural Information Processing Systems, 37. 95266–95290. https://doi.org/10.52202/079017-3018 ) for MMLU (Hendrycks et al., 2021 Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D. \u0026 Steinhardt, J. (2021). Measuring Massive Multitask Language Understanding. Retrieved from https://openreview.net/forum?id=d7KBjmI3GmQ ). All of these benchmarks are now saturated, whether the “hard” or “easy” version. Once a benchmark provides a verifiable set of tasks to solve and receives sufficient attention, model developers are generally able to make quick progress. Anticipating the exact direction of this progress is challenging, making building benchmarks with a long shelf-life especially difficult. Collect tasks dynamically. In addition to tackling overfitting, dynamic task collection has also been proposed to avoid saturation. Recognizing that any benchmark with a fixed set of tasks is destined to saturate quickly, Kiela et al. (2021 Kiela, D., Bartolo, M., Nie, Y., Kaushik, D., Geiger, A., Wu, Z., Vidgen, B., Prasad, G., Singh, A., Ringshia, P., Ma, Z., Thrush, T., Riedel, S., Waseem, Z., Stenetorp, P., Jia, R., Bansal, M., Potts, C. \u0026 Williams, A. (2021). Dynabench: Rethinking Benchmarking in NLP. Association for Computational Linguistics. https://doi.org/10.18653/v1/2021.naacl-main.324 ) proposed the Dynabench platform to collect tasks dynamically. In a similar spirit, Chatbot Arena (Chiang et al., 2024 Chiang, W., Zheng, L., Sheng, Y., Angelopoulos, A., Li, T., Li, D., Zhu, B., Zhang, H., Jordan, M., Gonzalez, J. \u0026 Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. PMLR. Retrieved from https://proceedings.mlr.press/v235/chiang24b.html ) (now Arena.ai) became a popular benchmark. However, the choice of selection process itself typically limits the scope of a benchmark. For example, Arena was originally built for comparing chatbots. The field eventually moved on towards autonomous agents, an aspect the original Arena benchmark couldn’t capture despite its dynamic nature. Accordingly, the original Arena benchmark no longer covers that aspect of utility and the organisation behind the Arena has released new benchmarks specific to agents. Conclusion: No end in sight To understand why I don’t expect a benchmark resilient to overfitting and saturation anytime soon, it’s useful to consider what would need to be true for such a benchmark to exist.\nOverfitting: The benchmark must have zero shortcuts to high altitude, a single peak corresponding to maximal real-world utility. No such benchmark currently exists. There are benchmarks like Arena that have fewer obvious peaks, but (1) they still have some ghost peaks (see above for Arena), and (2) tend to increase in financial and time cost (Arena requires thousands of human trials for a single new model).\nSaturation: In order for a benchmark to avoid saturation, it needs to anticipate future capabilities and use-cases. Further, current technology needs to be able to evaluate such capabilities. So far this has not been possible, benchmarks always needed to be adapted to adjust to new progress (e.g. with autonomous agents).\nHope: the resilience of the benchmarking process Whilst no individual benchmark so far managed to resist overfitting and saturation, the process of community-driven benchmarking has largely resisted overfitting and saturation thus far. The scientific process of generating benchmarks itself has been able to manage the challenges consistently across prior model generations. Whenever a benchmark becomes overfitted or saturated, the community has been able to respond with a new, better benchmark. Should this benchmark generation process ever stop working, and we can’t effectively come up with new benchmarks to replace flawed existing ones, something fundamental will have changed about our relationship to AI. But that’s a topic for another post.\nReferences Chiang, W., Zheng, L., Sheng, Y., Angelopoulos, A., Li, T., Li, D., Zhu, B., Zhang, H., Jordan, M., Gonzalez, J. \u0026 Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. PMLR. Retrieved from https://proceedings.mlr.press/v235/chiang24b.html Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D. \u0026 Steinhardt, J. (2021). Measuring Massive Multitask Language Understanding. Retrieved from https://openreview.net/forum?id=d7KBjmI3GmQ Jimenez, C., Yang, J., Wettig, A., Yao, S., Pei, K., Press, O. \u0026 Narasimhan, K. (2024). SWE-bench: Can Language Models Resolve Real-world Github Issues?. Retrieved from https://openreview.net/forum?id=VTF8yNQM66 Kiela, D., Bartolo, M., Nie, Y., Kaushik, D., Geiger, A., Wu, Z., Vidgen, B., Prasad, G., Singh, A., Ringshia, P., Ma, Z., Thrush, T., Riedel, S., Waseem, Z., Stenetorp, P., Jia, R., Bansal, M., Potts, C. \u0026 Williams, A. (2021). Dynabench: Rethinking Benchmarking in NLP. Association for Computational Linguistics. https://doi.org/10.18653/v1/2021.naacl-main.324 Li, T., Angelopoulos, A. \u0026 Chiang, W. (2024). Does style matter? Disentangling style and substance in Chatbot Arena. Retrieved from https://lmsys.org/blog/2024-08-28-style-control Rajpurkar, P., Zhang, J., Lopyrev, K. \u0026 Liang, P. (2016). SQuAD: 100,000+ Questions for Machine Comprehension of Text. Association for Computational Linguistics. https://doi.org/10.18653/v1/D16-1264 Rajpurkar, P., Jia, R. \u0026 Liang, P. (2018). Know What You Don’t Know: Unanswerable Questions for SQuAD. https://doi.org/10.48550/arXiv.1806.03822 Wang, A., Singh, A., Michael, J., Hill, F., Levy, O. \u0026 Bowman, S. (2018). GLUE: A multi-task benchmark and analysis platform for natural language understanding. Retrieved from https://aclanthology.org/W18-5446/ Wang, A., Pruksachatkun, Y., Nangia, N., Singh, A., Michael, J., Hill, F., Levy, O. \u0026 Bowman, S. (2019). SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems. Retrieved from https://proceedings.neurips.cc/paper_files/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html Wang, Y., Ma, X., Zhang, G., Ni, Y., Chandra, A., Guo, S., Ren, W., Arulraj, A., He, X., Jiang, Z., Li, T., Ku, M., Wang, K., Zhuang, A., Fan, R., Yue, X. \u0026 Chen, W. (2024). MMLU-Pro: A More Robust and Challenging Multi-Task Language Understanding Benchmark. Advances in Neural Information Processing Systems, 37. 95266–95290. https://doi.org/10.52202/079017-3018 Zhang, H., Da, J., Lee, D., Robinson, V., Wu, C., Song, W., Zhao, T., Raja, P., Zhuang, C., Slack, D., Lyu, Q., Hendryx, S., Kaplan, R., Lunati, M. \u0026 Yue, S. (2024). A Careful Examination of Large Language Model Performance on Grade School Arithmetic. https://doi.org/10.52202/079017-1485 Zheng, L., Chiang, W., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E., Zhang, H., Gonzalez, J. \u0026 Stoica, I. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. Retrieved from https://proceedings.neurips.cc/paper_files/paper/2023/hash/91f18a1287b398d378ef22505bf41832-Abstract-Datasets_and_Benchmarks.html ",
+  "wordCount" : "3528",
+  "inLanguage": "en",
+  "datePublished": "2026-08-17T16:00:00Z",
+  "dateModified": "2026-08-17T16:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Arduin Findeis"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://arduin.io/blog/persistent-eval-problems/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "arduin.io",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://arduin.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://arduin.io/" accesskey="h" title="arduin.io (Alt + H)">arduin.io</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://arduin.io/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/research" title="Research">
+                    <span>Research</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/projects" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/bio" title="Bio">
+                    <span>Bio</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/blog" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://arduin.io/newsletter" title="Newsletter">
+                    <span>Newsletter</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <link rel="stylesheet" type="text/css" href="/hugo-cite.css" />
+    
+    <h1 class="post-title entry-hint-parent">
+      Two surprisingly persistent challenges of AI evaluation
+    </h1>
+    
+    <div class="post-meta"><span title='2026-08-17 16:00:00 +0000 UTC'>August 17, 2026</span>&nbsp;·&nbsp;17 min&nbsp;·&nbsp;Arduin Findeis<span style="opacity: 0.5">&nbsp;<a href="/ai-policy" target="_blank">(human-written)</a></span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#intro-a-short-history-of-ai" aria-label="Intro: A short history of AI">Intro: A short history of AI</a></li>
+                <li>
+                    <a href="#challenges-weathering-the-storm" aria-label="Challenges weathering the storm">Challenges weathering the storm</a><ul>
+                        
+                <li>
+                    <a href="#background-ai-development-as-hillclimbing" aria-label="Background: AI development as hillclimbing">Background: AI development as hillclimbing</a></li>
+                <li>
+                    <a href="#challenge-1-overfitting" aria-label="Challenge 1: Overfitting">Challenge 1: Overfitting</a></li>
+                <li>
+                    <a href="#challenge-2-saturation" aria-label="Challenge 2: Saturation">Challenge 2: Saturation</a></li></ul>
+                </li>
+                <li>
+                    <a href="#conclusion-no-end-in-sight" aria-label="Conclusion: No end in sight">Conclusion: No end in sight</a><ul>
+                        
+                <li>
+                    <a href="#hope-the-resilience-of-the-benchmarking-process" aria-label="Hope: the resilience of the benchmarking process">Hope: the resilience of the benchmarking process</a></li></ul>
+                </li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p>This post is based on a <a href="https://talks.cam.ac.uk/talk/index/243484">talk</a> I gave at the <a href="https://www.cl.cam.ac.uk/research/nl/">NLIP Seminar Series</a> at the CS Department in Cambridge.</p>
+</blockquote>
+<p>AI evolves rapidly: top models are superseded by the next generation within months, if not weeks. Alongside models, the benchmarks aiming to measure them also see rapid turnover. Having started doing AI stuff over eight years ago, I have felt this constant change first-hand, most intensely when I had to pivot research direction mid-PhD. Yet, throughout my experience, two fundamental challenges of evaluation have remained surprisingly persistent: <em><strong>overfitting</strong></em> and <em><strong>saturation</strong></em>. In this post, I discuss these challenges, why they are fundamental to AI development and how attempts to solve them have failed so far (and likely will continue failing). To me, these persistent challenges provide a little predictability within the constant storm that is AI progress. Perhaps they can also do that for you!</p>
+
+
+
+<figure style="text-align: center;"><img
+         src="img/ai_tree_in_the_storm.png" width="45%"style="display:inline"
+    /><figcaption>
+        <p align="center"> <strong>Illustration of persistent challenges of AI evaluation:</strong> like a resilient tree in the storm of AI progress.</p>
+    </figcaption>
+</figure>
+<h2 id="intro-a-short-history-of-ai">Intro: A short history of AI<a hidden class="anchor" aria-hidden="true" href="#intro-a-short-history-of-ai">#</a></h2>
+<p><strong>My very personal experience of rapid AI progress.</strong> In 2018, I first started in AI and training my first neural network. Things looked quite a bit different back then: the field was still largely called <em>machine learning</em> and most models were still pretty small, millions rather than billions of parameters. <a href="https://dl.acm.org/doi/10.1145/130385.130401">Support vector machines</a> and <a href="https://link.springer.com/article/10.1023/A:1010933404324">random forests</a> were still popular. <a href="https://dl.acm.org/doi/abs/10.1162/NECO.1997.9.8.1735">LSTMs</a> and <a href="https://proceedings.neurips.cc/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html">CNNs</a> were the most widely taught neural network architectures, whilst transformers were still relatively unknown (the <a href="https://arxiv.org/abs/1706.03762v1">Attention Is All You Need</a> paper came out in mid-2017). As we all know, things in the field have shifted a little since 2018.</p>
+<p><strong>Change 1: Name.</strong> Most superficially, the name of the field effectively changed: from <em>machine learning</em> (ML) to <em>artificial intelligence</em> (AI). As the capabilities of neural network-based systems improved, the term AI became more acceptable. Fun fact: 2026 was the first year that the term AI was used <em>more than ML</em> in the NeurIPS <a href="https://neurips.cc/Conferences/2026/CallForPapers">Call-for-Papers</a> (CFP) (see figure below). Yet, on its own, this name change would not quite justify the description &ldquo;storm of AI progress&rdquo;.</p>
+
+
+
+<figure style="text-align: center;"><img class="screenshot"
+         src="img/ai_name_change.png" width="75%"style="display:inline"
+    /><figcaption>
+        <p align="center"> <strong>Relative usage of the terms AI vs ML since 2018 in <a href="https://neurips.cc/Conferences/2026/CallForPapers">NeurIPS Call-for-Papers</a>.</strong> Generated with Claude Code.</p>
+    </figcaption>
+</figure>
+<p><strong>Change 2: Training compute.</strong> More substantially than naming, the amount of training compute used for state-of-the-art models has increased significantly since 2018, by multiple orders of magnitude (~10,000x, see figure below). Importantly, the training compute of the <em>average</em> AI model in use has likely increased even more significantly, though exact numbers are challenging to get. Many users now access AI models via APIs to rent GPUs by-the-token, allowing them to run far bigger models than they could afford to buy hardware for. Some are critical of API-based models (for legitimate reasons), but I am personally also <em>in awe</em> of the engineering marvel that are modern model APIs: working with enormous models is so easy now, all the complex inference engineering (software &amp; hardware!) is completely abstracted away.</p>
+
+
+
+<figure style="text-align: center;"><img class="screenshot"
+         src="img/epoch_compute_trends.png" width="85%"style="display:inline"
+    /><figcaption>
+        <p align="center"> <strong>Training compute in FLOPs for notable AI models.</strong> Generated with Epoch AI's great <a href="https://epoch.ai/data/ai-models">visualisation tool</a>.</p>
+    </figcaption>
+</figure>
+<p><strong>Change 3: Model capabilities (and alongside evals).</strong> Perhaps most importantly for real-world impact, <em>models have just gotten much, much better at stuff</em>. Most tasks that were considered challenging goals for AI in 2018 are long (mostly) solved, e.g. translation, image tagging or code completion. Over the last 8 years, we have seen benchmark after benchmark become saturated: <a href="https://image-net.org/">ImageNet</a>, <a href="https://super.gluebenchmark.com/">SuperGLUE</a>, <a href="https://github.com/hendrycks/test">MMLU</a>, <a href="https://github.com/idavidrein/gpqa">GPQA Diamond</a>, <a href="https://github.com/xlang-ai/OSWorld">OSWorld</a>, <a href="https://github.com/swe-bench/SWE-bench">SWE-Bench</a>, <a href="https://openaccess.thecvf.com/content_iccv_2015/html/Antol_VQA_Visual_Question_ICCV_2015_paper.html">VQA</a>, <a href="https://aclanthology.org/D16-1264/">SQuAD</a>, <a href="https://arxiv.org/abs/2103.03874">MATH</a>, <a href="https://github.com/MMMU-Benchmark/MMMU">MMMU</a> &hellip; and so many more. These saturated benchmarks are no longer able to meaningfully distinguish state-of-the-art models. As a consequence, none of the benchmarks that people looked at when I started my AI journey in 2018 remain relevant today. Just looking at a <a href="https://x.com/claudeai/status/2064394151441863006">recent model score card</a> by Anthropic, we see that the oldest benchmark they share results on was just a bit over a year old. Benchmarks have incredibly short shelf-lives these days. To keep up with model progress, not just the tasks within benchmarks but also the methods used to evaluate tasks have changed: from simple word-matching (e.g. MMLU 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#hendrycks2021measuringmassivemultitask"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Dan"><span itemprop="familyName">Hendrycks</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2021</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hendrycks</span>,&#32;
+    <meta itemprop="givenName" content="Dan" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Burns</span>,&#32;
+    <meta itemprop="givenName" content="Collin" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Basart</span>,&#32;
+    <meta itemprop="givenName" content="Steven" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zou</span>,&#32;
+    <meta itemprop="givenName" content="Andy" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mazeika</span>,&#32;
+    <meta itemprop="givenName" content="Mantas" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Song</span>,&#32;
+    <meta itemprop="givenName" content="Dawn" />
+    D.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Steinhardt</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">
+    <i>Measuring Massive Multitask Language Understanding</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://openreview.net/forum?id=d7KBjmI3GmQ"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://openreview.net/forum?id=d7KBjmI3GmQ</a></span>
+
+</span></span>)</span>) to human (e.g. Arena 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#chiang2024chatbotarenaopen"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Wei-Lin"><span itemprop="familyName">Chiang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios Nikolas" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Banghua" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jordan</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference</i></span>.
+  &#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">PMLR</span></span>.&#32;Retrieved from&#32;
+  <a href="https://proceedings.mlr.press/v235/chiang24b.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.mlr.press/v235/chiang24b.html</a></span>
+
+</span></span>)</span>) and AI judgement (e.g. LLM-as-a-Judge 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#zheng2023judgingllmasajudgemtbench"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Lianmin"><span itemprop="familyName">Zheng</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Siyuan" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Zhanghao" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Yonghao" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lin</span>,&#32;
+    <meta itemprop="givenName" content="Zi" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Zhuohan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xing</span>,&#32;
+    <meta itemprop="givenName" content="Eric" />
+    E.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">
+    <i>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/91f18a1287b398d378ef22505bf41832-Abstract-Datasets_and_Benchmarks.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.neurips.cc/paper_files/paper/2023/hash/91f18a1287b398d378ef22505bf41832-Abstract-Datasets_and_Benchmarks.html</a></span>
+
+</span></span>)</span>).</p>
+
+
+
+<figure style="text-align: center;"><img class="screenshot"
+         src="img/ai_benchmark_performance.png" width="85%"style="display:inline"
+    /><figcaption>
+        <p align="center"> <strong>Increasing performance of AI models on various benchmarks:</strong> from image classification to autonomous software engineering. Figure adapted from HAI Stanford's <a href="https://epoch.ai/data/ai-models">2026 AI Index Report</a>.</p>
+    </figcaption>
+</figure>
+<h2 id="challenges-weathering-the-storm">Challenges weathering the storm<a hidden class="anchor" aria-hidden="true" href="#challenges-weathering-the-storm">#</a></h2>
+<p>So far, I have established the uncontroversial observation that there have been rapid changes in AI over the last years. This post is about the opposite, two aspects of AI development that have persisted. Specifically, two long-standing challenges of AI evaluation: <em>overfitting</em> and <em>saturation</em>. Despite significant research effort to address them, both have stayed around. In this post, I argue that this persistence is not a historical accident but rather can be explained by fundamental limitations of the process of AI development and the nature of AI evaluation.</p>
+<h3 id="background-ai-development-as-hillclimbing">Background: AI development as hillclimbing<a hidden class="anchor" aria-hidden="true" href="#background-ai-development-as-hillclimbing">#</a></h3>
+<p>First, we need a bit of context. I personally find the perspective of AI development as a collective <em>hillclimbing</em> exercise very helpful: developers train models to &ldquo;climb&rdquo; up in terms of some form of utility function (user, economic, etc.). The goal of developers is to build models that reach higher and higher utility levels, &ldquo;climbing&rdquo; up a figurative <em>Mt Utility</em>, illustrated below. The exact nature of the hill is usually not well-defined and changes but the notion of &ldquo;some&rdquo; hill being climbed is common amongst researchers working on frontier AI.</p>
+
+
+
+<figure style="text-align: center;"><img
+         src="img/mt_utility_v2.png" width="65%"style="display:inline"
+    /><figcaption>
+        <p align="center"> <strong>AI development as hillclimbing.</strong> The goal of AI development can be seen as finding the model that maximizes utility (climbs "Mt Utility" most effectively). Utility itself is not directly measurable, instead developers use <em>benchmarks</em> to estimate a model's utility: they serve as a sort of <em>altimeter</em> on the ascent up Mt Utility.</p>
+    </figcaption>
+</figure>
+<p><strong>Benchmarks.</strong> In practice, directly measuring the &ldquo;altitude&rdquo; (i.e. utility level) of a model on this Mt Utility is either difficult or impossible. Instead, developers have to rely on <em>benchmarks</em> as a proxy measure. A benchmark is a software+data package that aims to measure a specific model property related to utility (<em>in most cases</em>), such as coding, math or writing skills. Capabilities are evaluated through a set of <em>test cases</em>, each with a clear instruction to the model as well as a method of assessing its output. For example, the popular SWE-Bench benchmark 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#jimenez2024swebenchcanlanguage"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Carlos E."><span itemprop="familyName">Jimenez</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jimenez</span>,&#32;
+    <meta itemprop="givenName" content="Carlos E." />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="John" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wettig</span>,&#32;
+    <meta itemprop="givenName" content="Alexander" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yao</span>,&#32;
+    <meta itemprop="givenName" content="Shunyu" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pei</span>,&#32;
+    <meta itemprop="givenName" content="Kexin" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Press</span>,&#32;
+    <meta itemprop="givenName" content="Ofir" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Narasimhan</span>,&#32;
+    <meta itemprop="givenName" content="Karthik R." />
+    K.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>SWE-bench: Can Language Models Resolve Real-world Github Issues?</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://openreview.net/forum?id=VTF8yNQM66"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://openreview.net/forum?id=VTF8yNQM66</a></span>
+
+</span></span>)</span> captures a model&rsquo;s coding skills with test cases built from GitHub issues and unit-test-based verification. What such benchmarks measure is a model&rsquo;s ability to solve a small set of <em>specific coding tasks</em>, commonly used as a proxy for <em>coding capabilities</em>, and <em>user utility</em> more generally.</p>
+<p><strong>Creating a utility altimeter.</strong> In the context of training general-purpose LLMs, many benchmarks are aggregated to approximate overall utility across diverse use-cases. Combined, benchmarks provide model developers a clear and actionable objective to optimize against. During training, developers constantly query their benchmarks to determine progress. Here, <em><strong>benchmarks serve as a form of utility altimeter</strong></em> that indicates whether algorithm or data changes improved downstream model utility. Benchmarks don&rsquo;t directly tell developers <em>where to go</em>, but given a model benchmarks can tell <em>where they are</em> (at least roughly).</p>
+<h3 id="challenge-1-overfitting">Challenge 1: Overfitting<a hidden class="anchor" aria-hidden="true" href="#challenge-1-overfitting">#</a></h3>
+<p>Yet, like real altimeters, the utility estimates of benchmarks can be <em>broken</em> and wildly off. Benchmarks&rsquo; reliance on test cases causes fundamental issues: instead of obtaining high-level capabilities, models can focus on the specific test cases <em>without</em> generalizing. For example for SWE-Bench, a model can be good at solving a fixed set of known GitHub issues <em>without</em> being much help on new issues. This opens up a second peak on our benchmark objective function, much quicker to climb but without generalisation beyond the benchmark&rsquo;s test cases. In our hillclimbing analogy, this means our benchmark altimeter has <strong>ghost peaks</strong>: peaks of our benchmark score that do not correspond to real-world utility spikes (often the opposite!). 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#zhang2024carefulexaminationlarge"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Hugh"><span itemprop="familyName">Zhang</span></span>&#32;
+                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hugh" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Da</span>,&#32;
+    <meta itemprop="givenName" content="Jeff" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lee</span>,&#32;
+    <meta itemprop="givenName" content="Dean" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Robinson</span>,&#32;
+    <meta itemprop="givenName" content="Vaughn" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Catherine" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Song</span>,&#32;
+    <meta itemprop="givenName" content="Will" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhao</span>,&#32;
+    <meta itemprop="givenName" content="Tiffany" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Raja</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Charlotte" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Slack</span>,&#32;
+    <meta itemprop="givenName" content="Dylan" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lyu</span>,&#32;
+    <meta itemprop="givenName" content="Qin" />
+    Q.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hendryx</span>,&#32;
+    <meta itemprop="givenName" content="Sean" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaplan</span>,&#32;
+    <meta itemprop="givenName" content="Russell" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lunati</span>,&#32;
+    <meta itemprop="givenName" content="Michele" />
+    M.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yue</span>,&#32;
+    <meta itemprop="givenName" content="Summer" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>A Careful Examination of Large Language Model Performance on Grade School Arithmetic</i></span>.
+  
+  <a href="https://doi.org/10.52202/079017-1485"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.52202/079017-1485</a></span>
+
+</span></span>)</span> demonstrated heavy overfitting on the previously popular GSM8k benchmark: some models performed well on the publicly available math questions of GSM8k but failed on roughly equivalent previously unseen questions. The results indicate that some models mimicked a lookup table (<em>the ghost peak</em>) more than a general math solver (<em>the real utility peak</em>).</p>
+
+
+
+<figure style="text-align: center;"><img
+         src="img/mt_utility_overfitting_v2.png" width="65%"style="display:inline"
+    /><figcaption>
+        <p align="center"> <strong>Ghost peaks enable overfitting.</strong> Benchmarks are imperfect utility altimeters. There are areas of model space where the benchmark scores highly but real-world utility is low.</p>
+    </figcaption>
+</figure>
+<p><strong>Mitigations.</strong> Many have tried to prevent these ghost peaks, none have fully solved the problem.</p>
+<ol>
+<li><strong>Hidden benchmarks.</strong> If you train a model on benchmark data, that is often almost like giving the model a map leading it directly up a ghost peak. Because most benchmarks have ghost peaks that lead to rapid increase in score without real-world utility increases, any gradient descent-based method will generally quickly go up such peaks with direct data access. Thus, a simple way to reduce the likelihood of ending up with a model on a ghost peak is to <em>hide the benchmark from developers training models</em>. However, if used to select model candidates, <em><strong>even without access during training, benchmarks apply selection pressure on models.</strong></em> In such a scenario, the mechanism is more evolutionary rather than direct gradient-based optimization. Nevertheless, if ghost peaks exist (which they likely do), they are likely to be found eventually (albeit slower than with direct training). Benchmarks can&rsquo;t escape <a href="https://en.wikipedia.org/wiki/Goodhart's_law">Goodhart&rsquo;s law</a>: <em>once a measure becomes a target it ceases to be a good measure</em> (paraphrased). Hidden benchmarks are unable to truly mitigate selection pressure effects.</li>
+<li><strong>Increasing benchmark size.</strong> A straightforward mitigation proposed by some is to simply increase the scale of the number of test cases (e.g. <a href="https://crfm.stanford.edu/helm/">HELM</a> or <a href="https://github.com/google/BIG-bench">BIG Bench</a>). However, as long as the test set is finite and fixed, it is possible to construct a non-generalizing model that performs well (<em>I have not come across a counter-example yet</em>). For example, for any benchmark with fixed correct answers, a simple answer look-up model suffices to achieve top performance. Size alone cannot change the fundamental issue of ghost peaks.</li>
+<li><strong>Dynamic test case generation.</strong> Yet another alternative approach is to <em>dynamically generate test cases</em>, as done by Dynabench 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#kiela2021dynabenchrethinkingbenchmarking"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Douwe"><span itemprop="familyName">Kiela</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2021</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kiela</span>,&#32;
+    <meta itemprop="givenName" content="Douwe" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bartolo</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nie</span>,&#32;
+    <meta itemprop="givenName" content="Yixin" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaushik</span>,&#32;
+    <meta itemprop="givenName" content="Divyansh" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Geiger</span>,&#32;
+    <meta itemprop="givenName" content="Atticus" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Zhengxuan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vidgen</span>,&#32;
+    <meta itemprop="givenName" content="Bertie" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Prasad</span>,&#32;
+    <meta itemprop="givenName" content="Grusha" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ringshia</span>,&#32;
+    <meta itemprop="givenName" content="Pratik" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ma</span>,&#32;
+    <meta itemprop="givenName" content="Zhiyi" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Thrush</span>,&#32;
+    <meta itemprop="givenName" content="Tristan" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Riedel</span>,&#32;
+    <meta itemprop="givenName" content="Sebastian" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Waseem</span>,&#32;
+    <meta itemprop="givenName" content="Zeerak" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stenetorp</span>,&#32;
+    <meta itemprop="givenName" content="Pontus" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jia</span>,&#32;
+    <meta itemprop="givenName" content="Robin" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bansal</span>,&#32;
+    <meta itemprop="givenName" content="Mohit" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Potts</span>,&#32;
+    <meta itemprop="givenName" content="Christopher" />
+    C.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Williams</span>,&#32;
+    <meta itemprop="givenName" content="Adina" />
+    A.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">
+    <i>Dynabench: Rethinking Benchmarking in NLP</i></span>.
+  <meta itemprop="contentLocation"
+        content="Online">&#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Association for Computational Linguistics</span></span>.
+  <a href="https://doi.org/10.18653/v1/2021.naacl-main.324"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.18653/v1/2021.naacl-main.324</a></span>
+
+</span></span>)</span> and Arena 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#chiang2024chatbotarenaopen"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Wei-Lin"><span itemprop="familyName">Chiang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios Nikolas" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Banghua" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jordan</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference</i></span>.
+  &#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">PMLR</span></span>.&#32;Retrieved from&#32;
+  <a href="https://proceedings.mlr.press/v235/chiang24b.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.mlr.press/v235/chiang24b.html</a></span>
+
+</span></span>)</span>. This setup removes the possibility of learning-by-heart peaks: there is no way to learn a theoretically infinite set of test cases by heart. Nevertheless, there may be ghost peaks. The first failure mode introducing ghost peaks is if there are any shortcuts to solving tasks introduced by the test case <em>assessment method</em>. For example, for Arena <em>focusing on response style rather than substance</em> allowed some models to boost their scores without matching real-world utility (see my post on the well-known Llama-4-Maverick case <a href="/blog/llama4-analysis/">here</a>). The second failure mode occurs if the test case distribution is different from the real-world distribution, the resulting utility estimates also fail to estimate real-world utility. For Arena, likely both failure modes apply to some extent: the human assessment method is biased 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#li2024doesstylematter"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Tianle"><span itemprop="familyName">Li</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="document"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>Does style matter? Disentangling style and substance in Chatbot Arena</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://lmsys.org/blog/2024-08-28-style-control"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://lmsys.org/blog/2024-08-28-style-control</a></span>
+
+</span></span>)</span> <em>and</em> the distribution of usage on Arena does not perfectly match real-world usage.</li>
+</ol>
+<p>In conclusion, <em><strong>whenever it is possible to perform well on a benchmark without matching real-world utility, overfitting can (and will) occur.</strong></em> At least so far, this observation has held empirically across all popular benchmarks old enough to have applied selection pressure on models.  Ultimately, if a benchmark is an efficient (and lossy) compression of real-world utility, a benchmark will always have some flaws that can be exploited. And the hillclimbing optimization of the AI community will reveal these (sooner or later).</p>
+<h3 id="challenge-2-saturation">Challenge 2: Saturation<a hidden class="anchor" aria-hidden="true" href="#challenge-2-saturation">#</a></h3>
+<p>Beyond showing ghost peaks, the altimeter formed by benchmarks can exhibit a second class of issues: <em>saturation</em>. <em><strong>Benchmark altimeters have a relatively small operating range:</strong></em> below and above certain levels of utility the benchmark is no longer able to provide any helpful readings. Outside that range, all models score the same value. New models may indeed provide significant real-world utility but an old benchmark altimeter will still show the same level of utility. The reachable maximum often won&rsquo;t be literally &ldquo;100%&rdquo; performance, but perhaps 96% where the remaining 4% are impossible or broken test cases. This saturation represents the last step in a constant cycle: (1) benchmark gets released, (2) models start to improve on the benchmark, and (3) benchmark becomes saturated (models converge in terms of benchmark performance).</p>
+
+
+
+<figure style="text-align: center;"><img
+         src="img/mt_utility_saturation_v2.png" width="65%"style="display:inline"
+    /><figcaption>
+        <p align="center"><strong>Saturation.</strong> Once models reach a certain capability level, the benchmark altimeters go outside their operating range and can no longer indicate if progress is being made.</p>
+    </figcaption>
+</figure>
+<p><strong>Mitigations.</strong> As with overfitting, there have been many attempts to solve saturation, none fully solving the issue.</p>
+<ol>
+<li><strong>Create really hard tasks.</strong> A straightforward way to pre-emptively avoid future saturation, is to simply pick really challenging tasks. History has shown that even supposedly hard tasks get solved fairly quickly. <em>SuperGLUE</em> 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#wang2019supergluestickierbenchmark"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Alex"><span itemprop="familyName">Wang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2019</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pruksachatkun</span>,&#32;
+    <meta itemprop="givenName" content="Yada" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hill</span>,&#32;
+    <meta itemprop="givenName" content="Felix" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Levy</span>,&#32;
+    <meta itemprop="givenName" content="Omer" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://proceedings.neurips.cc/paper_files/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.neurips.cc/paper_files/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html</a></span>
+
+</span></span>)</span> tried to create a much more challenging version of the <em>GLUE</em> benchmark 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#wang2018gluemultitaskbenchmark"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Alex"><span itemprop="familyName">Wang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hill</span>,&#32;
+    <meta itemprop="givenName" content="Felix" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Levy</span>,&#32;
+    <meta itemprop="givenName" content="Omer" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">
+    <i>GLUE: A multi-task benchmark and analysis platform for natural language understanding</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://aclanthology.org/W18-5446/"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://aclanthology.org/W18-5446/</a></span>
+
+</span></span>)</span>, <em>SQuAD 2.0</em> 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#rajpurkar2018knowwhatyou"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2018</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jia</span>,&#32;
+    <meta itemprop="givenName" content="Robin" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Know What You Don&rsquo;t Know: Unanswerable Questions for SQuAD</span>.
+  <a href="https://doi.org/10.48550/arXiv.1806.03822"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1806.03822</a></span>
+
+
+
+
+</span></span>)</span>  did the same for <em>SQuAD</em> 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#rajpurkar2016squad100000questions"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Pranav"><span itemprop="familyName">Rajpurkar</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2016</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Jian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lopyrev</span>,&#32;
+    <meta itemprop="givenName" content="Konstantin" />
+    K.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2016</span>).
+  &#32;<span itemprop="name">
+    <i>SQuAD: 100,000+ Questions for Machine Comprehension of Text</i></span>.
+  <meta itemprop="contentLocation"
+        content="Austin, Texas">&#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Association for Computational Linguistics</span></span>.
+  <a href="https://doi.org/10.18653/v1/D16-1264"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.18653/v1/D16-1264</a></span>
+
+</span></span>)</span>, MMLU-Pro 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#wang2024mmlupromorerobust"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Yubo"><span itemprop="familyName">Wang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Yubo" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ma</span>,&#32;
+    <meta itemprop="givenName" content="Xueguang" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Ge" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ni</span>,&#32;
+    <meta itemprop="givenName" content="Yuansheng" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chandra</span>,&#32;
+    <meta itemprop="givenName" content="Abhranil" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Guo</span>,&#32;
+    <meta itemprop="givenName" content="Shiguang" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ren</span>,&#32;
+    <meta itemprop="givenName" content="Weiming" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Arulraj</span>,&#32;
+    <meta itemprop="givenName" content="Aaran" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">He</span>,&#32;
+    <meta itemprop="givenName" content="Xuan" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jiang</span>,&#32;
+    <meta itemprop="givenName" content="Ziyan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ku</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Kai" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Fan</span>,&#32;
+    <meta itemprop="givenName" content="Rongqi" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yue</span>,&#32;
+    <meta itemprop="givenName" content="Xiang" />
+    X.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chen</span>,&#32;
+    <meta itemprop="givenName" content="Wenhu" />
+    W.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">MMLU-Pro: A More Robust and Challenging Multi-Task Language Understanding Benchmark</span>.<i>
+    <span itemprop="about">Advances in Neural Information Processing Systems</span>,&#32;37</i>.&#32;<span itemprop="pagination">95266–95290</span>.
+  <a href="https://doi.org/10.52202/079017-3018"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.52202/079017-3018</a></span>
+
+
+
+
+</span></span>)</span> for MMLU 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#hendrycks2021measuringmassivemultitask"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Dan"><span itemprop="familyName">Hendrycks</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2021</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hendrycks</span>,&#32;
+    <meta itemprop="givenName" content="Dan" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Burns</span>,&#32;
+    <meta itemprop="givenName" content="Collin" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Basart</span>,&#32;
+    <meta itemprop="givenName" content="Steven" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zou</span>,&#32;
+    <meta itemprop="givenName" content="Andy" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mazeika</span>,&#32;
+    <meta itemprop="givenName" content="Mantas" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Song</span>,&#32;
+    <meta itemprop="givenName" content="Dawn" />
+    D.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Steinhardt</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">
+    <i>Measuring Massive Multitask Language Understanding</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://openreview.net/forum?id=d7KBjmI3GmQ"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://openreview.net/forum?id=d7KBjmI3GmQ</a></span>
+
+</span></span>)</span>. All of these benchmarks are now saturated, whether the &ldquo;hard&rdquo; or &ldquo;easy&rdquo; version. Once a benchmark provides a verifiable set of tasks to solve and receives sufficient attention, model developers are generally able to make quick progress. Anticipating the exact direction of this progress is challenging, making building benchmarks with a long shelf-life especially difficult.</li>
+<li><strong>Collect tasks dynamically.</strong> In addition to tackling overfitting, dynamic task collection has also been proposed to avoid saturation. Recognizing that any benchmark with a <em>fixed</em> set of tasks is destined to saturate quickly, 
+  <span class="hugo-cite-intext"
+        itemprop="citation"><span class="hugo-cite-group"><a href="#kiela2021dynabenchrethinkingbenchmarking"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Douwe"><span itemprop="familyName">Kiela</span></span>&#32;
+                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2021</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kiela</span>,&#32;
+    <meta itemprop="givenName" content="Douwe" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bartolo</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nie</span>,&#32;
+    <meta itemprop="givenName" content="Yixin" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaushik</span>,&#32;
+    <meta itemprop="givenName" content="Divyansh" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Geiger</span>,&#32;
+    <meta itemprop="givenName" content="Atticus" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Zhengxuan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vidgen</span>,&#32;
+    <meta itemprop="givenName" content="Bertie" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Prasad</span>,&#32;
+    <meta itemprop="givenName" content="Grusha" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ringshia</span>,&#32;
+    <meta itemprop="givenName" content="Pratik" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ma</span>,&#32;
+    <meta itemprop="givenName" content="Zhiyi" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Thrush</span>,&#32;
+    <meta itemprop="givenName" content="Tristan" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Riedel</span>,&#32;
+    <meta itemprop="givenName" content="Sebastian" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Waseem</span>,&#32;
+    <meta itemprop="givenName" content="Zeerak" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stenetorp</span>,&#32;
+    <meta itemprop="givenName" content="Pontus" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jia</span>,&#32;
+    <meta itemprop="givenName" content="Robin" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bansal</span>,&#32;
+    <meta itemprop="givenName" content="Mohit" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Potts</span>,&#32;
+    <meta itemprop="givenName" content="Christopher" />
+    C.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Williams</span>,&#32;
+    <meta itemprop="givenName" content="Adina" />
+    A.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">
+    <i>Dynabench: Rethinking Benchmarking in NLP</i></span>.
+  <meta itemprop="contentLocation"
+        content="Online">&#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Association for Computational Linguistics</span></span>.
+  <a href="https://doi.org/10.18653/v1/2021.naacl-main.324"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.18653/v1/2021.naacl-main.324</a></span>
+
+</span></span>)</span> proposed the <em>Dynabench</em> platform to collect tasks <em>dynamically</em>. In a similar spirit, Chatbot Arena 
+  <span class="hugo-cite-intext"
+        itemprop="citation">(<span class="hugo-cite-group"><a href="#chiang2024chatbotarenaopen"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Wei-Lin"><span itemprop="familyName">Chiang</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios Nikolas" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Banghua" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jordan</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference</i></span>.
+  &#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">PMLR</span></span>.&#32;Retrieved from&#32;
+  <a href="https://proceedings.mlr.press/v235/chiang24b.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.mlr.press/v235/chiang24b.html</a></span>
+
+</span></span>)</span> (now <a href="https://arena.ai">Arena.ai</a>) became a popular benchmark. However, the choice of selection process itself typically limits the scope of a benchmark. For example, Arena was originally built for comparing <em>chatbots</em>. The field eventually moved on towards autonomous agents, an aspect the original Arena benchmark couldn&rsquo;t capture despite its dynamic nature. Accordingly, the original Arena benchmark no longer covers that aspect of utility and the organisation behind the Arena has released <a href="https://arena.ai/blog/agent-arena-methodology">new benchmarks</a> specific to agents.</li>
+</ol>
+<h2 id="conclusion-no-end-in-sight">Conclusion: No end in sight<a hidden class="anchor" aria-hidden="true" href="#conclusion-no-end-in-sight">#</a></h2>
+<p>To understand why I don&rsquo;t expect a benchmark resilient to overfitting and saturation anytime soon, it&rsquo;s useful to consider <em><strong>what would need to be true for such a benchmark to exist.</strong></em></p>
+<p><strong>Overfitting:</strong> The benchmark must have zero shortcuts to high altitude, a single peak corresponding to maximal real-world utility. No such benchmark currently exists. There are benchmarks like Arena that have fewer obvious peaks, but (1) they still have some ghost peaks (see above for Arena), and (2) tend to increase in financial and time cost (Arena requires thousands of human trials for a single new model).</p>
+<p><strong>Saturation:</strong> In order for a benchmark to avoid saturation, it needs to anticipate future capabilities and use-cases. Further, current technology needs to be able to evaluate such capabilities. So far this has not been possible, benchmarks always needed to be adapted to adjust to new progress (e.g. with autonomous agents).</p>
+<h3 id="hope-the-resilience-of-the-benchmarking-process">Hope: the resilience of the benchmarking process<a hidden class="anchor" aria-hidden="true" href="#hope-the-resilience-of-the-benchmarking-process">#</a></h3>
+<p>Whilst no individual benchmark so far managed to resist overfitting and saturation, <em><strong>the process of community-driven benchmarking has largely resisted overfitting and saturation thus far.</strong></em> The scientific process of generating benchmarks itself has been able to manage the challenges consistently across prior model generations. Whenever a benchmark becomes overfitted or saturated, the community has been able to respond with a new, better benchmark. Should this benchmark generation process ever stop working, and we can&rsquo;t effectively come up with new benchmarks to replace flawed existing ones, something fundamental will have changed about our relationship to AI. But that&rsquo;s a topic for another post.</p>
+<h2 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h2>
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+<section class="hugo-cite-bibliography">
+  <ol>
+    
+
+      <div id="chiang2024chatbotarenaopen">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios Nikolas" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhu</span>,&#32;
+    <meta itemprop="givenName" content="Banghua" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jordan</span>,&#32;
+    <meta itemprop="givenName" content="Michael" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference</i></span>.
+  &#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">PMLR</span></span>.&#32;Retrieved from&#32;
+  <a href="https://proceedings.mlr.press/v235/chiang24b.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.mlr.press/v235/chiang24b.html</a></span>
+
+</li>
+
+      </div>
+
+      <div id="hendrycks2021measuringmassivemultitask">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hendrycks</span>,&#32;
+    <meta itemprop="givenName" content="Dan" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Burns</span>,&#32;
+    <meta itemprop="givenName" content="Collin" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Basart</span>,&#32;
+    <meta itemprop="givenName" content="Steven" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zou</span>,&#32;
+    <meta itemprop="givenName" content="Andy" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mazeika</span>,&#32;
+    <meta itemprop="givenName" content="Mantas" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Song</span>,&#32;
+    <meta itemprop="givenName" content="Dawn" />
+    D.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Steinhardt</span>,&#32;
+    <meta itemprop="givenName" content="Jacob" />
+    J.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">
+    <i>Measuring Massive Multitask Language Understanding</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://openreview.net/forum?id=d7KBjmI3GmQ"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://openreview.net/forum?id=d7KBjmI3GmQ</a></span>
+
+</li>
+
+      </div>
+
+      <div id="jimenez2024swebenchcanlanguage">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jimenez</span>,&#32;
+    <meta itemprop="givenName" content="Carlos E." />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yang</span>,&#32;
+    <meta itemprop="givenName" content="John" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wettig</span>,&#32;
+    <meta itemprop="givenName" content="Alexander" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yao</span>,&#32;
+    <meta itemprop="givenName" content="Shunyu" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pei</span>,&#32;
+    <meta itemprop="givenName" content="Kexin" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Press</span>,&#32;
+    <meta itemprop="givenName" content="Ofir" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Narasimhan</span>,&#32;
+    <meta itemprop="givenName" content="Karthik R." />
+    K.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>SWE-bench: Can Language Models Resolve Real-world Github Issues?</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://openreview.net/forum?id=VTF8yNQM66"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://openreview.net/forum?id=VTF8yNQM66</a></span>
+
+</li>
+
+      </div>
+
+      <div id="kiela2021dynabenchrethinkingbenchmarking">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kiela</span>,&#32;
+    <meta itemprop="givenName" content="Douwe" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bartolo</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nie</span>,&#32;
+    <meta itemprop="givenName" content="Yixin" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaushik</span>,&#32;
+    <meta itemprop="givenName" content="Divyansh" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Geiger</span>,&#32;
+    <meta itemprop="givenName" content="Atticus" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Zhengxuan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Vidgen</span>,&#32;
+    <meta itemprop="givenName" content="Bertie" />
+    B.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Prasad</span>,&#32;
+    <meta itemprop="givenName" content="Grusha" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ringshia</span>,&#32;
+    <meta itemprop="givenName" content="Pratik" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ma</span>,&#32;
+    <meta itemprop="givenName" content="Zhiyi" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Thrush</span>,&#32;
+    <meta itemprop="givenName" content="Tristan" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Riedel</span>,&#32;
+    <meta itemprop="givenName" content="Sebastian" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Waseem</span>,&#32;
+    <meta itemprop="givenName" content="Zeerak" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stenetorp</span>,&#32;
+    <meta itemprop="givenName" content="Pontus" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jia</span>,&#32;
+    <meta itemprop="givenName" content="Robin" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bansal</span>,&#32;
+    <meta itemprop="givenName" content="Mohit" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Potts</span>,&#32;
+    <meta itemprop="givenName" content="Christopher" />
+    C.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Williams</span>,&#32;
+    <meta itemprop="givenName" content="Adina" />
+    A.</span>
+  &#32;
+    (<span itemprop="datePublished">2021</span>).
+  &#32;<span itemprop="name">
+    <i>Dynabench: Rethinking Benchmarking in NLP</i></span>.
+  <meta itemprop="contentLocation"
+        content="Online">&#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Association for Computational Linguistics</span></span>.
+  <a href="https://doi.org/10.18653/v1/2021.naacl-main.324"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.18653/v1/2021.naacl-main.324</a></span>
+
+</li>
+
+      </div>
+
+      <div id="li2024doesstylematter">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="document"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Angelopoulos</span>,&#32;
+    <meta itemprop="givenName" content="Anastasios" />
+    A.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>Does style matter? Disentangling style and substance in Chatbot Arena</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://lmsys.org/blog/2024-08-28-style-control"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://lmsys.org/blog/2024-08-28-style-control</a></span>
+
+</li>
+
+      </div>
+
+      <div id="rajpurkar2016squad100000questions">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Jian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lopyrev</span>,&#32;
+    <meta itemprop="givenName" content="Konstantin" />
+    K.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2016</span>).
+  &#32;<span itemprop="name">
+    <i>SQuAD: 100,000+ Questions for Machine Comprehension of Text</i></span>.
+  <meta itemprop="contentLocation"
+        content="Austin, Texas">&#32;
+  <span itemprop="publisher" itemtype="http://schema.org/Organization" itemscope="">
+    <span itemprop="name">Association for Computational Linguistics</span></span>.
+  <a href="https://doi.org/10.18653/v1/D16-1264"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.18653/v1/D16-1264</a></span>
+
+</li>
+
+      </div>
+
+      <div id="rajpurkar2018knowwhatyou">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Rajpurkar</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jia</span>,&#32;
+    <meta itemprop="givenName" content="Robin" />
+    R.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Liang</span>,&#32;
+    <meta itemprop="givenName" content="Percy" />
+    P.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">Know What You Don&rsquo;t Know: Unanswerable Questions for SQuAD</span>.
+  <a href="https://doi.org/10.48550/arXiv.1806.03822"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.1806.03822</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="wang2018gluemultitaskbenchmark">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hill</span>,&#32;
+    <meta itemprop="givenName" content="Felix" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Levy</span>,&#32;
+    <meta itemprop="givenName" content="Omer" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2018</span>).
+  &#32;<span itemprop="name">
+    <i>GLUE: A multi-task benchmark and analysis platform for natural language understanding</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://aclanthology.org/W18-5446/"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://aclanthology.org/W18-5446/</a></span>
+
+</li>
+
+      </div>
+
+      <div id="wang2019supergluestickierbenchmark">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Pruksachatkun</span>,&#32;
+    <meta itemprop="givenName" content="Yada" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Nangia</span>,&#32;
+    <meta itemprop="givenName" content="Nikita" />
+    N.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Singh</span>,&#32;
+    <meta itemprop="givenName" content="Amanpreet" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Michael</span>,&#32;
+    <meta itemprop="givenName" content="Julian" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hill</span>,&#32;
+    <meta itemprop="givenName" content="Felix" />
+    F.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Levy</span>,&#32;
+    <meta itemprop="givenName" content="Omer" />
+    O.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Bowman</span>,&#32;
+    <meta itemprop="givenName" content="Samuel" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2019</span>).
+  &#32;<span itemprop="name">
+    <i>SuperGLUE: A Stickier Benchmark for General-Purpose Language Understanding Systems</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://proceedings.neurips.cc/paper_files/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.neurips.cc/paper_files/paper/2019/hash/4496bf24afe7fab6f046bf4923da8de6-Abstract.html</a></span>
+
+</li>
+
+      </div>
+
+      <div id="wang2024mmlupromorerobust">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/Article"
+      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Yubo" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ma</span>,&#32;
+    <meta itemprop="givenName" content="Xueguang" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Ge" />
+    G.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ni</span>,&#32;
+    <meta itemprop="givenName" content="Yuansheng" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chandra</span>,&#32;
+    <meta itemprop="givenName" content="Abhranil" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Guo</span>,&#32;
+    <meta itemprop="givenName" content="Shiguang" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ren</span>,&#32;
+    <meta itemprop="givenName" content="Weiming" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Arulraj</span>,&#32;
+    <meta itemprop="givenName" content="Aaran" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">He</span>,&#32;
+    <meta itemprop="givenName" content="Xuan" />
+    X.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Jiang</span>,&#32;
+    <meta itemprop="givenName" content="Ziyan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Tianle" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Ku</span>,&#32;
+    <meta itemprop="givenName" content="Max" />
+    M.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wang</span>,&#32;
+    <meta itemprop="givenName" content="Kai" />
+    K.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Alex" />
+    A.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Fan</span>,&#32;
+    <meta itemprop="givenName" content="Rongqi" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yue</span>,&#32;
+    <meta itemprop="givenName" content="Xiang" />
+    X.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chen</span>,&#32;
+    <meta itemprop="givenName" content="Wenhu" />
+    W.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">MMLU-Pro: A More Robust and Challenging Multi-Task Language Understanding Benchmark</span>.<i>
+    <span itemprop="about">Advances in Neural Information Processing Systems</span>,&#32;37</i>.&#32;<span itemprop="pagination">95266–95290</span>.
+  <a href="https://doi.org/10.52202/079017-3018"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.52202/079017-3018</a></span>
+
+
+
+
+</li>
+
+      </div>
+
+      <div id="zhang2024carefulexaminationlarge">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hugh" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Da</span>,&#32;
+    <meta itemprop="givenName" content="Jeff" />
+    J.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lee</span>,&#32;
+    <meta itemprop="givenName" content="Dean" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Robinson</span>,&#32;
+    <meta itemprop="givenName" content="Vaughn" />
+    V.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Catherine" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Song</span>,&#32;
+    <meta itemprop="givenName" content="Will" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhao</span>,&#32;
+    <meta itemprop="givenName" content="Tiffany" />
+    T.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Raja</span>,&#32;
+    <meta itemprop="givenName" content="Pranav" />
+    P.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Charlotte" />
+    C.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Slack</span>,&#32;
+    <meta itemprop="givenName" content="Dylan" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lyu</span>,&#32;
+    <meta itemprop="givenName" content="Qin" />
+    Q.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Hendryx</span>,&#32;
+    <meta itemprop="givenName" content="Sean" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Kaplan</span>,&#32;
+    <meta itemprop="givenName" content="Russell" />
+    R.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lunati</span>,&#32;
+    <meta itemprop="givenName" content="Michele" />
+    M.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yue</span>,&#32;
+    <meta itemprop="givenName" content="Summer" />
+    S.</span>
+  &#32;
+    (<span itemprop="datePublished">2024</span>).
+  &#32;<span itemprop="name">
+    <i>A Careful Examination of Large Language Model Performance on Grade School Arithmetic</i></span>.
+  
+  <a href="https://doi.org/10.52202/079017-1485"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://doi.org/10.52202/079017-1485</a></span>
+
+</li>
+
+      </div>
+
+      <div id="zheng2023judgingllmasajudgemtbench">
+        
+
+        <li>
+          
+
+
+
+
+
+
+
+
+
+
+<span itemscope
+      itemtype="https://schema.org/CreativeWork"
+      data-type="paper-conference"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zheng</span>,&#32;
+    <meta itemprop="givenName" content="Lianmin" />
+    L.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Chiang</span>,&#32;
+    <meta itemprop="givenName" content="Wei-Lin" />
+    W.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Sheng</span>,&#32;
+    <meta itemprop="givenName" content="Ying" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Siyuan" />
+    S.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wu</span>,&#32;
+    <meta itemprop="givenName" content="Zhanghao" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhuang</span>,&#32;
+    <meta itemprop="givenName" content="Yonghao" />
+    Y.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Lin</span>,&#32;
+    <meta itemprop="givenName" content="Zi" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Zhuohan" />
+    Z.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Li</span>,&#32;
+    <meta itemprop="givenName" content="Dacheng" />
+    D.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Xing</span>,&#32;
+    <meta itemprop="givenName" content="Eric" />
+    E.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Zhang</span>,&#32;
+    <meta itemprop="givenName" content="Hao" />
+    H.</span>,&#32;
+  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Gonzalez</span>,&#32;
+    <meta itemprop="givenName" content="Joseph E." />
+    J.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Stoica</span>,&#32;
+    <meta itemprop="givenName" content="Ion" />
+    I.</span>
+  &#32;
+    (<span itemprop="datePublished">2023</span>).
+  &#32;<span itemprop="name">
+    <i>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</i></span>.
+  &#32;Retrieved from&#32;
+  <a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/91f18a1287b398d378ef22505bf41832-Abstract-Datasets_and_Benchmarks.html"
+     itemprop="identifier"
+     itemtype="https://schema.org/URL">https://proceedings.neurips.cc/paper_files/paper/2023/hash/91f18a1287b398d378ef22505bf41832-Abstract-Datasets_and_Benchmarks.html</a></span>
+
+</li>
+
+      </div>
+  </ol>
+</section>
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Citation</h2>
+
+<p>If you found this post useful for your work, please consider citing it as:
+
+    <blockquote>
+<p>Findeis, Arduin. (Aug 2026). Two surprisingly persistent challenges of AI evaluation. Retrieved from <a href="https://arduin.io/blog/persistent-eval-problems/">https://arduin.io/blog/persistent-eval-problems/</a>.</p>
+</blockquote>
+
+    or
+
+    <pre tabindex="0"><code> @article{Findeis2026TwosurprisinglypersistentchallengesofAIevaluation,
+        title = &#34;Two surprisingly persistent challenges of AI evaluation&#34;,
+        author = &#34;Findeis, Arduin&#34;,
+        journal = &#34;arduin.io&#34;,
+        year = &#34;2026&#34;,
+        month = &#34;August&#34;,
+        url = &#34;https://arduin.io/blog/persistent-eval-problems/&#34;
+ } 
+</code></pre>
+
+</p>
+
+    
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>
+        
+        <a href="https://arduin.io/"><img src="/favicon-32x32.png" alt="logo" style="width: 20px; margin: 0 auto;opacity:0.6;"></a>
+    </span>
+    <span>&copy; 2026 <a href="https://arduin.io/">arduin.io</a></span>
+    <span>
+        - powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a> with <a href='https://arduin.io/papermod-tweaks/' rel="noopener" target="_blank">tweaks</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script src="/js/table_beautify.js"></script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
