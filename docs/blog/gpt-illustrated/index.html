@@ -99,7 +99,7 @@
     "Illustrations", "Teaching"
   ],
   "articleBody": "There are many excellent explanations and illustrations of the generative pre-trained transformer (GPT) (Radford et al., 2018 Radford, A., Narasimhan, K., Salimans, T. \u0026 Sutskever, I. (2018). Improving language understanding by generative pre-training. Retrieved from https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf ) and the original transformer architectures (Vaswani et al., 2017 Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A., Kaiser, \\. \u0026 Polosukhin, I. (2017). Attention is all you need. Advances in neural information processing systems, 30. ). For example, I can highly recommend the write-up by Turner (2023 Turner, R. (2023). An Introduction to Transformers. https://doi.org/10.48550/arXiv.2304.10557 ) and the video by Karpathy (2023 Karpathy, A.(2023, 1/17). Retrieved from https://www.youtube.com/watch?v=kCc8FmEb1nY ). Nevertheless, I decided to create yet another illustration of GPT for a recent example class I taught. My illustration focuses on two things:\nProvide a direct connection from a high-level diagram all the way to an actual code implementation of a GPT. Make the illustration as simple as possible (avoiding unnecessary complexity, e.g. by focusing on vector instead of full matrix/tensor operations) Whilst it was initially intended for teaching, I adapted my illustration further so that it can hopefully be useful as a stand-alone visualisation of the GPT architecture.\nNote that the illustration contains a diagram from the original GPT paper (Radford et al., 2018 Radford, A., Narasimhan, K., Salimans, T. \u0026 Sutskever, I. (2018). Improving language understanding by generative pre-training. Retrieved from https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf ) and code written by Andrej Karpathy and contributors. I have also found the write-up by Turner (2023 Turner, R. (2023). An Introduction to Transformers. https://doi.org/10.48550/arXiv.2304.10557 ) a useful reference when creating this illustration.\nHere is the illustration (it’s very large, zoom in for full details):\nIllustration of the generative pre-trained transformer (GPT) architecture (Yuan et al., 2024 Yuan, W., Cho, K. \u0026 Weston, J. (2024). System-Level Natural Language Feedback. https://doi.org/10.48550/arXiv.2306.13588 ) with diagram (left) from the original paper and code (right) by Andrej Karpathy and contributors.\nHope you found this illustration useful and please let me know if you find any errors. The illustration was created using the concepts iPad app.\nReferences Karpathy, A.(2023, 1/17). Retrieved from https://www.youtube.com/watch?v=kCc8FmEb1nY Radford, A., Narasimhan, K., Salimans, T. \u0026 Sutskever, I. (2018). Improving language understanding by generative pre-training. Retrieved from https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf Turner, R. (2023). An Introduction to Transformers. https://doi.org/10.48550/arXiv.2304.10557 Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A., Kaiser, \\. \u0026 Polosukhin, I. (2017). Attention is all you need. Advances in neural information processing systems, 30. Yuan, W., Cho, K. \u0026 Weston, J. (2024). System-Level Natural Language Feedback. https://doi.org/10.48550/arXiv.2306.13588 ",
-  "wordCount" : "399",
+  "wordCount" : "400",
   "inLanguage": "en",
   "datePublished": "2024-03-10T00:00:00Z",
   "dateModified": "2024-03-10T00:00:00Z",
@@ -444,40 +444,26 @@
 <figure style="text-align: center;"><img
          src="gpt_illustration_arduin_v1.png" width="100%"style="display:inline"
     /><figcaption>
-        <p align="center">Illustration of the generative pre-trained transformer (GPT) architecture 
-  <span class="hugo-cite-intext"
-        itemprop="citation">(<span class="hugo-cite-group"><a href="#yuan2024systemlevelnaturallanguage"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Weizhe"><span itemprop="familyName">Yuan</span></span>&#32;
-                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation"> 
-
-
-
-
-
-
-
-
-
-
+        <p align="center">Illustration of the generative pre-trained transformer (GPT) architecture
+<span class="hugo-cite-intext"
+itemprop="citation">(<span class="hugo-cite-group"><a href="#yuan2024systemlevelnaturallanguage"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Weizhe"><span itemprop="familyName">Yuan</span></span>&#32;
+                &#32;et&#32;al.,&#32;<span itemprop="datePublished">2024</span></a><span class="hugo-cite-citation">
 <span itemscope
-      itemtype="https://schema.org/Article"
-      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yuan</span>,&#32;
-    <meta itemprop="givenName" content="Weizhe" />
-    W.</span>,&#32;
-  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Cho</span>,&#32;
-    <meta itemprop="givenName" content="Kyunghyun" />
-    K.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Weston</span>,&#32;
-    <meta itemprop="givenName" content="Jason" />
-    J.</span>
-  &#32;
-    (<span itemprop="datePublished">2024</span>).
-  &#32;<span itemprop="name">System-Level Natural Language Feedback</span>.
-  <a href="https://doi.org/10.48550/arXiv.2306.13588"
+itemtype="https://schema.org/Article"
+data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Yuan</span>, 
+<meta itemprop="givenName" content="Weizhe" />
+W.</span>, 
+<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Cho</span>, 
+<meta itemprop="givenName" content="Kyunghyun" />
+K.</span> &amp; <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Weston</span>, 
+<meta itemprop="givenName" content="Jason" />
+J.</span>
+ 
+(<span itemprop="datePublished">2024</span>).
+ <span itemprop="name">System-Level Natural Language Feedback</span>.
+<a href="https://doi.org/10.48550/arXiv.2306.13588"
      itemprop="identifier"
      itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2306.13588</a></span>
-
-
-
-
 </span></span>)</span> with diagram (left) from the original paper and <a href='https://github.com/karpathy/minGPT/blame/master/mingpt/model.py'>code</a> (right) by Andrej Karpathy and contributors.</p>
     </figcaption>
 </figure>

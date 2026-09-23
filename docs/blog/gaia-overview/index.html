@@ -99,7 +99,7 @@
     "Benchmark overviews", "Evaluation"
   ],
   "articleBody": " This post is currently a public draft. Please send feedback to contact\u003c(at)\u003earduin.io.\nThe General AI Assistant (GAIA) benchmark by Mialon et al. (2023 Mialon, G., Fourrier, C., Swift, C., Wolf, T., LeCun, Y. \u0026 Scialom, T. (2023). GAIA: a benchmark for General AI Assistants. https://doi.org/10.48550/arXiv.2311.12983 ) aims to provide a “convenient yet challenging benchmark for AI assistants”. The benchmark consists of 466 questions, each requiring multiple reasoning steps to answer. Many questions require AI systems to use tools (web browser, code interpreter,…) and contain multi-modal input (images, videos, excel sheets,…). Whilst requiring advanced problem-solving capabilities to solve, GAIA’s tasks are simple and cheap to verify with unambiguous (and short) text answers. In this post, I give a short overview of the GAIA benchmark.\nExamples Three examples of GAIA tasks with increasing difficulty levels.\nFigure taken and adapted from the GAIA paper by Mialon et al. (2023 Mialon, G., Fourrier, C., Swift, C., Wolf, T., LeCun, Y. \u0026 Scialom, T. (2023). GAIA: a benchmark for General AI Assistants. https://doi.org/10.48550/arXiv.2311.12983 ).\nEvaluation method Each GAIA task has a corresponding unique answer. This answer usually takes the form of short string: a few words or numbers (see examples above). Thus, a model’s answer can be cheaply verified using an exact string match. The authors evaluate models on 300 tasks for which only questions are released (but not the correct answers). The corresponding results are released on their public leaderboard. The authors also release a development set of 166 question for which include the ground-truth answers.\nUnlike other benchmarks for agent-type capabilities, such as AgentBench (Liu et al., 2023 Liu, X., Yu, H., Zhang, H., Xu, Y., Lei, X., Lai, H., Gu, Y., Ding, H., Men, K., Yang, K., Zhang, S., Deng, X., Zeng, A., Du, Z., Zhang, C., Shen, S., Zhang, T., Su, Y., Sun, H., Huang, M., Dong, Y. \u0026 Tang, J. (2023). AgentBench: Evaluating LLMs as Agents. https://doi.org/10.48550/arXiv.2308.03688 ), GAIA does not require any form of simulated environment. This design choice has the potential to make the cost of evaluation (and of setting up the evaluation) significantly lower than other similar benchmarks.\nPerformance Unlike other recent benchmarks like GPQA (Rein et al., 2023 Rein, D., Hou, B., Stickland, A., Petty, J., Pang, R., Dirani, J., Michael, J. \u0026 Bowman, S. (2023). GPQA: A Graduate-Level Google-Proof Q\u0026A Benchmark. https://doi.org/10.48550/arXiv.2311.12022 ) – that seem to get more and more difficult for humans as well as AI models – GAIA tasks are actually quite easy for non-expert humans (albeit tedious). The authors report an average success rate of 92% of non-expert humans on GAIA tasks. The most capable AI models currently (as of March 2023) only score less than 50% on their easiest set of tasks, and worse on the more difficult tasks.\nTop entries on the public GAIA leaderboard. Screenshot taken and adapted on 31 March 2024.\nLimitations Throughout the paper, the authors are very open regarding GAIA’s limitations. Below are three potential issues that I personally consider most relevant:\nOverfitting due to data contamination or usage as optimisation objective. Whilst the authors have not released the correct answers for their test set, it would be relatively easy for humans to solve all tasks (max. 17 min. per task) and use such data for training. String matching may fail. From personal experience, I have found that it can be quite difficult to define truly unambiguous answers. There may be some questions in GAIA that fail, despite the model abstractly correctly solving the task. Reliance on external sources. Some questions require very specific information from the web, which may disappear or change over time. This effect will likely impact overall benchmark performance in the future. Limited model coverage on leaderboard. Unfortunately, as of March 2023, there is only a very limited number of results available on their public leaderboard. Notably, currently all tested assistants are either based on a model from OpenAI’s GPT family (GPT-3, GPT-4 or GPT-4-Turbo) or an undisclosed model. Despite some of the authors being based at Meta, there appear to be no public results for Meta’s Llama 2 models or any other open-source models. I hope more representative results of assistants from across the ecosystem will be added in the future. Conclusion Despite the GAIA’s relatively simple design, this benchmark promises to continue to provide a useful hint at the current limits of AI capabilities. The benchmark is easy to understand and (relatively) cheap to run, and thus has the potential to be quite influential in helping us understand AI progress. Whilst some of the common challenges with AI benchmarks also apply to GAIA, it is certainly a benchmark I will personally pay close attention to as models are released in the future.\nReferences Liu, X., Yu, H., Zhang, H., Xu, Y., Lei, X., Lai, H., Gu, Y., Ding, H., Men, K., Yang, K., Zhang, S., Deng, X., Zeng, A., Du, Z., Zhang, C., Shen, S., Zhang, T., Su, Y., Sun, H., Huang, M., Dong, Y. \u0026 Tang, J. (2023). AgentBench: Evaluating LLMs as Agents. https://doi.org/10.48550/arXiv.2308.03688 Mialon, G., Fourrier, C., Swift, C., Wolf, T., LeCun, Y. \u0026 Scialom, T. (2023). GAIA: a benchmark for General AI Assistants. https://doi.org/10.48550/arXiv.2311.12983 Rein, D., Hou, B., Stickland, A., Petty, J., Pang, R., Dirani, J., Michael, J. \u0026 Bowman, S. (2023). GPQA: A Graduate-Level Google-Proof Q\u0026A Benchmark. https://doi.org/10.48550/arXiv.2311.12022 ",
-  "wordCount" : "868",
+  "wordCount" : "869",
   "inLanguage": "en",
   "datePublished": "2024-03-31T20:00:00Z",
   "dateModified": "2024-03-31T20:00:00Z",
@@ -290,49 +290,35 @@
 <figure style="text-align: center;"><img
          src="01_gaia_example_v3.png" width="100%"style="display:inline"
     /><figcaption>
-        <p align="center"> Three examples of GAIA tasks with increasing difficulty levels.<br>Figure taken and adapted from the GAIA paper by 
-  <span class="hugo-cite-intext"
-        itemprop="citation"><span class="hugo-cite-group"><a href="#mialon2023gaiabenchmarkgeneral"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Grégoire"><span itemprop="familyName">Mialon</span></span>&#32;
-                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation"> 
-
-
-
-
-
-
-
-
-
-
+        <p align="center">Three examples of GAIA tasks with increasing difficulty levels.<br>Figure taken and adapted from the GAIA paper by
+<span class="hugo-cite-intext"
+itemprop="citation"><span class="hugo-cite-group"><a href="#mialon2023gaiabenchmarkgeneral"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="givenName" content="Grégoire"><span itemprop="familyName">Mialon</span></span>&#32;
+                &#32;et&#32;al.&#32;(<span itemprop="datePublished">2023</span></a><span class="hugo-cite-citation">
 <span itemscope
-      itemtype="https://schema.org/Article"
-      data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mialon</span>,&#32;
-    <meta itemprop="givenName" content="Grégoire" />
-    G.</span>,&#32;
-  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Fourrier</span>,&#32;
-    <meta itemprop="givenName" content="Clémentine" />
-    C.</span>,&#32;
-  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Swift</span>,&#32;
-    <meta itemprop="givenName" content="Craig" />
-    C.</span>,&#32;
-  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wolf</span>,&#32;
-    <meta itemprop="givenName" content="Thomas" />
-    T.</span>,&#32;
-  <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">LeCun</span>,&#32;
-    <meta itemprop="givenName" content="Yann" />
-    Y.</span>&#32;&amp;&#32;<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Scialom</span>,&#32;
-    <meta itemprop="givenName" content="Thomas" />
-    T.</span>
-  &#32;
-    (<span itemprop="datePublished">2023</span>).
-  &#32;<span itemprop="name">GAIA: a benchmark for General AI Assistants</span>.
-  <a href="https://doi.org/10.48550/arXiv.2311.12983"
+itemtype="https://schema.org/Article"
+data-type="article"><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Mialon</span>, 
+<meta itemprop="givenName" content="Grégoire" />
+G.</span>, 
+<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Fourrier</span>, 
+<meta itemprop="givenName" content="Clémentine" />
+C.</span>, 
+<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Swift</span>, 
+<meta itemprop="givenName" content="Craig" />
+C.</span>, 
+<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Wolf</span>, 
+<meta itemprop="givenName" content="Thomas" />
+T.</span>, 
+<span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">LeCun</span>, 
+<meta itemprop="givenName" content="Yann" />
+Y.</span> &amp; <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="familyName">Scialom</span>, 
+<meta itemprop="givenName" content="Thomas" />
+T.</span>
+ 
+(<span itemprop="datePublished">2023</span>).
+ <span itemprop="name">GAIA: a benchmark for General AI Assistants</span>.
+<a href="https://doi.org/10.48550/arXiv.2311.12983"
      itemprop="identifier"
      itemtype="https://schema.org/URL">https://doi.org/10.48550/arXiv.2311.12983</a></span>
-
-
-
-
 </span></span>)</span>.</p>
     </figcaption>
 </figure>
