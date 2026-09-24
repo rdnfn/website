@@ -30,7 +30,7 @@
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     overflow: hidden;
-    touch-action: none; /* touch is handled in the script, the same way as the wheel */
+    /* touch: the page scrolls and zooms as usual; the story is moved with the controls */
   }
   /* The sketch fills the window, so zooms pass behind the control card; each scene is fitted into the area above it */
   #stage { position: fixed; inset: 0; overflow: hidden; }
@@ -58,7 +58,6 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     font-size: 13px;
     line-height: normal;
-    touch-action: none; /* also when docked in the page: swiping on it scrolls the story like the wheel does */
   }
   /* Top row: play, and the options (loop, zoom, speed) together at the right; the timeline in a row of its own */
   .controls .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 10px; margin-bottom: 6px; }
@@ -173,7 +172,7 @@
       <button>Public optimisation <small>(Selection)</small></button>
     </div>
     <div class="opts">
-    <button id="loop" aria-label="Loop" aria-pressed="false" title="Loop"><svg viewBox="0 0 12 12"><path d="M1.5 6.5V5a2 2 0 0 1 2-2h7M8.5 1l2 2-2 2M10.5 5.5V7a2 2 0 0 1-2 2h-7M3.5 11l-2-2 2-2"/></svg></button>
+    <button id="loop" aria-label="Loop" aria-pressed="true" title="Loop"><svg viewBox="0 0 12 12"><path d="M1.5 6.5V5a2 2 0 0 1 2-2h7M8.5 1l2 2-2 2M10.5 5.5V7a2 2 0 0 1-2 2h-7M3.5 11l-2-2 2-2"/></svg></button>
     <label class="pick" title="Zoom in and follow the action">
       <svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="5" cy="5" r="3.5"/><path d="M7.6 7.6 10.5 10.5"/></svg>
       <select id="zoom" aria-label="Zoom">
@@ -753,12 +752,12 @@ rail.addEventListener('pointerdown', e => {
   rail.addEventListener('pointercancel', up);
 });
 
-// Controls: the timeline, scroll and pinch all move along the one story; play (or a held arrow key) runs it in
-// real time at the chosen speed.
+// Controls: the timeline and the scroll wheel move along the one story; play (or a held arrow key) runs it in real
+// time at the chosen speed.
 const playBtn = document.getElementById('play'), icon = playBtn.querySelector('path'), speed = document.getElementById('speed');
 const loopBtn = document.getElementById('loop');
 let time = 0, raf = 0, playing = 0, pressed = -1; // playing: 1 forwards, -1 backwards, 0 paused
-let looping = false, back = null; // back: while going from the end back to the start, beats on the way
+let looping = true, back = null; // back: while going from the end back to the start, beats on the way
 const WAIT = 1, BACK = 5;         // beats: a pause at the end, then the zoom back in
 function setTime(T) {
   time = clamp(T, 0, TOTAL); back = null;
@@ -788,7 +787,8 @@ function run(dir) {
   let last = null;
   if (dir < 0) back = null;
   const step = now => {
-    const beats = (now - (last ?? now)) / 1000 / BEAT * speed.value; last = now;
+    // (at most 100 ms a frame: after the tab has been in the background, it carries on where it was)
+    const beats = Math.min(100, now - (last ?? now)) / 1000 / BEAT * speed.value; last = now;
     if (back !== null) goBack(beats); else setTime(time + dir * beats);
     if (back === null && dir > 0 && time >= TOTAL && looping && !held) back = 0; // the end: round again
     if (back !== null || (dir > 0 ? time < TOTAL : time > 0)) raf = requestAnimationFrame(step); else pause();
@@ -846,8 +846,9 @@ function keyup(e) {
   if (arrows[e.key] && arrows[e.key] === held) release();
 }
 function release() { if (held) { held = 0; pause(); } }
-// Scrolling moves through the story, with the wheel (or a trackpad pinch: wheel + ctrlKey) and with a finger alike.
-// Past its end, scrolling carries on down the page; scrolling back up brings the page back first, then rewinds.
+// Scrolling with a wheel or trackpad (or a trackpad pinch: wheel + ctrlKey) moves through the story. Past its end, it
+// carries on down the page; scrolling back up brings the page back first, then rewinds the story. (On touch screens,
+// swipes and pinches are the page's own: the story is moved with the controls there.)
 const PER_PX = 0.02; // beats per pixel scrolled
 const pageScrolled = () => { try { return parent.scrollY > 0; } catch (e) { return false; } };
 const toPage = dy => (dy > 0 ? time >= TOTAL : time <= 0 || pageScrolled()); // does scrolling by dy move the page?
@@ -857,68 +858,11 @@ function scroll(e) {
   e.preventDefault(); pause();
   setTime(time + dy * (e.ctrlKey ? 0.1 : PER_PX));
 }
-function swipe(dy) { // a finger's scroll by dy px (> 0: onwards); the story first, and what is left over, the page
-  if (!toPage(dy)) {
-    pause();
-    const T = time + dy * PER_PX;
-    setTime(T);
-    dy = (T - time) / PER_PX; // the part beyond either end
-  }
-  if (dy && parent !== window) { // the page follows the finger: at once, not smoothly (older browsers lack 'instant')
-    try { parent.scrollBy({ top: dy, behavior: 'instant' }); } catch (e) { try { parent.scrollBy(0, dy); } catch (e) {} }
-  }
-}
 addEventListener('keydown', keydown);
 addEventListener('keyup', keyup);
 addEventListener('blur', release);
 addEventListener('wheel', scroll, { passive: false });
 buttons.forEach((b, j) => b.addEventListener('click', () => seek(sketches[j].start)));
-// Touch: one finger scrolls as above, gliding on after a flick as native scrolling does; two fingers pinch through
-// the story. Taps are left alone (a swipe starts after a few px), and so are the timeline's and menus' own gestures.
-let pinch = null, drag = null, glide = 0;
-const dist = ts => Math.hypot(ts[0].clientX - ts[1].clientX, ts[0].clientY - ts[1].clientY);
-const touch = {
-  touchstart(e) {
-    cancelAnimationFrame(glide);
-    if (e.touches.length === 2) { pinch = { d: dist(e.touches), time }; drag = null; }
-    else if (e.touches.length === 1 && !e.target.closest?.('.rail, select')) drag = { y: e.touches[0].screenY, t: e.timeStamp, v: 0, on: false };
-  },
-  touchmove(e) {
-    if (pinch && e.touches.length === 2) {
-      e.preventDefault(); pause();
-      return setTime(pinch.time - Math.log(dist(e.touches) / pinch.d) * 12);
-    }
-    if (!drag || e.touches.length !== 1) return;
-    const y = e.touches[0].screenY, dy = drag.y - y; // on the screen: the page (and this frame in it) may be scrolling
-    if (!drag.on && Math.abs(dy) < 8) return; // a tap, so far
-    e.preventDefault();
-    drag.v = drag.on ? 0.7 * dy / Math.max(1, e.timeStamp - drag.t) + 0.3 * drag.v : 0; // px per ms
-    Object.assign(drag, { on: true, y, t: e.timeStamp });
-    swipe(dy);
-  },
-  touchend(e) {
-    if (e.touches.length < 2) pinch = null;
-    if (e.touches.length) return;
-    if (drag?.on && e.timeStamp - drag.t < 100) { // flicked, not rested: glide on, slowing down
-      let v = drag.v, last = null;
-      const step = now => {
-        const dt = last === null ? 16 : now - last;
-        last = now;
-        swipe(v * dt);
-        v *= 0.9965 ** dt;
-        if (Math.abs(v) > 0.02) glide = requestAnimationFrame(step);
-      };
-      glide = requestAnimationFrame(step);
-    }
-    drag = null;
-  },
-};
-touch.touchcancel = touch.touchend;
-const card = document.querySelector('.controls');
-for (const [type, f] of Object.entries(touch)) {
-  addEventListener(type, f, { passive: type !== 'touchmove' });
-  card.addEventListener(type, e => docked && f(e), { passive: type !== 'touchmove' }); // the card, docked in the page
-}
 
 // Layout: the control card sits under the scenes, or where that leaves them more room (landscape windows) at the
 // side: on the site, in the page's left column under the info box when that is beside the visual, otherwise at
@@ -970,8 +914,14 @@ function layout() {
 }
 addEventListener('resize', layout);
 new ResizeObserver(layout).observe(controls);
+// Phones start zoomed in on the action (touch screens under 600 px on their short side; not tablets)
+if (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600) zoomPick.value = '1.5';
 layout();
 setTime(0);
+// By default the story plays on its own, looping, a second after the page loads: unless it has been played, moved
+// or paused by then, or the reader asks for reduced motion.
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches)
+  setTimeout(() => { if (!playing && time === 0 && back === null) run(1); }, 1000);
 </script>
 </body>
 </html>
