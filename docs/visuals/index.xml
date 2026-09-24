@@ -6,7 +6,15 @@
     <description>Recent content in Visuals on arduin.io</description>
     <generator>Hugo</generator>
     <language>en-us</language>
+    <lastBuildDate>Thu, 24 Sep 2026 12:00:00 +0000</lastBuildDate>
     <atom:link href="https://arduin.io/visuals/index.xml" rel="self" type="application/rss+xml" />
     
+    <item>
+      <title>Mechanisms of AI evolution</title>
+      <link>https://arduin.io/visuals/ai-evolution/</link>
+      <pubDate>Thu, 24 Sep 2026 12:00:00 +0000</pubDate>
+      <guid>https://arduin.io/visuals/ai-evolution/</guid>
+      <description>Simplified illustration of AI progress as a multi-step evolutionary process</description>
+    </item>
   </channel>
 </rss>
